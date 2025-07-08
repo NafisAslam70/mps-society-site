@@ -63,9 +63,9 @@ export default function Navbar() {
   // Nav items data
   const navItems = [
     { path: "", ar: "الرئيسية", en: "Home", isExternal: false },
-    { path: "/projects", ar: "المشاريع", en: "Projects", isExternal: false },
     { path: "/about", ar: "من نحن", en: "About", isExternal: false },
     { path: "/contact", ar: "تواصل", en: "Contact", isExternal: false },
+    { path: "/projects", ar: "المشاريع", en: "Projects", isExternal: false },
     { path: "https://www.mymeedpss.com", ar: "الأكاديميات", en: "Academics", isExternal: true },
   ];
 
