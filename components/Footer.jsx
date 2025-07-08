@@ -126,7 +126,7 @@ export default function Footer() {
           </span>
         </div>
         <span className="hidden sm:inline">|</span>
-        <div>© {new Date().getFullYear()} {isAr ? "جميع الحقوق محفوظة" : "All Rights Reserved"}</div>
+        <div>Created with Pride by Nafis Aslam © {new Date().getFullYear()} {isAr ? "جميع الحقوق محفوظة" : "All Rights Reserved"}</div>
       </div>
     </footer>
   );
