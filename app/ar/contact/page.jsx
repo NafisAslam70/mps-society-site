@@ -17,7 +17,7 @@ const ContactPage = () => {
             <ul className="space-y-4 text-gray-600 font-amiri text-right">
               <li className="flex items-start">
                 <span className="font-medium text-gray-800 ml-2">العنوان:</span>
-                طريق باكور، سريكونث، أندهاركوثا، جهارخاند 816110، الهند
+                طريق باكور، سريكونث، أندهاركوثا، جهارخاند 816101، الهند
               </li>
               <li className="flex items-start">
                 <span className="font-medium text-gray-800 ml-2">الهاتف:</span>

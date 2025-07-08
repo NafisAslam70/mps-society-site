@@ -18,9 +18,7 @@ const NavItem = memo(({ path, ar, en, isExternal, isAr, navigate, pathname }) =>
   );
 });
 
-const LanguageToggle = ({ isAr }) => {
-  const pathname = usePathname();
-  const router = useRouter();
+const LanguageToggle = ({ isAr, router, pathname }) => {
   const [href, setHref] = useState("/");
 
   useEffect(() => {
@@ -84,7 +82,7 @@ export default function Navbar() {
 
         {/* Desktop Nav + Controls */}
         <nav className="hidden md:flex items-center gap-2">
-          <LanguageToggle isAr={isAr} />
+          <LanguageToggle isAr={isAr} router={router} pathname={pathname} />
           {navItems.map((item) => (
             <NavItem
               key={item.path}
@@ -137,7 +135,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-md px-4 py-4 flex flex-col gap-2">
-          <LanguageToggle isAr={isAr} />
+          <LanguageToggle isAr={isAr} router={router} pathname={pathname} />
           {navItems.map((item) => (
             <NavItem
               key={item.path}
