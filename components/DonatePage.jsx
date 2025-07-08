@@ -1,10 +1,10 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-// Row component for banking tables
+// Row component for banking tables (unchanged)
 function Row({ a, b }) {
   return (
     <tr className="border-b border-gray-200 hover:bg-teal-100 transition-colors">
@@ -14,7 +14,7 @@ function Row({ a, b }) {
   );
 }
 
-// Typing animation component
+// TypingText component (unchanged)
 const TypingText = ({ text, className, isActive }) => {
   const [displayText, setDisplayText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
@@ -24,13 +24,13 @@ const TypingText = ({ text, className, isActive }) => {
       const timeout = setTimeout(() => {
         setDisplayText((prev) => prev + text[charIndex]);
         setCharIndex((prev) => prev + 1);
-      }, 100); // Typing speed: 100ms per character
+      }, 100);
       return () => clearTimeout(timeout);
     } else if (!isActive && charIndex > 0) {
       const timeout = setTimeout(() => {
         setDisplayText((prev) => prev.slice(0, -1));
         setCharIndex((prev) => prev - 1);
-      }, 50); // Backspace speed: 50ms per character
+      }, 50);
       return () => clearTimeout(timeout);
     }
   }, [isActive, charIndex, text]);
@@ -40,7 +40,7 @@ const TypingText = ({ text, className, isActive }) => {
       const resetTimeout = setTimeout(() => {
         setCharIndex(0);
         setDisplayText("");
-      }, 2000); // Hold for 2 seconds before switching
+      }, 2000);
       return () => clearTimeout(resetTimeout);
     }
   }, [isActive, charIndex, text]);
@@ -48,14 +48,14 @@ const TypingText = ({ text, className, isActive }) => {
   return <span className={className}>{displayText}</span>;
 };
 
-// Blinking text component
+// BlinkingText component (unchanged)
 const BlinkingText = ({ text }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const blinkInterval = setInterval(() => {
       setIsVisible((prev) => !prev);
-    }, 500); // Blink every 0.5 seconds
+    }, 500);
     return () => clearInterval(blinkInterval);
   }, []);
 
@@ -71,11 +71,11 @@ export default function DonatePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setShowDonating((prev) => !prev);
-    }, 4000); // Total cycle: 2s typing + 2s hold
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  // Content translations
+  // Content translations (unchanged)
   const t = {
     quoteHead: isAr ? "لا يفقر أحد" : "NO ONE HAS EVER BECOME POOR",
     quoteDonate: isAr ? "بالتبرع" : "BY DONATING",
@@ -102,15 +102,15 @@ export default function DonatePage() {
       : "For abroad payment scroll down...",
     aboutOurWorks: isAr ? "عن أعمالنا" : "About Our Works",
     missionDescription: isAr
-      ? "نحن ملتزمون بدعم التعليم، توفير المياه النظيفة، وتعزيز التنمية المجتمعية. تعرف على المزيد عن مشاريعنا المستمرة وكيف يمكنك المشاركة."
-      : "We are committed to supporting education, providing clean water, and fostering community development. Learn more about our ongoing projects and how you can get involved.",
+      ? "نحن ملتزمون بدعم التعليم، توفير المياه النظيفة، وتعزيز التنمية المجتمعية..."
+      : "We are committed to supporting education, providing clean water, and fostering community development...",
     impactDescription: isAr
-      ? "مبادراتنا أثرت في الآلاف من خلال المدارس، آبار المياه، والبرامج المجتمعية. انضم إلينا لخلق تغيير دائم."
-      : "Our initiatives have impacted thousands through schools, water wells, and community programs. Join us to create lasting change.",
+      ? "مبادراتنا أثرت في الآلاف من خلال المدارس، آبار المياه، والبرامج المجتمعية..."
+      : "Our initiatives have impacted thousands through schools, water wells, and community programs...",
     donationDetails: isAr ? "تفاصيل التبرع" : "Donation Details",
   };
 
-  // Updated banking data with Arabic translations for labels
+  // Banking data (unchanged)
   const rowsForeign = isAr
     ? [
         ["اسم الحساب", "MS MEED PUBLIC SCHOOL SOCIETY"],
@@ -157,7 +157,7 @@ export default function DonatePage() {
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="bg-gradient-to-b from-teal-50 to-teal-100 min-h-screen font-serif text-gray-900">
-      {/* Hero Section */}
+      {/* Hero Section (unchanged) */}
       <section className="relative overflow-hidden" style={{ clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 95%, 0 85%)" }}>
         <div className="absolute inset-0 z-0">
           <img src="/masjid1.jpeg" alt={isAr ? "صورة خلفية" : "Hero Background"} className="w-full h-full object-cover" />
@@ -170,7 +170,7 @@ export default function DonatePage() {
             transition={{ duration: 1 }}
             className="mb-16"
           >
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wide flex items-center justify-center space-x-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wide flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-3">
               <span>{t.quoteHead}</span>
               <span className="inline-block">
                 {showDonating ? (
@@ -201,14 +201,14 @@ export default function DonatePage() {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
-              className="mt-8 flex flex-row items-center justify-center w-full max-w-md mx-auto"
+              className="mt-8 flex flex-col md:flex-row items-center justify-center w-full max-w-md mx-auto space-y-4 md:space-y-0 md:space-x-4"
             >
               <span className="text-lg md:text-xl text-white">{t.supportUsNow}</span>
-              <Link href="#donate" className="bg-amber-600 text-white px-6 py-3 rounded-full font-semibold text-base md:text-lg hover:bg-amber-700 transition-colors ml-4">
+              <Link href="#donate" className="bg-amber-600 text-white px-6 py-3 rounded-full font-semibold text-base md:text-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
                 {t.quickPay}
               </Link>
             </motion.div>
-            {/* Wave Bubbles */}
+            {/* Wave Bubbles (unchanged) */}
             <motion.div
               className="absolute w-80 h-80 bg-black-200/30 rounded-full opacity-20 blur-3xl top-16 left-8"
               animate={{ y: [0, -40, 0], scale: [1, 1.3, 1] }}
@@ -226,20 +226,21 @@ export default function DonatePage() {
       {/* Combined Mission and QR + CTA Section */}
       <section className="relative overflow-hidden" style={{ clipPath: "polygon(0 15%, 100% 5%, 100% 90%, 50% 100%, 0 90%)" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-white-200 to-teal-130 z-0"></div>
-        <div className="max-w-6xl mx-auto px-6 py-2 relative z-10">
-          <div className="flex justify-between items-center mb-8">
-            {/* Leftmost Div: Scanner */}
-            <div className="w-1/3 text-center">
+        <div className="max-w-6xl mx-auto px-6 py-8 relative z-10">
+          {/* Changed to flex-col on mobile, added gap for spacing */}
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8 mb-8">
+            {/* Scanner */}
+            <div className="w-full md:w-1/3 text-center">
               <img
                 src="/qr.png"
                 alt={isAr ? "رمز التبرع" : "Scanner"}
                 className="w-48 h-48 mx-auto rounded-lg shadow-md border-2 border-teal-700"
               />
-              <p className="mt-1 text-base text-gray-600">{t.scanToDonate}</p>
+              <p className="mt-2 text-base text-gray-600">{t.scanToDonate}</p>
             </div>
-            {/* Middle Div: Donate Now with Blinking Line */}
-            <div className="w-1/3 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-teal-800 mb-2">
+            {/* Donate Now with Blinking Line */}
+            <div className="w-full md:w-1/3 text-center">
+              <h2 className="text-2xl md:text-4xl font-bold text-teal-800 mb-2">
                 {t.donateNow}
               </h2>
               <div className="relative">
@@ -247,9 +248,12 @@ export default function DonatePage() {
                 <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-b-2 border-gray-500 w-16 animate-pulse"></span>
               </div>
             </div>
-            {/* Rightmost Div: Quick Pay Button */}
-            <div className="w-1/3 text-center">
-              <Link href="#banking" className="bg-amber-600 text-white px-6 py-3 rounded-full font-semibold text-base md:text-lg hover:bg-amber-700 transition-colors">
+            {/* Quick Pay Button */}
+            <div className="w-full md:w-1/3 text-center">
+              <Link
+                href="#banking"
+                className="bg-amber-600 text-white px-6 py-3 rounded-full font-semibold text-base md:text-lg hover:bg-amber-700 transition-colors whitespace-nowrap min-w-[120px] inline-block"
+              >
                 {t.quickPay}
               </Link>
             </div>
@@ -257,35 +261,38 @@ export default function DonatePage() {
         </div>
       </section>
 
-      {/* Wave before Support Us and About Our Works */}
+      {/* Wave before Support Us and About Our Works (unchanged) */}
       <div className="bg-teal-80" style={{ clipPath: "polygon(0 0, 100% 10%, 100% 90%, 50% 100%, 0 90%)", height: "40px" }}></div>
 
       {/* Support Us and About Our Works Section */}
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6 flex items-center">
-          <div className="w-1/3 pr-6">
-            <img
-              src="/masjid2.jpeg"
-              alt={isAr ? "صورة الدعم" : "Support Image"}
-              className="w-full h-64 object-cover rounded-lg shadow-md"
-            />
-          </div>
-          <div className="w-2/3 pl-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-teal-800 mb-6 border-b-4 border-teal-700 pb-2 inline-block">
-              {t.pleaseHdr}
-            </h2>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-              {t.missionDescription}
-            </p>
-            <h3 className="text-2xl md:text-3xl font-semibold text-teal-800 mt-6 mb-4">{t.aboutOurWorks}</h3>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-              {t.impactDescription}
-            </p>
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Changed to flex-col on mobile, adjusted spacing */}
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-0">
+            <div className="w-full md:w-1/3 md:pr-6 order-2 md:order-1">
+              <img
+                src="/masjid2.jpeg"
+                alt={isAr ? "صورة الدعم" : "Support Image"}
+                className="w-full max-w-[300px] mx-auto md:max-w-full h-64 object-cover rounded-lg shadow-md"
+              />
+            </div>
+            <div className="w-full md:w-2/3 md:pl-6 order-1 md:order-2">
+              <h2 className="text-3xl md:text-5xl font-bold text-teal-800 mb-6 border-b-4 border-teal-700 pb-2 inline-block">
+                {t.pleaseHdr}
+              </h2>
+              <p className="text-base md:text-xl text-gray-700 leading-relaxed">
+                {t.missionDescription}
+              </p>
+              <h3 className="text-xl md:text-3xl font-semibold text-teal-800 mt-6 mb-4">{t.aboutOurWorks}</h3>
+              <p className="text-base md:text-xl text-gray-700 leading-relaxed">
+                {t.impactDescription}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Donation Details Section */}
+      {/* Donation Details Section (unchanged) */}
       <section id="banking" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <motion.h2

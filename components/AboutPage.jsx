@@ -10,8 +10,8 @@ function useCount(ref, end) {
   useEffect(() => {
     if (!ref.current) return;
     let n = 0;
-    const step = Math.ceil(end / 20); // Faster count (20 steps)
-    let id; // Declare id in outer scope
+    const step = Math.ceil(end / 20);
+    let id;
 
     const countUp = () => {
       id = setInterval(() => {
@@ -20,16 +20,15 @@ function useCount(ref, end) {
           n = end;
           clearInterval(id);
           setTimeout(() => {
-            n = 0; // Reset for restart
-            countUp(); // Restart counting
-          }, 2000); // 2-second pause
+            n = 0;
+            countUp();
+          }, 2000);
         }
         ref.current.textContent = n.toLocaleString();
-      }, 100); // Faster interval (100ms)
+      }, 100);
     };
     countUp();
 
-    // Cleanup function with access to id
     return () => clearInterval(id);
   }, [end, ref]);
 }
@@ -41,9 +40,9 @@ export default function AboutPage() {
   const refYears = useRef(null);
   const refProjects = useRef(null);
   const refPeople = useRef(null);
-  useCount(refYears, 7); // Since 2018 (2025 - 7)
-  useCount(refProjects, 5000); // Updated to 5000+
-  useCount(refPeople, 150000); // As per provided code
+  useCount(refYears, 7);
+  useCount(refProjects, 5000);
+  useCount(refPeople, 150000);
 
   // Bilingual content
   const content = {
@@ -137,7 +136,7 @@ export default function AboutPage() {
       marker.style.transform = "translate(0, 0)";
       items.forEach((item) => {
         item.style.opacity = "0";
-        item.style.transform = "translateY(40px)";
+        item.style.transform = "translateX(100px)";
         const dot = item.querySelector(".timeline-dot");
         dot.style.transform = "scale(1)";
       });
@@ -153,7 +152,6 @@ export default function AboutPage() {
       );
 
       // Animate marker along sine curve with continuous loop
-      const pathLength = path.getTotalLength();
       const points = [
         { x: 50, y: 0 },
         { x: 150, y: -50 },
@@ -166,7 +164,7 @@ export default function AboutPage() {
         { x: 850, y: 0 },
       ];
       marker.animate(
-        points.map((point, index) => ({
+        points.map((point) => ({
           transform: `translate(${point.x - 50}px, ${point.y}px)`,
         })),
         {
@@ -181,8 +179,8 @@ export default function AboutPage() {
       items.forEach((item, index) => {
         item.animate(
           [
-            { opacity: 0, transform: "translateY(40px)" },
-            { opacity: 1, transform: "translateY(0)" },
+            { opacity: 0, transform: "translateX(100px)" },
+            { opacity: 1, transform: "translateX(0)" },
           ],
           {
             duration: 600,
@@ -225,7 +223,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#fef9ef]">
       {/* 1 ▸ Hero */}
-      <header className="relative h-[65vh] md:h-[70vh] flex items-center justify-center overflow-hidden pt-16">
+      <header className="relative h-[65vh] md:h-[70vh] flex items-center justify-center overflow-hidden pt-12">
         {/* Background Image with Parallax Effect */}
         <motion.div
           className="absolute inset-0"
@@ -251,21 +249,21 @@ export default function AboutPage() {
         {/* Content Container */}
         <motion.div
           dir={isAr ? "rtl" : "ltr"}
-          className="relative z-10 max-w-5xl px-4 sm:px-6 text-center space-y-8"
+          className="relative z-10 max-w-5xl px-4 sm:px-6 text-center space-y-4"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Logo with Glow Effect */}
-          <motion.div variants={itemVariants} className="flex justify-center mb-10">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+          <motion.div variants={itemVariants} className="flex justify-center mb-6">
+            <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
               <Image
                 src="/logo.png"
-                width={128}
-                height={128}
+                width={112}
+                height={112}
                 alt="Meed Logo"
                 className="object-cover rounded-2xl w-full h-full"
-                sizes="(max-width: 768px) 96px, 128px"
+                sizes="(max-width: 768px) 80px, 112px"
               />
             </div>
           </motion.div>
@@ -273,7 +271,7 @@ export default function AboutPage() {
           {/* Hero Title */}
           <motion.h1
             variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-lg"
+            className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg"
           >
             {content.heroTitle}
           </motion.h1>
@@ -281,9 +279,9 @@ export default function AboutPage() {
           {/* Hero Tagline with Glassmorphic Card */}
           <motion.div
             variants={itemVariants}
-            className="border-2 border-white/80 bg-white/20 backdrop-blur-lg p-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+            className="border-2 border-white/80 bg-white/20 backdrop-blur-lg p-2 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
           >
-            <p className="text-lg sm:text-2xl md:text-3xl font-semibold text-amber-200">
+            <p className="text-base sm:text-xl md:text-2xl font-semibold text-amber-200">
               {content.heroTagline}
             </p>
           </motion.div>
@@ -291,17 +289,17 @@ export default function AboutPage() {
           {/* Hero Text */}
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto"
+            className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed max-w-3xl mx-auto"
           >
             {content.heroText}
           </motion.p>
 
           {/* CTA Button with Micro-Interactions */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} className="relative z-20">
             <Link
               href={isAr ? "/ar/about" : "/about"}
               prefetch={true}
-              className="inline-flex items-center px-8 py-4 bg-white text-emerald-800 font-semibold mt-8 rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
+              className="inline-flex items-center px-6 py-3 bg-white text-emerald-800 font-semibold mt-4 rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
             >
               <motion.span
                 whileHover={{ scale: 1.05 }}
@@ -458,12 +456,12 @@ export default function AboutPage() {
       </section>
 
       {/* 4 ▸ Timeline (Animated Snake-like Roadmap with Up and Down) */}
-      <section ref={timelineRef} className="max-w-6xl mx-auto px-10 py-4 bg-[#fef9ef]">
-        <h3 className="text-3xl font-bold text-center mb-16 mt-10 text-emerald-800 animate-glow-soft">
+      <section ref={timelineRef} className="max-w-6xl mx-auto px-4 sm:px-10 py-4 bg-[#fef9ef]">
+        <h3 className="text-3xl font-bold text-center mb-12 mt-10 text-emerald-800 animate-glow-soft">
           {content.journeyTitle}
         </h3>
-        <div className="relative overflow-hidden">
-          <svg className="w-full h-48 hidden md:block" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
+        <div className="relative overflow-visible h-64">
+          <svg className="w-full h-48 absolute top-0 left-0" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
             <path
               d="M50 110 Q150 60 250 110 Q350 160 450 110 Q550 60 650 110 Q750 160 850 110"
               fill="none"
@@ -488,45 +486,33 @@ export default function AboutPage() {
               <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
             </filter>
           </svg>
-          <div className="hidden md:flex absolute top-0 left-0 w-full h-full justify-between items-start">
+          <div className="absolute top-0 left-0 w-full h-full flex justify-between items-start">
             {content.timeline.map((event, index) => {
               const xPositions = [100, 300, 500, 700];
               return (
-                <div
+                <motion.div
                   key={index}
                   className="timeline-item flex flex-col items-center"
-                  style={{ left: `${xPositions[index]}px`, position: "absolute" }}
+                  style={{
+                    left: `${xPositions[index]}px`,
+                    position: "absolute",
+                    transform: "translateX(-50%)",
+                    width: "150px",
+                  }}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: index * 0.3 }}
                 >
                   <div className="relative">
                     <div className="timeline-dot absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] transition-all duration-300 hover:scale-125 hover:bg-amber-300"></div>
-                    <h4 className="font-bold text-emerald-800 text-center mt-6 text-sm md:text-base">{event.y}</h4>
-                    <p className="text-gray-700 mt-2 text-center max-w-[200px] text-xs md:text-sm">
+                    <h4 className="font-bold text-emerald-800 text-center mt-6 text-sm sm:text-base">{event.y}</h4>
+                    <p className="text-gray-700 mt-2 text-center text-xs sm:text-sm max-w-[140px]">
                       {isAr ? event.ar : event.en}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
-          {/* Mobile Timeline with Left-to-Right Animation */}
-          <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-            {content.timeline.map((event, index) => (
-              <motion.div
-                key={index}
-                className="timeline-item flex-shrink-0 w-3/4 snap-center px-4 py-6"
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: index * 0.3 }}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] mb-4"></div>
-                  <h4 className="font-bold text-emerald-800 text-center text-base">{event.y}</h4>
-                  <p className="text-gray-700 mt-2 text-center text-sm">
-                    {isAr ? event.ar : event.en}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>
