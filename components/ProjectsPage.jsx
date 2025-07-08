@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaArrowLeft, FaArrowRight, FaStar } from "react-icons/fa";
 
-// Sample project data (can be replaced with API or JSON later)
+// Sample project data with updated images
 const projectData = {
   food: {
     titleEn: "Food Distribution",
@@ -14,8 +14,8 @@ const projectData = {
     descriptionEn: "Our food distribution projects aim to alleviate hunger by providing meals and food supplies to underprivileged communities. These initiatives include Iftar programs during Ramadan and emergency food relief.",
     descriptionAr: "تهدف مشاريع توزيع الطعام إلى تخفيف الجوع من خلال توفير وجبات وإمدادات غذائية للمجتمعات المحرومة. تشمل هذه المبادرات برامج الإفطار في رمضان والإغاثة الغذائية الطارئة.",
     projects: [
-      { id: 1, titleEn: "Ramadan Iftar 2025", titleAr: "إفطار رمضان 2025", date: "2025-03-15", venue: "Hojai, Assam", image: "/food1.jpg", snippetEn: "Distributed 500 Iftar meals to families.", snippetAr: "تم توزيع 500 وجبة إفطار على العائلات." },
-      { id: 2, titleEn: "Flood Relief Food Kits", titleAr: "حقائب غذائية لإغاثة الفيضانات", date: "2024-07-10", venue: "Nagaon, Assam", image: "/food2.jpg", snippetEn: "Provided food kits to 300 flood-affected households.", snippetAr: "تم توفير حقائب غذائية لـ 300 أسرة متضررة من الفيضانات." },
+      { id: 1, titleEn: "Ramadan Iftar 2025", titleAr: "إفطار رمضان 2025", date: "2025-03-15", venue: "Hojai, Assam", image: "/meed1.jpg", snippetEn: "Distributed 500 Iftar meals to families.", snippetAr: "تم توزيع 500 وجبة إفطار على العائلات." },
+      { id: 2, titleEn: "Flood Relief Food Kits", titleAr: "حقائب غذائية لإغاثة الفيضانات", date: "2024-07-10", venue: "Nagaon, Assam", image: "/meed1.jpg", snippetEn: "Provided food kits to 300 flood-affected households.", snippetAr: "تم توفير حقائب غذائية لـ 300 أسرة متضررة من الفيضانات." },
     ],
   },
   education: {
@@ -24,8 +24,8 @@ const projectData = {
     descriptionEn: "We empower future generations through scholarships, modern madrasahs, and skill-building programs, ensuring access to quality education for all.",
     descriptionAr: "نعمل على تمكين الأجيال القادمة من خلال المنح الدراسية، والمدارس الدينية الحديثة، وبرامج بناء المهارات، لضمان الوصول إلى تعليم جيد للجميع.",
     projects: [
-      { id: 3, titleEn: "Scholarship Program 2024", titleAr: "برنامج المنح الدراسية 2024", date: "2024-09-20", venue: "Guwahati, Assam", image: "/edu1.jpg", snippetEn: "Awarded scholarships to 100 students.", snippetAr: "تم منح منح دراسية لـ 100 طالب." },
-      { id: 4, titleEn: "Madrasah Modernization", titleAr: "تحديد المدارس الدينية", date: "2024-05-12", venue: "Dhubri, Assam", image: "/edu2.jpg", snippetEn: "Upgraded facilities for 200 students.", snippetAr: "تم تحديث المرافق لـ 200 طالب." },
+      { id: 3, titleEn: "Scholarship Program 2024", titleAr: "برنامج المنح الدراسية 2024", date: "2024-09-20", venue: "Guwahati, Assam", image: "/meed2.jpg", snippetEn: "Awarded scholarships to 100 students.", snippetAr: "تم منح منح دراسية لـ 100 طالب." },
+      { id: 4, titleEn: "Madrasah Modernization", titleAr: "تحديث المدارس الدينية", date: "2024-05-12", venue: "Dhubri, Assam", image: "/meed2.jpg", snippetEn: "Upgraded facilities for 200 students.", snippetAr: "تم تحديث المرافق لـ 200 طالب." },
     ],
   },
   handpumps: {
@@ -44,8 +44,8 @@ const projectData = {
     descriptionEn: "We construct wells to ensure sustainable water sources for communities, supporting agriculture and daily needs.",
     descriptionAr: "نقوم ببناء الآبار لضمان مصادر مياه مستدامة للمجتمعات، دعماً للزراعة والاحتياجات اليومية.",
     projects: [
-      { id: 7, titleEn: "Community Well 2024", titleAr: "بئر المجتمع 2024", date: "2024-08-05", venue: "Morigaon, Assam", image: "/well1.jpg", snippetEn: "Constructed a well for 200 villagers.", snippetAr: "تم بناء بئر لـ 200 قروي." },
-      { id: 8, titleEn: "Agricultural Well", titleAr: "بئر زراعي", date: "2024-04-20", venue: "Sonitpur, Assam", image: "/well2.jpg", snippetEn: "Supported 50 farmers with irrigation.", snippetAr: "تم دعم 50 مزارعاً بالري." },
+      { id: 7, titleEn: "Community Well 2024", titleAr: "بئر المجتمع 2024", date: "2024-08-05", venue: "Morigaon, Assam", image: "/tanki1.jpeg", snippetEn: "Constructed a well for 200 villagers.", snippetAr: "تم بناء بئر لـ 200 قروي." },
+      { id: 8, titleEn: "Agricultural Well", titleAr: "بئر زراعي", date: "2024-04-20", venue: "Sonitpur, Assam", image: "/tanki2.jpeg", snippetEn: "Supported 50 farmers with irrigation.", snippetAr: "تم دعم 50 مزارعاً بالري." },
     ],
   },
   mosques: {
@@ -73,11 +73,11 @@ const projectData = {
 // Sample recent posts
 const recentPosts = [
   { id: 1, titleEn: "New Water Project Launched", titleAr: "إطلاق مشروع مياه جديد", date: "2025-01-10", snippetEn: "We launched a new handpump project in rural Assam.", snippetAr: "أطلقنا مشروع مضخات يدوية جديد في ريف آسام.", image: "/tanki1.jpeg" },
-  { id: 2, titleEn: "Education Drive Success", titleAr: "نجاح حملة التعليم", date: "2024-12-20", snippetEn: "Our scholarship program empowered 50 students.", snippetAr: "مكّن برنامج المنح الدراسية 50 طالبًا.", image: "/edu1.jpg" },
-  { id: 3, titleEn: "Community Iftar Event", titleAr: "حدث إفطار المجتمع", date: "2024-03-25", snippetEn: "Hosted a community Iftar for 200 families.", snippetAr: "استضفنا إفطارًا مجتمعيًا لـ 200 عائلة.", image: "/food1.jpg" },
+  { id: 2, titleEn: "Education Drive Success", titleAr: "نجاح حملة التعليم", date: "2024-12-20", snippetEn: "Our scholarship program empowered 50 students.", snippetAr: "مكّن برنامج المنح الدراسية 50 طالبًا.", image: "/meed2.jpg" },
+  { id: 3, titleEn: "Community Iftar Event", titleAr: "حدث إفطار المجتمع", date: "2024-03-25", snippetEn: "Hosted a community Iftar for 200 families.", snippetAr: "استضفنا إفطارًا مجتمعيًا لـ 200 عائلة.", image: "/meed1.jpg" },
 ];
 
-// Sample impact highlights (new section to fill space)
+// Sample impact highlights
 const impactHighlights = [
   { id: 1, titleEn: "1.5M+ Beneficiaries", titleAr: "أكثر من 1.5 مليون مستفيد", descriptionEn: "Our projects have impacted over 1.5 million lives across India.", descriptionAr: "أثرت مشاريعنا على أكثر من 1.5 مليون شخص في جميع أنحاء الهند.", icon: <FaStar /> },
   { id: 2, titleEn: "2,000+ Handpumps", titleAr: "أكثر من 2000 مضخة يدوية", descriptionEn: "Installed safe water sources for thousands of households.", descriptionAr: "تم تركيب مصادر مياه آمنة لآلاف الأسر.", icon: <FaStar /> },
@@ -255,7 +255,7 @@ export default function ProjectsPage() {
               )
           )}
 
-          {/* Impact Highlights Section (New) */}
+          {/* Impact Highlights Section */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
