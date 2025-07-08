@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;600&family=Pacifico&display=swap");
+.font-arabic {
+  font-family: "Amiri", serif;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +28,270 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes sparkle {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(52, 211, 153, 0.5); }
+  50% { box-shadow: 0 0 12px rgba(52, 211, 153, 0.7); }
+}
+@keyframes light-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+@keyframes pulse-glow {
+  0%, 100% { background-color: rgba(254, 226, 226, 0.5); }
+  50% { background-color: rgba(254, 226, 226, 0.7); }
+}
+@keyframes pulse-underline {
+  0%, 100% { box-shadow: 0 0 8px rgba(220, 38, 38, 0.5); }
+  50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.7); }
+}
+.animate-sparkle {
+  animation: sparkle 1.5s linear infinite;
+}
+.animate-sparkle-delayed {
+  animation: sparkle 1.5s linear infinite 0.5s;
+}
+.animate-sparkle-fast {
+  animation: sparkle 1.2s linear infinite 0.8s;
+}
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+.animate-light-pulse {
+  animation: light-pulse 2.5s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.animate-pulse-underline {
+  animation: pulse-underline 2s ease-in-out infinite;
+}
+
+/* ---------- Tailwind Utilities (Add to globals.css or tailwind.config.js) ---------- */
+@layer utilities {
+  .clip-diagonal-left {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+  .clip-hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+}
+
+/* angled clip-path for section edges */
+.clip-path-angle-up { clip-path: polygon(0 100%,100% 0,100% 100%); }
+
+/* wrapper utility */
+.wrap { @apply max-w-7xl mx-auto px-6; }
+.angle-b::after,
+.angle-t::before { content:""; position:absolute; left:0; width:100%; height:50px; background:inherit; }
+.angle-b::after  { bottom:-1px; clip-path:polygon(0 0,100% 100%,0 100%); }
+.angle-t::before { top:-1px;    clip-path:polygon(0 0,100% 0,100% 100%); }
+
+.glass { @apply bg-white/60 backdrop-blur-md; }
+
+
+.clip-diagonal-left {
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.clip-hexagon {
+  clip-path: polygon(
+    25% 0%, 75% 0%,
+    100% 50%, 75% 100%,
+    25% 100%, 0% 50%
+  );
+}
+
+@layer utilities {
+  .clip-hexagon { @apply [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)]; }
+  .clip-diagonal-left { @apply [clip-path:polygon(0_0,100%_0,100%_85%,0_100%)]; }
+}
+
+.animate-glow-soft {
+  animation: glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
+  50% { text-shadow: 0 0 15px rgba(46, 204, 113, 0.5); }
+}
+.animate-light-pulse {
+  animation: light-pulse 3s ease-in-out infinite;
+}
+@keyframes light-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.6); }
+}
+.animate-sparkle {
+  animation: sparkle 2s linear infinite;
+}
+@keyframes sparkle {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-sparkle-delayed {
+  animation: sparkle 2s linear infinite 0.5s;
+}
+.animate-sparkle-fast {
+  animation: sparkle 1.5s linear infinite 1s;
+}
+.animate-glow {
+  animation: glow-ring 2s ease-in-out infinite;
+}
+@keyframes glow-ring {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.delay-100 {
+  animation-delay: 0.1s;
+}
+.delay-200 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.3s;
+}
+.clip-path-angle-up {
+  clip-path: polygon(0 100%, 100% 0, 100% 100%, 0 100%);
+}
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.25) translateX(-50%);
+}
+
+
+@font-face {
+  font-family: 'HandwritingFont';
+  src: url('https://fonts.cdnfonts.com/s/17840/DancingScript-Regular.woff') format('woff');
+}
+
+.animate-glow-soft {
+  animation: glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
+  50% { text-shadow: 0 0 15px rgba(46, 204, 113, 0.5); }
+}
+.animate-light-pulse {
+  animation: light-pulse 3s ease-in-out infinite;
+}
+@keyframes light-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.6); }
+}
+.animate-sparkle {
+  animation: sparkle 2s linear infinite;
+}
+@keyframes sparkle {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-sparkle-delayed {
+  animation: sparkle 2s linear infinite 0.5s;
+}
+.animate-sparkle-fast {
+  animation: sparkle 1.5s linear infinite 1s;
+}
+.animate-glow {
+  animation: glow-ring 2s ease-in-out infinite;
+}
+@keyframes glow-ring {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-typing {
+  animation: typing 3s steps(20, end) infinite, blink-caret 0.75s step-end infinite;
+}
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: white; }
+}
+.delay-100 {
+  animation-delay: 0.1s;
+}
+.delay-200 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.3s;
+}
+.clip-path-angle-up {
+  clip-path: polygon(0 100%, 100% 0, 100% 100%, 0 100%);
+}
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.25) translateX(-50%);
+}
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.rotate-x-5 {
+  transform: rotateX(5deg);
+}
+.rotate-x-3 {
+  transform: rotateX(3deg);
+}
+.translate-z-10 {
+  transform: translateZ(10px);
+}
+.translate-z-5 {
+  transform: translateZ(5px);
+}
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.font-handwriting {
+  font-family: 'HandwritingFont', cursive;
+}
+.animate-count-up {
+  animation: countUp 0.5s ease-out forwards;
+}
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sineMove {
+  0% { transform: translate(50px, 0); }
+  25% { transform: translate(150px, -50px); }
+  50% { transform: translate(250px, 0); }
+  75% { transform: translate(350px, -50px); }
+  100% { transform: translate(450px, 0); }
+}
+.traveling-marker {
+  animation: sineMove 4s linear infinite;
+}
+.timeline-dot-fixed {
+  transition: transform 0.3s ease;
+}
+.timeline-dot-fixed:hover {
+  transform: scale(1.2);
 }

@@ -1,0 +1,49 @@
+/* Tailwind v4 – include preflight (base) and utilities only */
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* Your custom styles below */
+body { font-family: system-ui, sans-serif; }
+
+
+@keyframes sparkle {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(52, 211, 153, 0.5); }
+  50% { box-shadow: 0 0 12px rgba(52, 211, 153, 0.7); }
+}
+@keyframes light-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+@keyframes pulse-glow {
+  0%, 100% { background-color: rgba(254, 226, 226, 0.5); }
+  50% { background-color: rgba(254, 226, 226, 0.7); }
+}
+@keyframes pulse-underline {
+  0%, 100% { box-shadow: 0 0 8px rgba(220, 38, 38, 0.5); }
+  50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.7); }
+}
+.animate-sparkle {
+  animation: sparkle 1.5s linear infinite;
+}
+.animate-sparkle-delayed {
+  animation: sparkle 1.5s linear infinite 0.5s;
+}
+.animate-sparkle-fast {
+  animation: sparkle 1.2s linear infinite 0.8s;
+}
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+.animate-light-pulse {
+  animation: light-pulse 2.5s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.animate-pulse-underline {
+  animation: pulse-underline 2s ease-in-out infinite;
+}
