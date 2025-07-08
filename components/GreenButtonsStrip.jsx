@@ -9,10 +9,10 @@ export default function GreenButtonsStrip() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const buttons = [
-    { icon: <FaUsers />, en: "SCHOOL", ar: "المدرسة", href: "https://www.mymeedpss.com", isExternal: true },
+    { icon: <FaUsers />, en: "SCHOOL", ar: "المدرسة", href: "https://www.facebook.com/meed.pss", isExternal: true },
     { icon: <FaUsers />, en: "WHO WE ARE", ar: "من نحن", href: "/about" },
     { icon: <FaHandHoldingHeart />, en: "HELP US", ar: "ساعدنا", href: "/donate" },
-    { icon: <FaUserPlus />, en: "OUR PROJECTS", ar: "مشاريعنا", href: "/volunteer" },
+    { icon: <FaUserPlus />, en: "OUR PROJECTS", ar: "مشاريعنا", href: "/projects" },
   ];
 
   const containerVariants = {
@@ -50,6 +50,7 @@ export default function GreenButtonsStrip() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      dir={isAr ? "rtl" : "ltr"}
     >
       {/* Animated Gradient Divider */}
       <motion.div
@@ -61,7 +62,7 @@ export default function GreenButtonsStrip() {
         {buttons.map((b, index) => (
           <motion.a
             key={b.en}
-            href={b.href}
+            href={b.isExternal ? b.href : isAr ? `/ar${b.href}` : b.href}
             className={`
               relative flex flex-col items-center justify-center 
               py-12 px-8 rounded-3xl shadow-xl 

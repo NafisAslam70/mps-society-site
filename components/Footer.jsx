@@ -46,10 +46,10 @@ export default function Footer() {
 
         {/* ABOUT column */}
         <div className="flex flex-col items-center space-y-4">
-          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
-            <img src="/logo.png" alt="logo" className="h-20 w-auto mb-4" />
+          <div className={`flex flex-col ${isAr ? "items-end sm:items-start" : "items-start"} w-full max-w-[300px]`}>
+            <img src="/logo.png" alt="Meed Public School Society Logo" className="h-20 w-auto mb-4" />
             <h3 className="font-bold text-lg mb-2">{cols.about.heading}</h3>
-            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.about.links.map((l) => (
                 <li key={l.en}>
                   <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
@@ -64,9 +64,9 @@ export default function Footer() {
 
         {/* QUICK LINKS */}
         <div className="flex flex-col items-center space-y-4">
-          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
+          <div className={`flex flex-col ${isAr ? "items-end sm:items-start" : "items-start"} w-full max-w-[300px]`}>
             <h3 className="font-bold text-lg mb-2">{cols.quick.heading}</h3>
-            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.quick.links.map((l) => (
                 <li key={l.en}>
                   <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
@@ -81,9 +81,9 @@ export default function Footer() {
 
         {/* HELPFUL */}
         <div className="flex flex-col items-center space-y-4">
-          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
+          <div className={`flex flex-col ${isAr ? "items-end sm:items-start" : "items-start"} w-full max-w-[300px]`}>
             <h3 className="font-bold text-lg mb-2">{cols.helpful.heading}</h3>
-            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.helpful.links.map((l) => (
                 <li key={l.en}>
                   <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>

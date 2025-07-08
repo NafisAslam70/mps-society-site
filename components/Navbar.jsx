@@ -73,11 +73,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         {/* Logo + Brand */}
         <button
-          onClick={() => navigate("", false)} // Redirect to home page
+          onClick={() => navigate("", false)}
           className="flex items-center gap-2"
         >
           <img src="/logo.png" alt="MEED Public School Society Logo" className="h-8 w-auto" />
-          <span className="text-lg font-semibold text-green-700">{isAr ? "جمعية ميد للمدرسة العامة" : "MEED Public School Society"}</span>
+          <span className="text-base sm:text-lg font-semibold text-green-700 md:text-lg">
+            {isAr ? "جمعية ميد للمدرسة العامة" : window.innerWidth < 768 ? "MPS Society" : "MEED Public School Society"}
+          </span>
         </button>
 
         {/* Desktop Nav + Controls */}
