@@ -81,32 +81,33 @@ export default function AboutPage() {
     joinUs: isAr ? "انضم إلينا" : "Join Us",
     secretaryMessage: isAr
       ? [
-        "“كأمين الجمعية، أشعر بالفخر العميق بقيادتنا لدعم المجتمعات المتخلفة في جانكند منذ 2007.”",
-        "“نسعى بجهد لا ينقطع لتقديم التعليم الشامل والمياه النظيفة كأولوية قصوى.”",
-        "“مبادراتنا التنموية تعكس التزامنا اليومي بتحسين حياة الأفراد بكل صدق.”",
-        "“من خلال 5000 مشروع ناجح، حققنا تقدمًا كبيرًا بفضل دعمكم المستمر.”",
-        "“أدعوكم بحرارة للانضمام إلينا في هذا العمل الخيري الذي يغير المجتمعات.”",
-        "“بدعمكم المتزايد، سنتمكن من توسيع نطاق مساعدتنا لتشمل المزيد من الأرواح.”",
-        "“نطمح لبناء مجتمعات مزدهرة ومستدامة عبر كل ربوع الهند.”",
-        "“شكرًا من القلب لثقتكم ومساهمتكم في تعزيز هذا التأثير الإنساني العظيم.”",
-        "“معًا، يمكننا أن نرسم مستقبلًا أفضل للأجيال القادمة بمساعدة برامجنا التعليمية.”"
-      ]
+          "“كأمين الجمعية، أشعر بالفخر العميق بقيادتنا لدعم المجتمعات المتخلفة في جانكند منذ 2007.”",
+          "“نسعى بجهد لا ينقطع لتقديم التعليم الشامل والمياه النظيفة كأولوية قصوى.”",
+          "“مبادراتنا التنموية تعكس التزامنا اليومي بتحسين حياة الأفراد بكل صدق.”",
+          "“من خلال 5000 مشروع ناجح، حققنا تقدمًا كبيرًا بفضل دعمكم المستمر.”",
+          "“أدعوكم بحرارة للانضمام إلينا في هذا العمل الخيري الذي يغير المجتمعات.”",
+          "“بدعمكم المتزايد، سنتمكن من توسيع نطاق مساعدتنا لتشمل المزيد من الأرواح.”",
+          "“نطمح لبناء مجتمعات مزدهرة ومستدامة عبر كل ربوع الهند.”",
+          "“شكرًا من القلب لثقتكم ومساهمتكم في تعزيز هذا التأثير الإنساني العظيم.”",
+          "“معًا، يمكننا أن نرسم مستقبلًا أفضل للأجيال القادمة بمساعدة برامجنا التعليمية.”",
+        ]
       : [
-        "“As Secretary of the Society, I take immense pride in leading our efforts to support disadvantaged communities in Jharkhand since 2007.”",
-        "“We work tirelessly to prioritize inclusive education and clean water as our core mission.”",
-        "“Our development initiatives reflect our unwavering daily commitment to improving lives with sincerity.”",
-        "“With 5000 successful projects, we’ve made significant progress thanks to your ongoing support.”",
-        "“I warmly invite you to join us in this transformative charitable work that uplifts communities.”",
-        "“With your growing support, we can extend our assistance to touch even more lives.”",
-        "“We aspire to build thriving, sustainable communities across every corner of India.”",
-        "“Heartfelt thanks for your trust and contributions in enhancing this profound humanitarian impact.”",
-        "“Together, we can shape a brighter future for generations to come with our educational programs.”"
-      ],
+          "“As Secretary of the Society, I take immense pride in leading our efforts to support disadvantaged communities in Jharkhand since 2007.”",
+          "“We work tirelessly to prioritize inclusive education and clean water as our core mission.”",
+          "“Our development initiatives reflect our unwavering daily commitment to improving lives with sincerity.”",
+          "“With 5000 successful projects, we’ve made significant progress thanks to your ongoing support.”",
+          "“I warmly invite you to join us in this transformative charitable work that uplifts communities.”",
+          "“With your growing support, we can extend our assistance to touch even more lives.”",
+          "“We aspire to build thriving, sustainable communities across every corner of India.”",
+          "“Heartfelt thanks for your trust and contributions in enhancing this profound humanitarian impact.”",
+          "“Together, we can shape a brighter future for generations to come with our educational programs.”",
+        ],
   };
 
   // Ref for the timeline section to trigger animation
   const timelineRef = useRef(null);
-    // Animation variants for staggered entrance
+
+  // Animation variants for staggered entrance
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -125,32 +126,29 @@ export default function AboutPage() {
 
   useEffect(() => {
     const section = timelineRef.current;
-    const path = section?.querySelector('.road-path');
-    const marker = section?.querySelector('.traveling-marker');
-    const items = section?.querySelectorAll('.timeline-item');
+    const path = section?.querySelector(".road-path");
+    const marker = section?.querySelector(".traveling-marker");
+    const items = section?.querySelectorAll(".timeline-item");
 
     const animateTimeline = () => {
       if (!path || !marker || !items) return;
       // Reset animations
-      path.style.strokeDashoffset = '1000';
-      marker.style.transform = 'translate(0, 0)';
-      items.forEach(item => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateY(40px)';
-        const dot = item.querySelector('.timeline-dot');
-        dot.style.transform = 'scale(1)';
+      path.style.strokeDashoffset = "1000";
+      marker.style.transform = "translate(0, 0)";
+      items.forEach((item) => {
+        item.style.opacity = "0";
+        item.style.transform = "translateY(40px)";
+        const dot = item.querySelector(".timeline-dot");
+        dot.style.transform = "scale(1)";
       });
 
       // Animate path
       path.animate(
-        [
-          { strokeDashoffset: '1000' },
-          { strokeDashoffset: '0' }
-        ],
+        [{ strokeDashoffset: "1000" }, { strokeDashoffset: "0" }],
         {
           duration: 4000,
-          easing: 'ease-in-out',
-          fill: 'forwards'
+          easing: "ease-in-out",
+          fill: "forwards",
         }
       );
 
@@ -165,7 +163,7 @@ export default function AboutPage() {
         { x: 550, y: -50 },
         { x: 650, y: 0 },
         { x: 750, y: -50 },
-        { x: 850, y: 0 }
+        { x: 850, y: 0 },
       ];
       marker.animate(
         points.map((point, index) => ({
@@ -173,9 +171,9 @@ export default function AboutPage() {
         })),
         {
           duration: 4000,
-          easing: 'linear',
+          easing: "linear",
           iterations: Infinity,
-          fill: 'forwards'
+          fill: "forwards",
         }
       );
 
@@ -183,28 +181,28 @@ export default function AboutPage() {
       items.forEach((item, index) => {
         item.animate(
           [
-            { opacity: 0, transform: 'translateY(40px)' },
-            { opacity: 1, transform: 'translateY(0)' }
+            { opacity: 0, transform: "translateY(40px)" },
+            { opacity: 1, transform: "translateY(0)" },
           ],
           {
             duration: 600,
             delay: 800 * (index + 1),
-            easing: 'ease-out',
-            fill: 'forwards'
+            easing: "ease-out",
+            fill: "forwards",
           }
         );
-        const dot = item.querySelector('.timeline-dot');
+        const dot = item.querySelector(".timeline-dot");
         dot.animate(
           [
-            { transform: 'scale(1)', boxShadow: '0 0 5px rgba(255, 191, 0, 0.3)' },
-            { transform: 'scale(1.5)', boxShadow: '0 0 15px rgba(255, 191, 0, 0.7)' },
-            { transform: 'scale(1)', boxShadow: '0 0 5px rgba(255, 191, 0, 0.3)' }
+            { transform: "scale(1)", boxShadow: "0 0 5px rgba(255, 191, 0, 0.3)" },
+            { transform: "scale(1.5)", boxShadow: "0 0 15px rgba(255, 191, 0, 0.7)" },
+            { transform: "scale(1)", boxShadow: "0 0 5px rgba(255, 191, 0, 0.3)" },
           ],
           {
             duration: 800,
             delay: 800 * (index + 1),
-            easing: 'ease-in-out',
-            fill: 'forwards'
+            easing: "ease-in-out",
+            fill: "forwards",
           }
         );
       });
@@ -227,163 +225,185 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#fef9ef]">
       {/* 1 ▸ Hero */}
-<header className="relative h-[65vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Parallax Effect */}
-      <motion.div
-        className="absolute inset-0"
-        initial={{ scale: 1.2 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 10, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
-      >
-        <Image
-          src="/meed1.jpg"
-          fill
-          priority
-          alt="Meed Public School Society"
-          className="object-cover"
-          placeholder="blur"
-          blurDataURL="/meed1-blur.jpg" // Create a low-res placeholder image
-          sizes="(max-width: 768px) 100vw, 1200px"
-        />
-      </motion.div>
-
-      {/* Glassmorphic Overlay with Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/50 via-emerald-800/60 to-emerald-950/70 backdrop-blur-md" />
-
-      {/* Content Container */}
-      <motion.div
-        dir={isAr ? "rtl" : "ltr"}
-        className="relative z-10 max-w-5xl px-4 sm:px-6 text-center space-y-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Logo with Glow Effect */}
-        <motion.div variants={itemVariants} className="flex justify-center mb-8">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-            <Image
-              src="/logo.png"
-              width={128}
-              height={128}
-              alt="Meed Logo"
-              className="object-cover rounded-2xl w-full h-full"
-              sizes="(max-width: 768px) 96px, 128px"
-            />
-          </div>
-        </motion.div>
-
-        {/* Hero Title */}
-        <motion.h1
-          variants={itemVariants}
-          className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-lg"
-        >
-          {content.heroTitle}
-        </motion.h1>
-
-        {/* Hero Tagline with Glassmorphic Card */}
+      <header className="relative h-[65vh] md:h-[70vh] flex items-center justify-center overflow-hidden pt-16">
+        {/* Background Image with Parallax Effect */}
         <motion.div
-          variants={itemVariants}
-          className="border-2 border-white/80 bg-white/20 backdrop-blur-lg p-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+          className="absolute inset-0"
+          initial={{ scale: 1.2 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 10, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
         >
-          <p className="text-lg sm:text-2xl md:text-3xl font-semibold text-amber-200">
-            {content.heroTagline}
-          </p>
+          <Image
+            src="/meed1.jpg"
+            fill
+            priority
+            alt="Meed Public School Society"
+            className="object-cover"
+            placeholder="blur"
+            blurDataURL="/meed1-blur.jpg"
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
         </motion.div>
 
-        {/* Hero Text */}
-        <motion.p
-          variants={itemVariants}
-          className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto"
-        >
-          {content.heroText}
-        </motion.p>
+        {/* Glassmorphic Overlay with Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/50 via-emerald-800/60 to-emerald-950/70 backdrop-blur-md" />
 
-        {/* CTA Button with Micro-Interactions */}
-        <motion.div variants={itemVariants}>
-          <Link
-            href={isAr ? "/ar/about" : "/about"}
-            prefetch={true}
-            className="inline-flex items-center px-8 py-4 bg-white text-emerald-800 font-semibold mt-6 rounded-xl 
-                       shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 
-                       transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
+        {/* Content Container */}
+        <motion.div
+          dir={isAr ? "rtl" : "ltr"}
+          className="relative z-10 max-w-5xl px-4 sm:px-6 text-center space-y-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Logo with Glow Effect */}
+          <motion.div variants={itemVariants} className="flex justify-center mb-10">
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+              <Image
+                src="/logo.png"
+                width={128}
+                height={128}
+                alt="Meed Logo"
+                className="object-cover rounded-2xl w-full h-full"
+                sizes="(max-width: 768px) 96px, 128px"
+              />
+            </div>
+          </motion.div>
+
+          {/* Hero Title */}
+          <motion.h1
+            variants={itemVariants}
+            className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-lg"
           >
-            <motion.span
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2"
-            >
-              {content.joinUs}
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </motion.span>
-          </Link>
-        </motion.div>
-      </motion.div>
+            {content.heroTitle}
+          </motion.h1>
 
-      {/* Animated Wave Transition */}
-      {/* <svg
-        className="absolute bottom-0 left-0 w-full h-16 md:h-24"
-        viewBox="0 0 1000 100"
-        preserveAspectRatio="none"
-      >
-        <motion.path
-          d="M0,100 C200,20 400,80 600,20 800,80 1000,20 1000,100 L1000,100 L0,100 Z"
-          className="fill-[#fef9ef]"
-          style={{ filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))" }}
-          initial={{ y: 20 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
-        />
-      </svg> */}
-      <svg className="absolute bottom-0 left-0 w-full h-24" viewBox="0 0 1000 100" preserveAspectRatio="none">
+          {/* Hero Tagline with Glassmorphic Card */}
+          <motion.div
+            variants={itemVariants}
+            className="border-2 border-white/80 bg-white/20 backdrop-blur-lg p-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+          >
+            <p className="text-lg sm:text-2xl md:text-3xl font-semibold text-amber-200">
+              {content.heroTagline}
+            </p>
+          </motion.div>
+
+          {/* Hero Text */}
+          <motion.p
+            variants={itemVariants}
+            className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto"
+          >
+            {content.heroText}
+          </motion.p>
+
+          {/* CTA Button with Micro-Interactions */}
+          <motion.div variants={itemVariants}>
+            <Link
+              href={isAr ? "/ar/about" : "/about"}
+              prefetch={true}
+              className="inline-flex items-center px-8 py-4 bg-white text-emerald-800 font-semibold mt-8 rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
+            >
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2"
+              >
+                {content.joinUs}
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </motion.span>
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Animated Wave Transition */}
+        <svg
+          className="absolute bottom-0 left-0 w-full h-24"
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+        >
           <path
             d="M0,100 C250,0 750,0 1000,100"
             className="fill-[#fef9ef]"
-            style={{ filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))' }}
+            style={{ filter: "drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))" }}
           />
         </svg>
-    </header>
+      </header>
 
       {/* 2 ▸ Secretary’s Message Section */}
-      <section className="bg-[#fef9ef] py-24 relative" style={{ backgroundColor: '#fff9e6' }}>
-        <svg className="absolute top-0 left-0 w-full h-16" viewBox="0 0 1000 100" preserveAspectRatio="none">
-          <path d="M0,50 C250,0 750,0 1000,50" className="fill-[#fff9e6]" style={{ filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2))' }} />
+      <section className="bg-[#fef9ef] py-24 relative" style={{ backgroundColor: "#fff9e6" }}>
+        <svg
+          className="absolute top-0 left-0 w-full h-16"
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,50 C250,0 750,0 1000,50"
+            className="fill-[#fff9e6]"
+            style={{ filter: "drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2))" }}
+          />
         </svg>
-        <div className="max-w-6xl mx-auto px-6 flex items-center">
-          <div className="w-1/3 pr-6">
-            <Image src="/sec2.png" width={300} height={400} alt="Secretary" className="w-full h-full object-cover rounded-lg shadow-md" />
-          </div>
-          <div className="w-2/3 pl-6">
-            <h2 className="text-2xl font-bold text-emerald-800 italic font-handwriting mb-6">Secretary’s Message</h2>
-            {content.secretaryMessage.map((line, index) => (
-              <p key={index} className="text-gray-700 text-lg leading-loose italic font-handwriting" style={{ lineHeight: '2' }}>
-                {line}
-              </p>
-            ))}
-            <div className="mt-4 text-right">
-              <span className="text-gray-600 italic font-handwriting">Signature</span>
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-emerald-800 italic font-handwriting mb-6 text-center md:text-left">
+            Secretary’s Message
+          </h2>
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="w-full md:w-1/3 mb-6 md:mb-0 md:pr-6 flex justify-center">
+              <Image
+                src="/sec2.png"
+                width={300}
+                height={400}
+                alt="Secretary"
+                className="w-3/4 md:w-full h-auto object-cover rounded-lg shadow-md"
+              />
+            </div>
+            <div className="w-full md:w-2/3 md:pl-6">
+              {content.secretaryMessage.map((line, index) => (
+                <p
+                  key={index}
+                  className="text-gray-700 text-lg leading-loose italic font-handwriting"
+                  style={{ lineHeight: "2" }}
+                >
+                  {line}
+                </p>
+              ))}
+              <div className="mt-4 text-right">
+                <span className="text-gray-600 italic font-handwriting">Signature</span>
+              </div>
             </div>
           </div>
         </div>
-        <svg className="absolute bottom-0 left-0 w-full h-16" viewBox="0 0 1000 100" preserveAspectRatio="none">
-          <path d="M0,50 C250,100 750,100 1000,50" className="fill-[#fff9e6]" style={{ filter: 'drop-shadow(2px -2px 4px rgba(0, 0, 0, 0.2))' }} />
+        <svg
+          className="absolute bottom-0 left-0 w-full h-16"
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,50 C250,100 750,100 1000,50"
+            className="fill-[#fff9e6]"
+            style={{ filter: "drop-shadow(2px -2px 4px rgba(0, 0, 0, 0.2))" }}
+          />
         </svg>
       </section>
 
       {/* 3 ▸ Vision · Mission · Counters */}
       <section className="relative bg-emerald-700 text-white py-24">
-        <svg className="absolute top-0 left-0 w-full h-24" viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <svg
+          className="absolute top-0 left-0 w-full h-24"
+          viewBox="0 0 1000 100"
+          preserveAspectRatio="none"
+        >
           <path
             d="M0,0 C250,100 750,100 1000,0"
             className="fill-[#fef9ef]"
-            style={{ filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))' }}
+            style={{ filter: "drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))" }}
           />
         </svg>
         <div className="absolute top-24 left-0 w-full h-10 bg-emerald-700 clip-path-angle-up" />
@@ -410,15 +430,27 @@ export default function AboutPage() {
           </div>
           <div className="relative z-10 mt-20 flex justify-center gap-10 flex-wrap text-center">
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <span ref={refYears} className="text-4xl font-extrabold block animate-count-up" style={{ color: '#2ecc71' }} />
+              <span
+                ref={refYears}
+                className="text-4xl font-extrabold block animate-count-up"
+                style={{ color: "#2ecc71" }}
+              />
               {isAr ? "عامًا" : "Years"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <span ref={refProjects} className="text-4xl font-extrabold block animate-count-up" style={{ color: '#2ecc71' }} />
+              <span
+                ref={refProjects}
+                className="text-4xl font-extrabold block animate-count-up"
+                style={{ color: "#2ecc71" }}
+              />
               {isAr ? "مشروعًا" : "Projects"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <span ref={refPeople} className="text-4xl font-extrabold block animate-count-up" style={{ color: '#2ecc71' }} />
+              <span
+                ref={refPeople}
+                className="text-4xl font-extrabold block animate-count-up"
+                style={{ color: "#2ecc71" }}
+              />
               {isAr ? "مستفيدًا" : "Beneficiaries"}
             </div>
           </div>
@@ -426,12 +458,12 @@ export default function AboutPage() {
       </section>
 
       {/* 4 ▸ Timeline (Animated Snake-like Roadmap with Up and Down) */}
-      <section ref={timelineRef} className="max-w-6xl mx-auto  px-10 py-4 bg-[#fef9ef]">
+      <section ref={timelineRef} className="max-w-6xl mx-auto px-10 py-4 bg-[#fef9ef]">
         <h3 className="text-3xl font-bold text-center mb-16 mt-10 text-emerald-800 animate-glow-soft">
           {content.journeyTitle}
         </h3>
         <div className="relative overflow-hidden">
-          <svg className="w-full h-48" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
+          <svg className="w-full h-48 hidden md:block" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
             <path
               d="M50 110 Q150 60 250 110 Q350 160 450 110 Q550 60 650 110 Q750 160 850 110"
               fill="none"
@@ -440,7 +472,7 @@ export default function AboutPage() {
               strokeDasharray="1000"
               strokeDashoffset="1000"
               className="road-path"
-              style={{ filter: 'url(#wiggle)' }}
+              style={{ filter: "url(#wiggle)" }}
             />
             <rect
               x="0"
@@ -449,32 +481,52 @@ export default function AboutPage() {
               fill="#e67e22"
               className="traveling-marker"
               transform="translate(0, 115)"
-              style={{ filter: 'drop-shadow(0 0 5px rgba(230, 126, 34, 0.5))' }}
+              style={{ filter: "drop-shadow(0 0 5px rgba(230, 126, 34, 0.5))" }}
             />
             <filter id="wiggle">
               <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />
               <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
             </filter>
           </svg>
-          <div className="absolute top-0 left-0 w-full h-full flex justify-between items-start">
+          <div className="hidden md:flex absolute top-0 left-0 w-full h-full justify-between items-start">
             {content.timeline.map((event, index) => {
               const xPositions = [100, 300, 500, 700];
               return (
                 <div
                   key={index}
                   className="timeline-item flex flex-col items-center"
-                  style={{ left: `${xPositions[index]}px`, position: 'absolute' }}
+                  style={{ left: `${xPositions[index]}px`, position: "absolute" }}
                 >
                   <div className="relative">
-                    <div className="timeline-dot absolute  left-1/2 transform -translate-x-1/2 w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] transition-all duration-300 hover:scale-125 hover:bg-amber-300"></div>
-                    <h4 className="font-bold text-emerald-800 text-center  mt-6 text-sm md:text-base">{event.y}</h4>
-                    <p className="text-gray-700 mt-2 gap-10  text-center max-w-[200px] text-xs md:text-sm">
+                    <div className="timeline-dot absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] transition-all duration-300 hover:scale-125 hover:bg-amber-300"></div>
+                    <h4 className="font-bold text-emerald-800 text-center mt-6 text-sm md:text-base">{event.y}</h4>
+                    <p className="text-gray-700 mt-2 text-center max-w-[200px] text-xs md:text-sm">
                       {isAr ? event.ar : event.en}
                     </p>
                   </div>
                 </div>
               );
             })}
+          </div>
+          {/* Mobile Timeline with Left-to-Right Animation */}
+          <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+            {content.timeline.map((event, index) => (
+              <motion.div
+                key={index}
+                className="timeline-item flex-shrink-0 w-3/4 snap-center px-4 py-6"
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: index * 0.3 }}
+              >
+                <div className="flex flex-col items-center">
+                  <div className="w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] mb-4"></div>
+                  <h4 className="font-bold text-emerald-800 text-center text-base">{event.y}</h4>
+                  <p className="text-gray-700 mt-2 text-center text-sm">
+                    {isAr ? event.ar : event.en}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
