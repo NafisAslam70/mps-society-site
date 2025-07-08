@@ -46,54 +46,59 @@ export default function Footer() {
 
         {/* ABOUT column */}
         <div className="flex flex-col items-center space-y-4">
-          <h3 className="font-bold text-lg mb-2">{cols.about.heading}</h3>
-          <img src="/logo.png" alt="logo" className="h-20 w-auto" />
-          <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
-            {cols.about.links.map((l) => (
-              <li key={l.en}>
-                <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-                  <span>›</span>
-                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
-                </span>
-                {/* Enlarged text-base to text-lg, space-y-2 to space-y-3, gap-1 to gap-1.5, added flex-row-reverse for RTL */}
-              </li>
-            ))}
-          </ul>
+          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
+            <img src="/logo.png" alt="logo" className="h-20 w-auto mb-4" />
+            <h3 className="font-bold text-lg mb-2">{cols.about.heading}</h3>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+              {cols.about.links.map((l) => (
+                <li key={l.en}>
+                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                    <span>{isAr ? "‹" : "›"}</span>
+                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* QUICK LINKS */}
         <div className="flex flex-col items-center space-y-4">
-          <h3 className="font-bold text-lg mb-2">{cols.quick.heading}</h3>
-          <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
-            {cols.quick.links.map((l) => (
-              <li key={l.en}>
-                <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-                  <span>›</span>
-                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
+            <h3 className="font-bold text-lg mb-2">{cols.quick.heading}</h3>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+              {cols.quick.links.map((l) => (
+                <li key={l.en}>
+                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                    <span>{isAr ? "‹" : "›"}</span>
+                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* HELPFUL */}
         <div className="flex flex-col items-center space-y-4">
-          <h3 className="font-bold text-lg mb-2">{cols.helpful.heading}</h3>
-          <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
-            {cols.helpful.links.map((l) => (
-              <li key={l.en}>
-                <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-                  <span>›</span>
-                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className={`flex flex-col ${isAr ? "items-end" : "items-start"} w-full max-w-[300px]`}>
+            <h3 className="font-bold text-lg mb-2">{cols.helpful.heading}</h3>
+            <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end" : "items-start"} flex flex-col`}>
+              {cols.helpful.links.map((l) => (
+                <li key={l.en}>
+                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                    <span>{isAr ? "‹" : "›"}</span>
+                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* SOCIAL + inline Contact button */}
         <div className="flex flex-col items-center space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full">
+          <div className={`flex ${isAr ? "flex-row-reverse" : "flex-row"} items-center justify-between w-full max-w-[300px]`}>
             <h3 className="font-bold text-lg">{isAr ? "وسائل التواصل" : "SOCIAL MEDIA"}</h3>
             <Link
               href={isAr ? "/ar/contact" : "/contact"}
