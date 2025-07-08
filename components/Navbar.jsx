@@ -76,8 +76,8 @@ export default function Navbar() {
           onClick={() => navigate("", false)} // Redirect to home page
           className="flex items-center gap-2"
         >
-          <img src="/logo.png" alt="MPS Society Logo" className="h-8 w-auto" />
-          <span className="text-lg font-semibold text-green-700">{isAr ? "جمعية ميد للمدارس" : "MPS Society"}</span>
+          <img src="/logo.png" alt="MEED Public School Society Logo" className="h-8 w-auto" />
+          <span className="text-lg font-semibold text-green-700">{isAr ? "جمعية ميد للمدرسة العامة" : "MEED Public School Society"}</span>
         </button>
 
         {/* Desktop Nav + Controls */}
