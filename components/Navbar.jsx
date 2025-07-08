@@ -18,15 +18,25 @@ const NavItem = memo(({ path, ar, en, isExternal, isAr, navigate, pathname }) =>
   );
 });
 
-const LanguageToggle = ({ isAr, toggleLanguage }) => (
-  <button
-    onClick={toggleLanguage}
-    className="px-3 py-1 text-sm font-medium rounded-full bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800 hover:from-gray-300 hover:to-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
-    aria-label={isAr ? "Switch to English" : "Switch to Arabic"}
-  >
-    {isAr ? "EN" : "AR"}
-  </button>
-);
+const LanguageToggle = ({ isAr }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [href, setHref] = useState("/");
+
+  useEffect(() => {
+    setHref(isAr ? pathname.replace("/ar", "") || "/" : `/ar${pathname}`);
+  }, [pathname, isAr]);
+
+  return (
+    <button
+      onClick={() => router.push(href)}
+      className="text-red-600 border px-2 py-1 rounded border-red-600 hover:bg-yellow-300 hover:text-green-900 transition"
+      aria-label={isAr ? "Switch to English" : "Switch to Arabic"}
+    >
+      {isAr ? "ENG" : "العربية"}
+    </button>
+  );
+};
 
 export default function Navbar() {
   const router = useRouter();
@@ -52,17 +62,12 @@ export default function Navbar() {
     setIsMenuOpen(false);
   };
 
-  const toggleLanguage = () => {
-    const newPath = isAr ? pathname.replace("/ar", "") : `/ar${pathname}`;
-    router.push(newPath);
-  };
-
   const navItems = [
     { path: "", ar: "الرئيسية", en: "Home", isExternal: false },
     { path: "/about", ar: "من نحن", en: "About", isExternal: false },
     { path: "/contact", ar: "تواصل", en: "Contact", isExternal: false },
     { path: "/projects", ar: "المشاريع", en: "Projects", isExternal: false },
-    { path: "https://www.mymeedpss.com", ar: "الأكاديميات", en: "Academics", isExternal: true },
+    { path: "https://www.facebook.com/meed.pss", ar: "الأكاديميات", en: "Academics", isExternal: true },
   ];
 
   return (
@@ -70,15 +75,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         {/* Logo + Brand */}
         <button
-          onClick={() => navigate(isAr ? "/ar" : "/")}
+          onClick={() => navigate("", false)} // Redirect to home page
           className="flex items-center gap-2"
         >
           <img src="/logo.png" alt="MPS Society Logo" className="h-8 w-auto" />
-          <span className="text-lg font-semibold text-green-700">{isAr ? "جمعية ميد" : "MPS Society"}</span>
+          <span className="text-lg font-semibold text-green-700">{isAr ? "جمعية ميد للمدارس" : "MPS Society"}</span>
         </button>
 
         {/* Desktop Nav + Controls */}
         <nav className="hidden md:flex items-center gap-2">
+          <LanguageToggle isAr={isAr} />
           {navItems.map((item) => (
             <NavItem
               key={item.path}
@@ -131,7 +137,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-md px-4 py-4 flex flex-col gap-2">
-          <LanguageToggle isAr={isAr} toggleLanguage={toggleLanguage} />
+          <LanguageToggle isAr={isAr} />
           {navItems.map((item) => (
             <NavItem
               key={item.path}
