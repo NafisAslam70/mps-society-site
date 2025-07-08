@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 // Fixed counter hook with 2-second pause and restart
@@ -35,6 +35,14 @@ function useCount(ref, end) {
 
 export default function AboutPage() {
   const isAr = usePathname().startsWith("/ar");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768); // Set initial state based on window width
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Counters
   const refYears = useRef(null);
@@ -46,7 +54,7 @@ export default function AboutPage() {
 
   // Bilingual content
   const content = {
-    heroTitle: isAr ? "جمعية ميد للمدرسة العامة" : window.innerWidth < 768 ? "MPS Society" : "MEED Public School Society",
+    heroTitle: isAr ? "جمعية ميد للمدرسة العامة" : isMobile ? "MPS Society" : "MEED Public School Society",
     heroTagline: isAr ? "تمكين المجتمعات، تغيير الحياة" : "Empowering Communities, Transforming Lives",
     heroText: isAr ? "منظمة غير ربحية لدعم التعليم والتنمية." : "A non-profit dedicated to education and development.",
     introText: isAr

@@ -88,7 +88,7 @@ const TypingCycleText = ({ text, className }) => {
   return <span className={className}>{displayText || "\u00A0"}</span>;
 };
 
-// Animation variants for QR code (added to match AboutPage logo)
+// Animation variants for QR code (unchanged)
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -108,15 +108,22 @@ const itemVariants = {
 export default function DonatePage() {
   const isAr = usePathname().startsWith("/ar");
   const [showDonating, setShowDonating] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768); // Set initial state based on window width
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
     const interval = setInterval(() => {
       setShowDonating((prev) => !prev);
     }, 4000);
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearInterval(interval);
+    };
   }, []);
 
-  // Content translations (unchanged)
+  // Content translations
   const t = {
     quoteHead: isAr ? "لا يفقر أحد" : "NO ONE HAS EVER BECOME POOR",
     quoteDonate: isAr ? "بالتبرع" : "BY DONATING",

@@ -41,9 +41,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const isAr = pathname.startsWith("/ar");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768); // Set initial state based on window width
     const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) setIsMenuOpen(false);
     };
     window.addEventListener("resize", handleResize);
@@ -78,7 +81,7 @@ export default function Navbar() {
         >
           <img src="/logo.png" alt="MEED Public School Society Logo" className="h-8 w-auto" />
           <span className="text-base sm:text-lg font-semibold text-green-700 md:text-lg">
-            {isAr ? "جمعية ميد للمدرسة العامة" : window.innerWidth < 768 ? "MPS Society" : "MEED Public School Society"}
+            {isAr ? "جمعية ميد للمدرسة العامة" : isMobile ? "MPS Society" : "MEED Public School Society"}
           </span>
         </button>
 
