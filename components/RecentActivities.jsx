@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function RecentActivities() {
   const isAr = usePathname().startsWith("/ar");
@@ -109,6 +110,16 @@ export default function RecentActivities() {
             </div>
           </motion.article>
         ))}
+      </div>
+
+      {/* Explore More Button */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-8 text-center">
+        <Link
+          href={isAr ? "/ar/projects" : "/projects"}
+          className="inline-block bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
+        >
+          {isAr ? "استكشف المزيد من الأنشطة والمشاريع" : "Explore More Activities and Projects"}
+        </Link>
       </div>
     </section>
   );
