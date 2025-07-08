@@ -130,7 +130,7 @@ export default function Footer() {
             70599
           </span>
         </div>
-        <div>© {new Date().getFullYear()} {isAr ? "جميع الحقوق محفوظة" : "All Rights Reserved"}</div>
+        <div>Proudly created by Nafees © {new Date().getFullYear()} {isAr ? "جميع الحقوق محفوظة" : "All Rights Reserved"}</div>
       </div>
     </footer>
   );

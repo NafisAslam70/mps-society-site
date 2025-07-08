@@ -46,7 +46,7 @@ export default function AboutPage() {
 
   // Bilingual content
   const content = {
-    heroTitle: isAr ? "جمعية ميد للمدرسة العامة" : "Meed Public School Society",
+    heroTitle: isAr ? "جمعية ميد للمدرسة العامة" : window.innerWidth < 768 ? "MPS Society" : "MEED Public School Society",
     heroTagline: isAr ? "تمكين المجتمعات، تغيير الحياة" : "Empowering Communities, Transforming Lives",
     heroText: isAr ? "منظمة غير ربحية لدعم التعليم والتنمية." : "A non-profit dedicated to education and development.",
     introText: isAr
@@ -324,7 +324,7 @@ export default function AboutPage() {
         >
           <path
             d="M0,50 C250,0 750,0 1000,50"
-            className="fill-[#fff9e6]"
+            className="fill-[#fff9ef]"
             style={{ filter: "drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2))" }}
           />
         </svg>
@@ -332,8 +332,8 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-emerald-800 mb-8 text-center font-['Roboto',sans-serif] text-shadow-sm" style={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 0.3)" }}>
             Secretary’s Message
           </h2>
-          <div className="flex flex-col md:flex-row items-start">
-            <div className="w-full md:w-1/3 mb-6 md:mb-0 md:pr-6 flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6">
+            <div className="order-first md:order-first">
               <Image
                 src="/sec2.png"
                 width={300}
@@ -342,11 +342,12 @@ export default function AboutPage() {
                 className="w-3/4 md:w-full h-[450px] object-cover rounded-lg shadow-md"
               />
             </div>
-            <div className="w-full md:w-2/3 md:pl-6 flex flex-col justify-between min-h-[450px]">
+            <div className="flex flex-col justify-between min-h-[450px]">
               <div>
                 <p
                   className="text-gray-700 text-lg leading-loose font-['Roboto',sans-serif] text-justify text-shadow-sm"
                   style={{ lineHeight: "2", textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)" }}
+                  dir={isAr ? "rtl" : "ltr"}
                 >
                   {content.secretaryMessage}
                 </p>
