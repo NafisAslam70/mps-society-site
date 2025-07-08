@@ -1,5 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -87,6 +88,23 @@ const TypingCycleText = ({ text, className }) => {
   return <span className={className}>{displayText || "\u00A0"}</span>;
 };
 
+// Animation variants for QR code (added to match AboutPage logo)
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.3,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
 export default function DonatePage() {
   const isAr = usePathname().startsWith("/ar");
   const [showDonating, setShowDonating] = useState(true);
@@ -126,7 +144,10 @@ export default function DonatePage() {
     donationDetails: isAr ? "تفاصيل التبرع" : "Donation Details",
     presidentMessage: isAr
       ? "أدعوكم باسم جمعية ميد العامة للمدارس لدعم مهمتنا في تمكين المجتمعات من خلال التعليم والمياه النظيفة. تبرعاتكم ستمكننا من بناء المدارس، وحفر الآبار، وتعزيز التنمية المستدامة. كل مساهمة، مهما كانت صغيرة، تحدث فرقًا كبيرًا. انضموا إلينا لخلق مستقبل أفضل للأجيال القادمة. معًا، يمكننا تحقيق تغيير دائم. شكرًا على دعمكم السخي!"
-      : "On behalf of Meed Public School Society, I invite you to support our mission to empower communities through education and clean water. Your donations will help us build schools, dig wells, and foster sustainable development. Every contribution, no matter how small, makes a significant impact. Join us in creating a brighter future for generations to come. Together, we can achieve lasting change. Thank you for your generous support!"
+      : "On behalf of Meed Public School Society, I invite you to support our mission to empower communities through education and clean water. Your donations will help us build schools, dig wells, and foster sustainable development. Every contribution, no matter how small, makes a significant impact. Join us in creating a brighter future for generations to come. Together, we can achieve lasting change. Thank you for your generous support!",
+    presidentAttribution: isAr
+      ? "رئيس جمعية ميد العامة للمدارس"
+      : "President, MPS Society"
   };
 
   // Banking data (unchanged)
@@ -241,19 +262,29 @@ export default function DonatePage() {
         </div>
       </section>
 
-      {/* Combined Mission and QR + CTA Section: Adjusted for QR visibility */}
+      {/* Combined Mission and QR + CTA Section: Updated QR styling to match AboutPage logo */}
       <section className="relative overflow-visible" style={{ clipPath: "polygon(0 15%, 100% 5%, 100% 90%, 50% 100%, 0 90%)" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-white-200 to-teal-130 z-0"></div>
         <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 relative z-10">
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-            <div className="w-full sm:w-1/3 text-center p-2">
-              <img
-                src="/qr.png"
-                alt={isAr ? "رمز التبرع" : "QR Code for Donation"}
-                className="w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-lg shadow-md border-2 border-teal-700 object-contain"
-              />
+          <motion.div
+            className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div className="w-full sm:w-1/3 text-center p-2 mt-2" variants={itemVariants}>
+              <div className="w-40 h-40 sm:w-48 sm:h-48 mx-auto rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                <Image
+                  src="/qr.png"
+                  width={192}
+                  height={192}
+                  alt={isAr ? "رمز التبرع" : "QR Code for Donation"}
+                  className="object-contain w-full h-full"
+                  sizes="(max-width: 640px) 160px, 192px"
+                />
+              </div>
               <p className="mt-1 text-sm sm:text-base text-gray-600">{t.scanToDonate}</p>
-            </div>
+            </motion.div>
             <div className="w-full sm:w-1/3 text-center">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-800 mb-1 sm:mb-2">
                 {t.donateNow}
@@ -275,14 +306,14 @@ export default function DonatePage() {
                 {t.quickPay}
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Wave before Support Us (unchanged) */}
       <div className="bg-teal-80" style={{ clipPath: "polygon(0 0, 100% 10%, 100% 90%, 50% 100%, 0 90%)", height: "30px" }}></div>
 
-      {/* Support Us Section: Centered title and content, justified text */}
+      {/* Support Us Section (unchanged) */}
       <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col items-center gap-4">
@@ -297,6 +328,9 @@ export default function DonatePage() {
               </h2>
               <p className="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed text-justify max-w-3xl mx-auto">
                 {t.presidentMessage}
+              </p>
+              <p className="mt-2 text-xs sm:text-sm text-gray-600 italic text-center max-w-3xl mx-auto">
+                {t.presidentAttribution}
               </p>
             </div>
           </div>

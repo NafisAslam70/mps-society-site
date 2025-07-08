@@ -295,3 +295,39 @@ body {
 .timeline-dot-fixed:hover {
   transform: scale(1.2);
 }
+
+
+
+
+
+
+.footer-grid > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-grid ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-grid ul li {
+  display: flex;
+}
+
+.footer-grid ul li span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Align links to left (LTR) or right (RTL) */
+.footer-grid ul {
+  align-items: start;
+}
+
+[dir="rtl"] .footer-grid ul {
+  align-items: end;
+}
