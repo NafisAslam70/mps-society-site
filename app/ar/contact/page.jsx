@@ -12,8 +12,7 @@ const ContactPage = () => {
           {/* Contact Information Card */}
           <div className="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500 hover:shadow-xl animate-slide-up">
             <h3 className="text-2xl font-semibold text-gray-800 mb-6 font-amiri text-right">
-              جمعية مدرسة ميد العامة
-            </h3>
+              جمعية ميد للمدرسة العامة            </h3>
             <ul className="space-y-4 text-gray-600 font-amiri text-right">
               <li className="flex items-start">
                 <span className="font-medium text-gray-800 ml-2">العنوان:</span>
