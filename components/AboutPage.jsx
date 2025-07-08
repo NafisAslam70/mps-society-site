@@ -332,8 +332,8 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-emerald-800 mb-8 text-center font-['Roboto',sans-serif] text-shadow-sm" style={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 0.3)" }}>
             Secretary’s Message
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6">
-            <div className="order-first md:order-first">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8">
+            <div className="order-first md:order-first md:pr-8">
               <Image
                 src="/sec2.png"
                 width={300}
@@ -342,7 +342,7 @@ export default function AboutPage() {
                 className="w-3/4 md:w-full h-[450px] object-cover rounded-lg shadow-md"
               />
             </div>
-            <div className="flex flex-col justify-between min-h-[450px]">
+            <div className="flex flex-col justify-between min-h-[450px] md:pl-8">
               <div>
                 <p
                   className="text-gray-700 text-lg leading-loose font-['Roboto',sans-serif] text-justify text-shadow-sm"
