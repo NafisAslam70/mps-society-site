@@ -53,8 +53,8 @@ export default function AboutPage() {
       ? "جمعية ميد للمدرسة العامة، مقرها الرئيسي في قرية شانكوند، جانكند (رقم التسجيل: MPS/2007/123 بموجب قانون تسجيل الجمعيات XXI لعام 1860)، هي منظمة غير ربحية تأسست عام 2007 بهدف تمكين المجتمعات المتخلفة اقتصاديًا وتعليميًا. من خلال التركيز على التعليم الشامل من مرحلة الحضانة إلى المرحلة الثانوية باللغة الإنجليزية، إدارة المكتبات والمراكز التدريبية، وتوفير المياه النظيفة، تسعى الجمعية لخلق تأثير مستدام في جميع أنحاء الهند، بدعم من لجنة تنفيذية مكونة من 7 أعضاء منتخبين."
       : "Meed Public School Society, headquartered in Shankund, Jharkhand (Regd. No. MPS/2007/123 under the Societies Registration Act XXI of 1860), is a non-profit organization established in 2007 to empower economically and educationally disadvantaged communities. Through a focus on inclusive education from nursery to secondary levels in English, managing hostels, libraries, and vocational training centers, and providing clean water, the society aims to create a lasting impact across India, supported by a 7-member elected Executive Committee.",
     quote: isAr
-      ? "“لقد مكنتنا سخاؤكم من لمس حياة الآلاف. معًا سنصل إلى المزيد من التغيير الإيجابي.”"
-      : "“Your generosity has enabled us to touch thousands of lives. Together, we’ll achieve even more positive change.”",
+      ? "\"لقد مكنتنا سخاؤكم من لمس حياة الآلاف. معًا سنصل إلى المزيد من التغيير الإيجابي.\""
+      : "\"Your generosity has enabled us to touch thousands of lives. Together, we’ll achieve even more positive change.\"",
     visionTitle: isAr ? "رؤيتنا" : "Vision",
     visionText: isAr
       ? "نحو مجتمعات مكتفية ذاتيا وكريمة عبر الهند، مع تعزيز التعليم الشامل والتنمية المستدامة."
@@ -80,26 +80,26 @@ export default function AboutPage() {
     joinUs: isAr ? "انضم إلينا" : "Join Us",
     secretaryMessage: isAr
       ? [
-          "“كأمين الجمعية، أشعر بالفخر العميق بقيادتنا لدعم المجتمعات المتخلفة في جانكند منذ 2007.”",
-          "“نسعى بجهد لا ينقطع لتقديم التعليم الشامل والمياه النظيفة كأولوية قصوى.”",
-          "“مبادراتنا التنموية تعكس التزامنا اليومي بتحسين حياة الأفراد بكل صدق.”",
-          "“من خلال 5000 مشروع ناجح، حققنا تقدمًا كبيرًا بفضل دعمكم المستمر.”",
-          "“أدعوكم بحرارة للانضمام إلينا في هذا العمل الخيري الذي يغير المجتمعات.”",
-          "“بدعمكم المتزايد، سنتمكن من توسيع نطاق مساعدتنا لتشمل المزيد من الأرواح.”",
-          "“نطمح لبناء مجتمعات مزدهرة ومستدامة عبر كل ربوع الهند.”",
-          "“شكرًا من القلب لثقتكم ومساهمتكم في تعزيز هذا التأثير الإنساني العظيم.”",
-          "“معًا، يمكننا أن نرسم مستقبلًا أفضل للأجيال القادمة بمساعدة برامجنا التعليمية.”",
+          "\"كأمين الجمعية، أشعر بالفخر العميق بقيادتنا لدعم المجتمعات المتخلفة في جانكند منذ 2007.\"",
+          "\"نسعى بجهد لا ينقطع لتقديم التعليم الشامل والمياه النظيفة كأولوية قصوى.\"",
+          "\"مبادراتنا التنموية تعكس التزامنا اليومي بتحسين حياة الأفراد بكل صدق.\"",
+          "\"من خلال 5000 مشروع ناجح، حققنا تقدمًا كبيرًا بفضل دعمكم المستمر.\"",
+          "\"أدعوكم بحرارة للانضمام إلينا في هذا العمل الخيري الذي يغير المجتمعات.\"",
+          "\"بدعمكم المتزايد، سنتمكن من توسيع نطاق مساعدتنا لتشمل المزيد من الأرواح.\"",
+          "\"نطمح لبناء مجتمعات مزدهرة ومستدامة عبر كل ربوع الهند.\"",
+          "\"شكرًا من القلب لثقتكم ومساهمتكم في تعزيز هذا التأثير الإنساني العظيم.\"",
+          "\"معًا، يمكننا أن نرسم مستقبلًا أفضل للأجيال القادمة بمساعدة برامجنا التعليمية.\"",
         ]
       : [
-          "“As Secretary of the Society, I take immense pride in leading our efforts to support disadvantaged communities in Jharkhand since 2007.”",
-          "“We work tirelessly to prioritize inclusive education and clean water as our core mission.”",
-          "“Our development initiatives reflect our unwavering daily commitment to improving lives with sincerity.”",
-          "“With 5000 successful projects, we’ve made significant progress thanks to your ongoing support.”",
-          "“I warmly invite you to join us in this transformative charitable work that uplifts communities.”",
-          "“With your growing support, we can extend our assistance to touch even more lives.”",
-          "“We aspire to build thriving, sustainable communities across every corner of India.”",
-          "“Heartfelt thanks for your trust and contributions in enhancing this profound humanitarian impact.”",
-          "“Together, we can shape a brighter future for generations to come with our educational programs.”",
+          "\"As Secretary of the Society, I take immense pride in leading our efforts to support disadvantaged communities in Jharkhand since 2007.\"",
+          "\"We work tirelessly to prioritize inclusive education and clean water as our core mission.\"",
+          "\"Our development initiatives reflect our unwavering daily commitment to improving lives with sincerity.\"",
+          "\"With 5000 successful projects, we’ve made significant progress thanks to your ongoing support.\"",
+          "\"I warmly invite you to join us in this transformative charitable work that uplifts communities.\"",
+          "\"With your growing support, we can extend our assistance to touch even more lives.\"",
+          "\"We aspire to build thriving, sustainable communities across every corner of India.\"",
+          "\"Heartfelt thanks for your trust and contributions in enhancing this profound humanitarian impact.\"",
+          "\"Together, we can shape a brighter future for generations to come with our educational programs.\"",
         ],
   };
 
@@ -136,7 +136,7 @@ export default function AboutPage() {
       marker.style.transform = "translate(0, 0)";
       items.forEach((item) => {
         item.style.opacity = "0";
-        item.style.transform = "translateX(100px)";
+        item.style.transform = "translateY(40px)";
         const dot = item.querySelector(".timeline-dot");
         dot.style.transform = "scale(1)";
       });
@@ -175,12 +175,12 @@ export default function AboutPage() {
         }
       );
 
-      // Animate timeline items and dots sequentially
+      // Animate timeline items and dots sequentially for desktop
       items.forEach((item, index) => {
         item.animate(
           [
-            { opacity: 0, transform: "translateX(100px)" },
-            { opacity: 1, transform: "translateX(0)" },
+            { opacity: 0, transform: "translateY(40px)" },
+            { opacity: 1, transform: "translateY(0)" },
           ],
           {
             duration: 600,
@@ -295,11 +295,11 @@ export default function AboutPage() {
           </motion.p>
 
           {/* CTA Button with Micro-Interactions */}
-          <motion.div variants={itemVariants} className="relative z-20">
+          <motion.div variants={itemVariants} className="relative z-20 mt-6">
             <Link
               href={isAr ? "/ar/about" : "/about"}
               prefetch={true}
-              className="inline-flex items-center px-6 py-3 bg-white text-emerald-800 font-semibold mt-4 rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
+              className="inline-flex items-center px-6 py-3 bg-white text-emerald-800 font-semibold rounded-xl shadow-[0_6px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)] hover:bg-amber-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-300"
             >
               <motion.span
                 whileHover={{ scale: 1.05 }}
@@ -349,7 +349,7 @@ export default function AboutPage() {
           />
         </svg>
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-bold text-emerald-800 italic font-handwriting mb-6 text-center md:text-left">
+          <h2 className="text-2xl font-bold text-emerald-800 mb-6 text-center md:text-left">
             Secretary’s Message
           </h2>
           <div className="flex flex-col md:flex-row items-center">
@@ -366,14 +366,14 @@ export default function AboutPage() {
               {content.secretaryMessage.map((line, index) => (
                 <p
                   key={index}
-                  className="text-gray-700 text-lg leading-loose italic font-handwriting"
+                  className="text-gray-700 text-lg leading-loose font-sans"
                   style={{ lineHeight: "2" }}
                 >
                   {line}
                 </p>
               ))}
               <div className="mt-4 text-right">
-                <span className="text-gray-600 italic font-handwriting">Signature</span>
+                <span className="text-gray-600 font-sans">Signature</span>
               </div>
             </div>
           </div>
@@ -455,13 +455,14 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4 ▸ Timeline (Animated Snake-like Roadmap with Up and Down) */}
+      {/* 4 ▸ Timeline (Animated Snake-like Roadmap for Desktop, Vertical for Mobile) */}
       <section ref={timelineRef} className="max-w-6xl mx-auto px-4 sm:px-10 py-4 bg-[#fef9ef]">
         <h3 className="text-3xl font-bold text-center mb-12 mt-10 text-emerald-800 animate-glow-soft">
           {content.journeyTitle}
         </h3>
-        <div className="relative overflow-visible h-64">
-          <svg className="w-full h-48 absolute top-0 left-0" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
+        <div className="relative overflow-visible h-64 sm:h-48">
+          {/* Desktop Timeline (Horizontal Snake-like Roadmap) */}
+          <svg className="w-full h-48 hidden sm:block absolute top-0 left-0" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
             <path
               d="M50 110 Q150 60 250 110 Q350 160 450 110 Q550 60 650 110 Q750 160 850 110"
               fill="none"
@@ -486,11 +487,11 @@ export default function AboutPage() {
               <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
             </filter>
           </svg>
-          <div className="absolute top-0 left-0 w-full h-full flex justify-between items-start">
+          <div className="hidden sm:flex absolute top-0 left-0 w-full h-full justify-between items-start">
             {content.timeline.map((event, index) => {
               const xPositions = [100, 300, 500, 700];
               return (
-                <motion.div
+                <div
                   key={index}
                   className="timeline-item flex flex-col items-center"
                   style={{
@@ -499,9 +500,6 @@ export default function AboutPage() {
                     transform: "translateX(-50%)",
                     width: "150px",
                   }}
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, delay: index * 0.3 }}
                 >
                   <div className="relative">
                     <div className="timeline-dot absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] transition-all duration-300 hover:scale-125 hover:bg-amber-300"></div>
@@ -510,9 +508,58 @@ export default function AboutPage() {
                       {isAr ? event.ar : event.en}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
+          </div>
+          {/* Mobile Timeline (Vertical Flow) */}
+          <div className="sm:hidden relative w-full h-full flex flex-col items-center">
+            <svg className="absolute w-8 h-full" viewBox="0 0 20 400" preserveAspectRatio="none">
+              <path
+                d="M10 0 L10 400"
+                fill="none"
+                stroke="#2ecc71"
+                strokeWidth="6"
+                strokeDasharray="400"
+                strokeDashoffset="400"
+                className="road-path"
+                style={{ filter: "url(#wiggle)" }}
+              />
+              <rect
+                x="4"
+                y="0"
+                width="12"
+                height="12"
+                fill="#e67e22"
+                className="traveling-marker"
+                style={{ filter: "drop-shadow(0 0 5px rgba(230, 126, 34, 0.5))" }}
+              />
+              <filter id="wiggle">
+                <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            </svg>
+            {content.timeline.map((event, index) => (
+              <motion.div
+                key={index}
+                className="timeline-item flex flex-col items-center absolute"
+                style={{ top: "50%", width: "80%" }}
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: [-100, 0, -200], opacity: [0, 1, 0] }}
+                transition={{
+                  y: { duration: 3, ease: "easeInOut", repeat: Infinity, repeatDelay: content.timeline.length * 3 - 3, delay: index * 3 },
+                  opacity: { duration: 3, times: [0, 0.3, 0.7, 1], repeat: Infinity, repeatDelay: content.timeline.length * 3 - 3, delay: index * 3 },
+                }}
+              >
+                <div className="relative flex flex-col items-center">
+                  <div className="timeline-dot w-5 h-5 bg-amber-400 rounded-full border-4 border-[#fef9ef] mb-4"></div>
+                  <h4 className="font-bold text-emerald-800 text-center text-base">{event.y}</h4>
+                  <p className="text-gray-700 mt-2 text-center text-sm max-w-[80%]">
+                    {isAr ? event.ar : event.en}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

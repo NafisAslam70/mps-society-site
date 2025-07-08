@@ -38,70 +38,76 @@ export default function Footer() {
   /* ── component markup ───────────────────────────────────── */
   return (
     <footer
-      className="bg-gradient-to-r from-green-700 to-green-800 text-white pt-8"
+      className="bg-gradient-to-r from-green-700 to-green-800 text-white pt-12"
       dir={isAr ? "rtl" : "ltr"}
     >
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 mobile:grid-cols-2 md:grid-cols-4 gap-6 pb-8">
-        {/* Replaced sm:grid-cols-2 with mobile:grid-cols-2 for 480px breakpoint */}
+      <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 pb-12">
+        {/* Single column on mobile, centered with px-8, gap-12 */}
 
         {/* ABOUT column */}
-        <div className="space-y-2">
-          <h3 className="font-bold text-base mb-1">{cols.about.heading}</h3>
-          <img src="/logo.png" alt="logo" className="h-12 w-auto" />
-          <ul className="space-y-1 text-xs text-gray-200">
+        <div className="flex flex-col items-center space-y-4">
+          <h3 className="font-bold text-lg mb-2">{cols.about.heading}</h3>
+          <img src="/logo.png" alt="logo" className="h-20 w-auto" />
+          <ul className="space-y-2 text-base text-gray-200 text-center">
             {cols.about.links.map((l) => (
-              <li key={l.en} className="flex items-start gap-1">
-                <span>›</span>
-                <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+              <li key={l.en} className="flex justify-center">
+                <span className="inline-flex items-center gap-1">
+                  <span>›</span>
+                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                </span>
+                {/* Wrapped › and Link in a span to center as a single unit */}
               </li>
             ))}
           </ul>
         </div>
 
         {/* QUICK LINKS */}
-        <div className="space-y-2">
-          <h3 className="font-bold text-base mb-1">{cols.quick.heading}</h3>
-          <ul className="space-y-1 text-xs text-gray-200">
+        <div className="flex flex-col items-center space-y-4">
+          <h3 className="font-bold text-lg mb-2">{cols.quick.heading}</h3>
+          <ul className="space-y-2 text-base text-gray-200 text-center">
             {cols.quick.links.map((l) => (
-              <li key={l.en} className="flex items-start gap-1">
-                <span>›</span>
-                <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+              <li key={l.en} className="flex justify-center">
+                <span className="inline-flex items-center gap-1">
+                  <span>›</span>
+                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                </span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* HELPFUL */}
-        <div className="space-y-2">
-          <h3 className="font-bold text-base mb-1">{cols.helpful.heading}</h3>
-          <ul className="space-y-1 text-xs text-gray-200">
+        <div className="flex flex-col items-center space-y-4">
+          <h3 className="font-bold text-lg mb-2">{cols.helpful.heading}</h3>
+          <ul className="space-y-2 text-base text-gray-200 text-center">
             {cols.helpful.links.map((l) => (
-              <li key={l.en} className="flex items-start gap-1">
-                <span>›</span>
-                <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+              <li key={l.en} className="flex justify-center">
+                <span className="inline-flex items-center gap-1">
+                  <span>›</span>
+                  <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                </span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* SOCIAL + inline Contact button */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-base">{isAr ? "وسائل التواصل" : "SOCIAL MEDIA"}</h3>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full">
+            <h3 className="font-bold text-lg">{isAr ? "وسائل التواصل" : "SOCIAL MEDIA"}</h3>
             <Link
               href={isAr ? "/ar/contact" : "/contact"}
-              className="bg-white text-green-800 font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition text-xs"
+              className="bg-white text-green-800 font-semibold px-4 py-2 rounded shadow hover:bg-gray-100 transition text-base"
             >
               {isAr ? "تواصل" : "Contact"}
             </Link>
           </div>
-          <div className="w-full min-h-[80px] bg-gray-300 rounded overflow-hidden max-w-full">
-            {/* Added max-w-full to prevent iframe overflow */}
+          <div className="w-full max-w-[300px] min-h-[100px] bg-gray-300 rounded overflow-hidden">
             <iframe
-              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fmymeed&width=240&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
-              width="240"
+              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fmymeed&width=300&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
+              width="300"
               className="w-full"
-              style={{ border: "none", overflow: "hidden", minHeight: "80px" }}
+              style={{ border: "none", overflow: "hidden", minHeight: "100px" }}
               scrolling="no"
               frameBorder="0"
               allowFullScreen={true}
@@ -112,14 +118,13 @@ export default function Footer() {
       </div>
 
       {/* Bottom strip */}
-      <div className="bg-[#fef9ef] text-center text-xs text-black py-4 flex flex-col sm:flex-row justify-center gap-4">
+      <div className="bg-[#fef9ef] text-center text-base text-black py-6 flex flex-col gap-4">
         <div>
           {isAr ? "عداد الزوار" : "Visitor counter"}:
-          <span className="inline-block bg-white text-green-800 font-mono px-2 py-0.5 rounded ml-1">
+          <span className="inline-block bg-white text-green-800 font-mono px-3 py-1 rounded ml-2 text-base">
             70599
           </span>
         </div>
-        <span className="hidden sm:inline">|</span>
         <div>© {new Date().getFullYear()} {isAr ? "جميع الحقوق محفوظة" : "All Rights Reserved"}</div>
       </div>
     </footer>
