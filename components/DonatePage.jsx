@@ -160,7 +160,7 @@ export default function DonatePage() {
   // Banking data (unchanged)
   const rowsForeign = isAr
     ? [
-        ["اسم الحساب", "MS MEED PUBLIC SCHOOL SOCIETY"],
+        ["اسم الحساب", "MEED PUBLIC SCHOOL SOCIETY"],
         ["رقم الحساب", "40013329865 (حساب FCRA جاري)"],
         ["اسم البنك", "بنك الدولة الهندي"],
         ["اسم الفرع", "الفرع الرئيسي في نيودلهي"],
@@ -171,7 +171,7 @@ export default function DonatePage() {
         ["كود SWIFT", "SBBINNBB104"],
       ]
     : [
-        ["ACCOUNT NAME", "MS MEED PUBLIC SCHOOL SOCIETY"],
+        ["ACCOUNT NAME", "MEED PUBLIC SCHOOL SOCIETY"],
         ["A/C NUMBER", "40013329865 (FCRA CURRENT ACCOUNT)"],
         ["BANK NAME", "STATE BANK OF INDIA"],
         ["BRANCH NAME", "NEW DELHI MAIN BRANCH"],
