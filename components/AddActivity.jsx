@@ -3,6 +3,7 @@ import { memo, useState } from "react";
 
 const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleChange, handleFileInput, handleDrop, handleDragOver, handleDragLeave, handleSubmit, setIsAdminLoggedIn, handlePostSubmitAction, isAr }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +20,7 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
       callback: (success) => {
         if (success) {
           setShowConfirmation(false);
+          setShowSuccessModal(true);
         }
       },
     });
@@ -38,7 +40,7 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
   };
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1 p-0 overflow-auto">
       <motion.button
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
@@ -48,38 +50,74 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
       >
         {isAr ? "← العودة إلى إدارة الجمعية" : "← Back to Manage Society"}
       </motion.button>
+      {showSuccessModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold text-emerald-800 mb-4">{isAr ? "نجاح!" : "Success!"}</h3>
+            <p className="text-sm text-emerald-600 bg-emerald-50 p-2 rounded-md text-center mb-4">
+              {message}
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => handlePostSubmitAction("logout")}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-semibold text-base shadow-md"
+              >
+                {isAr ? "عرض الصفحة الرئيسية وتسجيل الخروج" : "View Homepage & Logout"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  handlePostSubmitAction("manageSociety");
+                }}
+                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold text-base shadow-md"
+              >
+                {isAr ? "العودة إلى إدارة الجمعية" : "Back to Manage Society"}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
       {showConfirmation ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white p-6 rounded-xl shadow-lg"
+          className="bg-white p-6 rounded-xl shadow-lg grid grid-cols-1 lg:grid-cols-3 gap-6 max-h-[calc(90vh-8rem)] overflow-auto"
         >
-          <h3 className="text-lg font-bold text-emerald-800 mb-4">{isAr ? "تأكيد النشاط" : "Confirm Activity"}</h3>
           <div className="space-y-4">
+            <h3 className="text-lg font-bold text-emerald-800">{isAr ? "تأكيد النشاط" : "Confirm Activity"}</h3>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "الفئة" : "Category"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الفئة" : "Category"}:</label>
               <p className="text-sm text-gray-600">{categoryLabels[formData.category]}</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "العنوان (إنجليزي)" : "Title (English)"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "العنوان (إنجليزي)" : "Title (English)"}:</label>
               <p className="text-sm text-gray-600">{formData.titleEn}</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "العنوان (عربي)" : "Title (Arabic)"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "العنوان (عربي)" : "Title (Arabic)"}:</label>
               <p className="text-sm text-gray-600">{formData.titleAr}</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "التاريخ" : "Date"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "التاريخ" : "Date"}:</label>
               <p className="text-sm text-gray-600">{formData.date}</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "الموقع" : "Venue"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الموقع" : "Venue"}:</label>
               <p className="text-sm text-gray-600">{formData.venue}</p>
             </div>
+          </div>
+          <div className="lg:col-span-2 space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "الصور" : "Images"}:</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الصور" : "Images"}:</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {formData.images.map((image, index) => image && (
                   <img
                     key={index}
@@ -91,15 +129,15 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "الوصف (إنجليزي)" : "Snippet (English)"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الوصف (إنجليزي)" : "Snippet (English)"}:</label>
               <p className="text-sm text-gray-600">{formData.snippetEn}</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">{isAr ? "الوصف (عربي)" : "Snippet (Arabic)"}:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الوصف (عربي)" : "Snippet (Arabic)"}:</label>
               <p className="text-sm text-gray-600">{formData.snippetAr}</p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <div className="lg:col-span-3 flex flex-col sm:flex-row justify-center gap-4 mt-4">
             <button
               type="button"
               onClick={handleConfirm}
@@ -116,31 +154,13 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
             </button>
           </div>
           {message && (
-            <motion.div
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded-md text-center"
+              className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded-md text-center lg:col-span-3"
             >
               {message}
-            </motion.div>
-          )}
-          {message && !message.includes("fill") && (
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
-              <button
-                type="button"
-                onClick={() => handlePostSubmitAction("logout")}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-semibold text-base shadow-md"
-              >
-                {isAr ? "عرض المشاريع وتسجيل الخروج" : "View Projects & Logout"}
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePostSubmitAction("manageSociety")}
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold text-base shadow-md"
-              >
-                {isAr ? "العودة إلى إدارة الجمعية" : "Back to Manage Society"}
-              </button>
-            </div>
+            </motion.p>
           )}
         </motion.div>
       ) : (

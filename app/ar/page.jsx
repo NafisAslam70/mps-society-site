@@ -9,8 +9,6 @@ import ActivitiesSlider  from "@/components/ActivitiesSlider";
 import WorksOnGrid       from "@/components/WorksOnGrid";
 import VideoGallery      from "@/components/VideoGallery";
 import ImpactStats       from "@/components/ImpactStats";
-import VisitorCarousel   from "@/components/VisitorCarousel";
-import CallToAction      from "@/components/CallToAction";
 import AboutStrip        from "@/components/AboutStrip";  
 
 export default function HomePage() {
@@ -25,8 +23,7 @@ export default function HomePage() {
                 {/* Our Works On icons grid */}
       <VideoGallery />               {/* YouTube embeds */}
                   {/* Big impact numbers */}
-      {/* <VisitorCarousel />            Visitor's message carousel */}
-      {/* <CallToAction />               Contact CTA */}
+
     </main>
   );
 }

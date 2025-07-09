@@ -107,7 +107,7 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
   const handlePostSubmitAction = (action) => {
     if (action === "logout") {
       setIsAdminLoggedIn(false);
-      router.push(isAr ? "/ar/projects" : "/projects");
+      router.push(isAr ? "/ar" : "/");
     } else {
       setView("manageSociety");
     }
