@@ -31,7 +31,6 @@ export default function ProjectsPage() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
 
-  // Initialize carousel and image indices
   useEffect(() => {
     const initialIndices = {};
     const initialImageIndices = {};
@@ -43,7 +42,6 @@ export default function ProjectsPage() {
     setImageIndices(initialImageIndices);
   }, [projectData]);
 
-  // Automatic scrolling for images
   useEffect(() => {
     if (!isAutoScrolling) return;
     const interval = setInterval(() => {
@@ -60,19 +58,17 @@ export default function ProjectsPage() {
         }
         return { ...prev, [activeCategory]: nextImageIndex };
       });
-    }, 5000); // Auto-scroll every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [isAutoScrolling, activeCategory, carouselIndices, projectData]);
 
-  // Handle dot navigation
   const handleDotClick = (category, imageIndex) => {
     setImageIndices((prev) => ({ ...prev, [category]: imageIndex }));
-    setIsAutoScrolling(false); // Pause auto-scroll on manual interaction
+    setIsAutoScrolling(false);
   };
 
-  // Handle carousel navigation
   const handleNext = (category) => {
-    setIsAutoScrolling(false); // Pause auto-scroll
+    setIsAutoScrolling(false);
     setImageIndices((prev) => {
       const currentProject = projectData[category].projects[carouselIndices[category]];
       const totalImages = currentProject?.images?.length || 1;
@@ -89,7 +85,7 @@ export default function ProjectsPage() {
   };
 
   const handlePrev = (category) => {
-    setIsAutoScrolling(false); // Pause auto-scroll
+    setIsAutoScrolling(false);
     setImageIndices((prev) => {
       const prevImageIndex = prev[category] - 1;
       if (prevImageIndex < 0) {
@@ -105,11 +101,16 @@ export default function ProjectsPage() {
     });
   };
 
-  // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, x: isAr ? 50 : -50 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
     exit: { opacity: 0, x: isAr ? -50 : 50, transition: { duration: 0.5, ease: "easeOut" } },
+  };
+
+  const imageVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
+    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
   const highlightVariants = {
@@ -119,13 +120,11 @@ export default function ProjectsPage() {
 
   return (
     <section ref={sectionRef} className="relative py-16 bg-gradient-to-br from-gray-100 via-gray-50 to-white min-h-screen overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
-      {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl animate-pulse-slow" />
       </div>
 
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -143,9 +142,7 @@ export default function ProjectsPage() {
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-8 relative z-10">
-        {/* Main Content (Categories, Carousel, and Impact Highlights) */}
         <div className="lg:w-3/4 space-y-8">
-          {/* Category Tabs */}
           <div className="flex flex-wrap gap-4 mb-8">
             {Object.keys(projectData).map((category) => (
               <motion.button
@@ -164,7 +161,6 @@ export default function ProjectsPage() {
             ))}
           </div>
 
-          {/* Category Content */}
           {Object.keys(projectData).map(
             (category) =>
               activeCategory === category && (
@@ -187,67 +183,73 @@ export default function ProjectsPage() {
                       <p className="text-gray-600 text-lg leading-relaxed mb-6">
                         {isAr ? projectData[category].descriptionAr : projectData[category].descriptionEn}
                       </p>
-                      {/* Carousel */}
                       <div
                         className="relative"
                         onMouseEnter={() => setIsAutoScrolling(false)}
                         onMouseLeave={() => setIsAutoScrolling(true)}
                       >
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={`${carouselIndices[category]}-${imageIndices[category]}`}
-                            variants={cardVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            className="flex flex-col md:flex-row gap-6"
-                          >
-                            <div className="md:w-1/2">
-                              <Image
-                                src={projectData[category].projects[carouselIndices[category]]?.images[imageIndices[category]] || "/placeholder.png"}
-                                alt={
-                                  isAr
-                                    ? projectData[category].projects[carouselIndices[category]]?.titleAr || "Project image"
-                                    : projectData[category].projects[carouselIndices[category]]?.titleEn || "Project image"
-                                }
-                                width={500}
-                                height={300}
-                                className="w-full h-72 object-cover rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
-                              />
-                              <div className="flex justify-center gap-2 mt-4">
-                                {projectData[category].projects[carouselIndices[category]]?.images?.map((_, index) => (
-                                  <button
-                                    key={index}
-                                    onClick={() => handleDotClick(category, index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                      imageIndices[category] === index ? "bg-emerald-600" : "bg-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <div className="md:w-1/2 flex flex-col justify-center">
-                              <h3 className="text-2xl font-semibold text-gray-900">
-                                {isAr ? projectData[category].projects[carouselIndices[category]]?.titleAr : projectData[category].projects[carouselIndices[category]]?.titleEn}
-                              </h3>
-                              <p className="text-gray-600 mt-2">
-                                {isAr ? projectData[category].projects[carouselIndices[category]]?.snippetAr : projectData[category].projects[carouselIndices[category]]?.snippetEn}
-                              </p>
-                              <p className="text-sm text-gray-500 mt-2">
-                                <strong>{isAr ? "التاريخ" : "Date"}:</strong> {projectData[category].projects[carouselIndices[category]]?.date}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                <strong>{isAr ? "المكان" : "Venue"}:</strong> {projectData[category].projects[carouselIndices[category]]?.venue}
-                              </p>
-                              <Link
-                                href={isAr ? "/ar/donate" : "/donate"}
-                                className="mt-4 inline-block px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-full hover:from-emerald-700 hover:to-teal-800 transition-all duration-300"
+                        <motion.div
+                          key={carouselIndices[category]}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}
+                          className="flex flex-col md:flex-row gap-6"
+                        >
+                          <div className="md:w-1/2">
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={imageIndices[category]}
+                                variants={imageVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
                               >
-                                {isAr ? "دعم المشروع" : "Support Project"}
-                              </Link>
+                                <Image
+                                  src={projectData[category].projects[carouselIndices[category]]?.images[imageIndices[category]] || "/placeholder.png"}
+                                  alt={
+                                    isAr
+                                      ? projectData[category].projects[carouselIndices[category]]?.titleAr || "Project image"
+                                      : projectData[category].projects[carouselIndices[category]]?.titleEn || "Project image"
+                                  }
+                                  width={500}
+                                  height={300}
+                                  className="w-full h-72 object-cover rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
+                                />
+                              </motion.div>
+                            </AnimatePresence>
+                            <div className="flex justify-center gap-2 mt-4">
+                              {projectData[category].projects[carouselIndices[category]]?.images?.map((_, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleDotClick(category, index)}
+                                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                    imageIndices[category] === index ? "bg-emerald-600" : "bg-gray-300"
+                                  }`}
+                                />
+                              ))}
                             </div>
-                          </motion.div>
-                        </AnimatePresence>
+                          </div>
+                          <div className="md:w-1/2 flex flex-col justify-center">
+                            <h3 className="text-2xl font-semibold text-gray-900">
+                              {isAr ? projectData[category].projects[carouselIndices[category]]?.titleAr : projectData[category].projects[carouselIndices[category]]?.titleEn}
+                            </h3>
+                            <p className="text-gray-600 mt-2">
+                              {isAr ? projectData[category].projects[carouselIndices[category]]?.snippetAr : projectData[category].projects[carouselIndices[category]]?.snippetEn}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-2">
+                              <strong>{isAr ? "التاريخ" : "Date"}:</strong> {projectData[category].projects[carouselIndices[category]]?.date}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              <strong>{isAr ? "المكان" : "Venue"}:</strong> {projectData[category].projects[carouselIndices[category]]?.venue}
+                            </p>
+                            <Link
+                              href={isAr ? "/ar/donate" : "/donate"}
+                              className="mt-4 inline-block px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-full hover:from-emerald-700 hover:to-teal-800 transition-all duration-300"
+                            >
+                              {isAr ? "دعم المشروع" : "Support Project"}
+                            </Link>
+                          </div>
+                        </motion.div>
                         <motion.button
                           onClick={() => handlePrev(category)}
                           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-full shadow-lg"
@@ -258,7 +260,7 @@ export default function ProjectsPage() {
                         </motion.button>
                         <motion.button
                           onClick={() => handleNext(category)}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-full shadow-lg"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-3 rounded-full shadow-lg"
                           whileHover={{ scale: 1.2, rotate: 10 }}
                           whileTap={{ scale: 0.9 }}
                         >
@@ -271,7 +273,6 @@ export default function ProjectsPage() {
               )
           )}
 
-          {/* Impact Highlights Section */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
@@ -300,7 +301,6 @@ export default function ProjectsPage() {
           </motion.div>
         </div>
 
-        {/* Recent Posts Sidebar */}
         <div className="lg:w-1/4">
           <motion.div
             initial={{ opacity: 0, x: isAr ? -50 : 50 }}

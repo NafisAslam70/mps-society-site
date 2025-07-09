@@ -6,10 +6,17 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dbpush": "npx drizzle-kit push",
+    "dbstudio": "npx drizzle-kit studio"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
+    "cloudinary": "^2.7.0",
+    "dotenv": "^17.1.0",
+    "drizzle-orm": "^0.44.2",
     "framer-motion": "^12.23.0",
+    "fs": "^0.0.1-security",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -21,7 +28,9 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
     "autoprefixer": "^10.4.21",
+    "drizzle-kit": "^0.31.4",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.3"
   }
 }

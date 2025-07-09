@@ -1,13 +1,17 @@
 /** @type {import('next').NextConfig} */
-// const nextConfig = {};
-const nextConfig = {
-  images: {
-    domains: ["drive.google.com"],
-  },
-};
-
+    const nextConfig = {
+      images: {
+        remotePatterns: [
+          {
+            protocol: "https",
+            hostname: "res.cloudinary.com",
+            port: "",
+            pathname: "/dnnirdpwf/image/upload/**", // Adjust 'dnnirdpwf' to your cloud_name if different
+          },
+        ],
+      },
+    };
 
 export default nextConfig;
-
 
 

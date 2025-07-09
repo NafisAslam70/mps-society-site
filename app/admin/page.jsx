@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useAppContext } from "@/context/AppContext";
 import AddActivity from "@/components/AddActivity";
 
-// Custom hook for form logic
 function useActivityForm({ setView, projectData, setProjectData, setIsAdminLoggedIn }) {
   const pathname = usePathname();
   const isAr = pathname.startsWith("/ar");
@@ -73,35 +72,54 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
 
   const handleDragLeave = () => setDragOverIndex(null);
 
-  const handleSubmit = ({ formData, callback }) => {
-    const newActivity = {
-      id: Date.now(),
-      ...formData,
-      images: formData.images.filter((url) => url.trim()),
-    };
-    if (!newActivity.images.length) {
-      newActivity.images = ["/placeholder.png"];
+  const handleSubmit = async ({ formData, callback }) => {
+    try {
+      const newActivity = {
+        id: Date.now().toString(),
+        category: formData.category,
+        titleEn: formData.titleEn,
+        titleAr: formData.titleAr,
+        date: formData.date,
+        venue: formData.venue,
+        snippetEn: formData.snippetEn,
+        snippetAr: formData.snippetAr,
+        images: formData.images,
+      };
+
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newActivity),
+      });
+
+      if (!response.ok) throw new Error("Failed to save project");
+
+      const data = await response.json();
+      setProjectData({
+        ...projectData,
+        [formData.category]: {
+          ...projectData[formData.category],
+          projects: [...projectData[formData.category].projects, newActivity],
+        },
+      });
+
+      setMessage(isAr ? "تمت إضافة النشاط بنجاح!" : "Activity added successfully!");
+      setFormData({
+        category: "food",
+        titleEn: "",
+        titleAr: "",
+        date: "",
+        venue: "",
+        images: ["", "", "", "", ""],
+        snippetEn: "",
+        snippetAr: "",
+      });
+      setTimeout(() => setMessage(""), 5000);
+      if (callback) callback(true);
+    } catch (error) {
+      console.error("Error submitting activity:", error);
+      setMessage(isAr ? "حدث خطأ أثناء إضافة النشاط!" : "Error adding activity!");
     }
-    setProjectData({
-      ...projectData,
-      [newActivity.category]: {
-        ...projectData[newActivity.category],
-        projects: [...projectData[newActivity.category].projects, newActivity],
-      },
-    });
-    setMessage(isAr ? "تمت إضافة النشاط بنجاح!" : "Activity added successfully!");
-    setFormData({
-      category: "food",
-      titleEn: "",
-      titleAr: "",
-      date: "",
-      venue: "",
-      images: ["", "", "", "", ""],
-      snippetEn: "",
-      snippetAr: "",
-    });
-    setTimeout(() => setMessage(""), 5000);
-    if (callback) callback(true);
   };
 
   const handlePostSubmitAction = (action) => {
@@ -129,25 +147,12 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
   };
 }
 
-// Dashboard component
 const Dashboard = memo(({ setView, setMessage }) => (
   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
     {[
-      {
-        title: "Manage Society",
-        description: "Oversee society activities and website content",
-        onClick: () => setView("manageSociety"),
-      },
-      {
-        title: "Manage School",
-        description: "Handle school-related operations",
-        onClick: () => setMessage("Manage School: Feature coming soon!"),
-      },
-      {
-        title: "Manage Finance",
-        description: "Track and manage financial records",
-        onClick: () => setMessage("Manage Finance: Feature coming soon!"),
-      },
+      { title: "Manage Society", description: "Oversee society activities and website content", onClick: () => setView("manageSociety") },
+      { title: "Manage School", description: "Handle school-related operations", onClick: () => setMessage("Manage School: Feature coming soon!") },
+      { title: "Manage Finance", description: "Track and manage financial records", onClick: () => setMessage("Manage Finance: Feature coming soon!") },
     ].map(({ title, description, onClick }, index) => (
       <motion.div
         key={title}
@@ -164,7 +169,6 @@ const Dashboard = memo(({ setView, setMessage }) => (
   </div>
 ));
 
-// Manage Society component
 const ManageSociety = memo(({ setView, setMessage }) => (
   <div className="flex-1 p-4">
     <button
@@ -175,16 +179,8 @@ const ManageSociety = memo(({ setView, setMessage }) => (
     </button>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {[
-        {
-          title: "Add New Activity",
-          description: "Create a new society activity",
-          onClick: () => setView("addActivity"),
-        },
-        {
-          title: "Update Website Pictures",
-          description: "Manage website image content",
-          onClick: () => setMessage("Update Website Pictures: Feature coming soon!"),
-        },
+        { title: "Add New Activity", description: "Create a new society activity", onClick: () => setView("addActivity") },
+        { title: "Update Website Pictures", description: "Manage website image content", onClick: () => setMessage("Update Website Pictures: Feature coming soon!") },
       ].map(({ title, description, onClick }, index) => (
         <motion.div
           key={title}
@@ -202,7 +198,6 @@ const ManageSociety = memo(({ setView, setMessage }) => (
   </div>
 ));
 
-// Main AdminPortal component
 export default function AdminPortal() {
   const { projectData, setProjectData, isAdminLoggedIn, setIsAdminLoggedIn } = useAppContext();
   const [view, setView] = useState("dashboard");

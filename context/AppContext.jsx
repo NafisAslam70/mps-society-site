@@ -17,45 +17,35 @@ export function AppProvider({ children }) {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Load from localStorage only on client-side mount
-    if (typeof window !== "undefined") {
+    const loadProjects = async () => {
       try {
-        const savedProjectData = localStorage.getItem("projectData");
-        if (savedProjectData) {
-          const parsedData = JSON.parse(savedProjectData);
-          // Merge with initialProjectData to ensure all categories exist
-          setProjectData({
-            ...initialProjectData,
-            food: { ...initialProjectData.food, projects: parsedData.food?.projects || [] },
-            education: { ...initialProjectData.education, projects: parsedData.education?.projects || [] },
-            handpumps: { ...initialProjectData.handpumps, projects: parsedData.handpumps?.projects || [] },
-            wells: { ...initialProjectData.wells, projects: parsedData.wells?.projects || [] },
-            mosques: { ...initialProjectData.mosques, projects: parsedData.mosques?.projects || [] },
-            general: { ...initialProjectData.general, projects: parsedData.general?.projects || [] },
-          });
-        }
-        const savedIsAdminLoggedIn = localStorage.getItem("isAdminLoggedIn") === "true";
-        setIsAdminLoggedIn(savedIsAdminLoggedIn);
+        const response = await fetch("/api/projects");
+        if (!response.ok) throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+        const data = await response.json();
+        setProjectData(data);
       } catch (error) {
-        console.error("Error loading from localStorage:", error);
-        // Fallback to initial state if parsing fails
+        console.error("Fetch error:", error.message);
         setProjectData(initialProjectData);
-        setIsAdminLoggedIn(false);
       }
+    };
+
+    if (typeof window !== "undefined") {
+      const savedIsAdminLoggedIn = localStorage.getItem("isAdminLoggedIn") === "true";
+      setIsAdminLoggedIn(savedIsAdminLoggedIn);
     }
+
+    loadProjects();
   }, []);
 
   useEffect(() => {
-    // Persist to localStorage whenever state changes
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("projectData", JSON.stringify(projectData));
         localStorage.setItem("isAdminLoggedIn", isAdminLoggedIn);
       } catch (error) {
-        console.error("Error saving to localStorage:", error);
+        console.error("Error saving isAdminLoggedIn to localStorage:", error);
       }
     }
-  }, [projectData, isAdminLoggedIn]);
+  }, [isAdminLoggedIn]);
 
   return (
     <AppContext.Provider value={{ projectData, setProjectData, isAdminLoggedIn, setIsAdminLoggedIn }}>

@@ -4,6 +4,7 @@ import { memo, useState } from "react";
 const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleChange, handleFileInput, handleDrop, handleDragOver, handleDragLeave, handleSubmit, setIsAdminLoggedIn, handlePostSubmitAction, isAr }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -15,9 +16,11 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
   };
 
   const handleConfirm = () => {
+    setLoading(true); // Start loading
     handleSubmit({
       formData,
       callback: (success) => {
+        setLoading(false); // Stop loading
         if (success) {
           setShowConfirmation(false);
           setShowSuccessModal(true);
@@ -141,9 +144,18 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
             <button
               type="button"
               onClick={handleConfirm}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-lg hover:from-emerald-700 hover:to-teal-800 transition-all duration-300 font-semibold text-base shadow-md"
+              disabled={loading} // Disable while loading
+              className={`px-6 py-3 rounded-lg text-white font-semibold text-base shadow-md transition-all duration-300 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800"}`}
             >
-              {isAr ? "تأكيد" : "Confirm"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  {isAr ? "جارٍ الحفظ..." : "Saving..."}
+                </span>
+              ) : isAr ? "تأكيد" : "Confirm"}
             </button>
             <button
               type="button"
