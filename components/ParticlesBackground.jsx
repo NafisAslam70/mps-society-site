@@ -1,12 +1,15 @@
 "use client";
 
 import React from 'react';
-import Particles from 'react-particles';
+import dynamic from 'next/dynamic';
+import { tsParticles } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
 
+const Particles = dynamic(() => import('react-particles'), { ssr: false });
+
 const ParticlesBackground = () => {
-  const particlesInit = async (main) => {
-    await loadFull(main);
+  const particlesInit = async () => {
+    await loadFull(tsParticles); // Use tsParticles instance
   };
 
   return (

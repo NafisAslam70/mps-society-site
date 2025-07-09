@@ -2,7 +2,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-export default function Footer() {
+export default function Footer({ isAdminLoggedIn }) {
   const isAr = usePathname().startsWith("/ar");
 
   /* ── link data ───────────────────────────────────────────── */
@@ -35,6 +35,12 @@ export default function Footer() {
     },
   };
 
+  const handleRedirect = () => {
+    if (window.confirm("Please finish your work. Redirect to external page to log out?")) {
+      window.location.href = "https://google.com"; // Use a real external URL for testing; replace with your desired URL (e.g., https://yourwebsite.com/logout)
+    }
+  };
+
   /* ── component markup ───────────────────────────────────── */
   return (
     <footer
@@ -52,9 +58,15 @@ export default function Footer() {
             <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.about.links.map((l) => (
                 <li key={l.en}>
-                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`}
+                    style={isAr ? { direction: "ltr" } : {}}
+                    onClick={isAdminLoggedIn ? (e) => { e.preventDefault(); handleRedirect(); } : undefined}
+                  >
                     <span>{isAr ? "‹" : "›"}</span>
-                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                    <Link href={l.href} className={isAdminLoggedIn ? "cursor-not-allowed opacity-50" : ""}>
+                      {isAr ? l.ar : l.en}
+                    </Link>
                   </span>
                 </li>
               ))}
@@ -69,9 +81,15 @@ export default function Footer() {
             <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.quick.links.map((l) => (
                 <li key={l.en}>
-                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`}
+                    style={isAr ? { direction: "ltr" } : {}}
+                    onClick={isAdminLoggedIn ? (e) => { e.preventDefault(); handleRedirect(); } : undefined}
+                  >
                     <span>{isAr ? "‹" : "›"}</span>
-                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                    <Link href={l.href} className={isAdminLoggedIn ? "cursor-not-allowed opacity-50" : ""}>
+                      {isAr ? l.ar : l.en}
+                    </Link>
                   </span>
                 </li>
               ))}
@@ -86,9 +104,15 @@ export default function Footer() {
             <ul className={`space-y-3 text-lg text-gray-200 ${isAr ? "items-end sm:items-start" : "items-start"} flex flex-col`}>
               {cols.helpful.links.map((l) => (
                 <li key={l.en}>
-                  <span className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`} style={isAr ? { direction: "ltr" } : {}}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : "flex-row"}`}
+                    style={isAr ? { direction: "ltr" } : {}}
+                    onClick={isAdminLoggedIn ? (e) => { e.preventDefault(); handleRedirect(); } : undefined}
+                  >
                     <span>{isAr ? "‹" : "›"}</span>
-                    <Link href={l.href}>{isAr ? l.ar : l.en}</Link>
+                    <Link href={l.href} className={isAdminLoggedIn ? "cursor-not-allowed opacity-50" : ""}>
+                      {isAr ? l.ar : l.en}
+                    </Link>
                   </span>
                 </li>
               ))}
@@ -102,7 +126,8 @@ export default function Footer() {
             <h3 className="font-bold text-lg">{isAr ? "وسائل التواصل" : "SOCIAL MEDIA"}</h3>
             <Link
               href={isAr ? "/ar/contact" : "/contact"}
-              className="bg-white text-green-800 font-semibold px-4 py-2 rounded shadow hover:bg-gray-100 transition text-base"
+              className={`bg-white text-green-800 font-semibold px-4 py-2 rounded shadow hover:bg-gray-100 transition text-base ${isAdminLoggedIn ? "cursor-not-allowed opacity-50" : ""}`}
+              onClick={isAdminLoggedIn ? (e) => { e.preventDefault(); handleRedirect(); } : undefined}
             >
               {isAr ? "تواصل" : "Contact"}
             </Link>

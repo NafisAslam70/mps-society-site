@@ -5,10 +5,8 @@ import ActivitiesSlider  from "@/components/ActivitiesSlider";
 import WorksOnGrid       from "@/components/WorksOnGrid";
 import VideoGallery      from "@/components/VideoGallery";
 import ImpactStats       from "@/components/ImpactStats";
-import VisitorCarousel   from "@/components/VisitorCarousel";
-import CallToAction      from "@/components/CallToAction";
 import AboutStrip        from "@/components/AboutStrip";  
-import MeedEducationTemplate from "@/components/MeedEducationTemplate";
+
 
 export default function ArabicHome() {
   return (

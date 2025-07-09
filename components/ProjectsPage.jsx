@@ -6,76 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaArrowLeft, FaArrowRight, FaStar } from "react-icons/fa";
 
-// Sample project data with updated images
-const projectData = {
-  food: {
-    titleEn: "Food Distribution",
-    titleAr: "توزيع الطعام",
-    descriptionEn: "Our food distribution projects aim to alleviate hunger by providing meals and food supplies to underprivileged communities. These initiatives include Iftar programs during Ramadan and emergency food relief.",
-    descriptionAr: "تهدف مشاريع توزيع الطعام إلى تخفيف الجوع من خلال توفير وجبات وإمدادات غذائية للمجتمعات المحرومة. تشمل هذه المبادرات برامج الإفطار في رمضان والإغاثة الغذائية الطارئة.",
-    projects: [
-      { id: 1, titleEn: "Ramadan Iftar 2025", titleAr: "إفطار رمضان 2025", date: "2025-03-15", venue: "Hojai, Assam", image: "/meed1.jpg", snippetEn: "Distributed 500 Iftar meals to families.", snippetAr: "تم توزيع 500 وجبة إفطار على العائلات." },
-      { id: 2, titleEn: "Flood Relief Food Kits", titleAr: "حقائب غذائية لإغاثة الفيضانات", date: "2024-07-10", venue: "Nagaon, Assam", image: "/meed1.jpg", snippetEn: "Provided food kits to 300 flood-affected households.", snippetAr: "تم توفير حقائب غذائية لـ 300 أسرة متضررة من الفيضانات." },
-    ],
-  },
-  education: {
-    titleEn: "Education Initiatives",
-    titleAr: "مبادرات التعليم",
-    descriptionEn: "We empower future generations through scholarships, modern madrasahs, and skill-building programs, ensuring access to quality education for all.",
-    descriptionAr: "نعمل على تمكين الأجيال القادمة من خلال المنح الدراسية، والمدارس الدينية الحديثة، وبرامج بناء المهارات، لضمان الوصول إلى تعليم جيد للجميع.",
-    projects: [
-      { id: 3, titleEn: "Scholarship Program 2024", titleAr: "برنامج المنح الدراسية 2024", date: "2024-09-20", venue: "Guwahati, Assam", image: "/meed2.jpg", snippetEn: "Awarded scholarships to 100 students.", snippetAr: "تم منح منح دراسية لـ 100 طالب." },
-      { id: 4, titleEn: "Madrasah Modernization", titleAr: "تحديث المدارس الدينية", date: "2024-05-12", venue: "Dhubri, Assam", image: "/meed2.jpg", snippetEn: "Upgraded facilities for 200 students.", snippetAr: "تم تحديث المرافق لـ 200 طالب." },
-    ],
-  },
-  handpumps: {
-    titleEn: "Handpump Installations",
-    titleAr: "تركيب المضخات اليدوية",
-    descriptionEn: "Our handpump projects provide safe drinking water to rural communities, with over 2,000 installations completed across India.",
-    descriptionAr: "توفر مشاريع المضخات اليدوية مياه شرب آمنة للمجتمعات الريفية، مع أكثر من 2000 مضخة تم تركيبها في جميع أنحاء الهند.",
-    projects: [
-      { id: 5, titleEn: "Handpump Project 2024", titleAr: "مشروع المضخات اليدوية 2024", date: "2024-06-15", venue: "Barpeta, Assam", image: "/tanki1.jpeg", snippetEn: "Installed 50 new handpumps.", snippetAr: "تم تركيب 50 مضخة يدوية جديدة." },
-      { id: 6, titleEn: "Village Water Access", titleAr: "توفير المياه للقرى", date: "2024-03-10", venue: "Kamrup, Assam", image: "/tanki2.jpeg", snippetEn: "Provided water access to 150 households.", snippetAr: "تم توفير المياه لـ 150 أسرة." },
-    ],
-  },
-  wells: {
-    titleEn: "Well Construction",
-    titleAr: "بناء الآبار",
-    descriptionEn: "We construct wells to ensure sustainable water sources for communities, supporting agriculture and daily needs.",
-    descriptionAr: "نقوم ببناء الآبار لضمان مصادر مياه مستدامة للمجتمعات، دعماً للزراعة والاحتياجات اليومية.",
-    projects: [
-      { id: 7, titleEn: "Community Well 2024", titleAr: "بئر المجتمع 2024", date: "2024-08-05", venue: "Morigaon, Assam", image: "/tanki1.jpeg", snippetEn: "Constructed a well for 200 villagers.", snippetAr: "تم بناء بئر لـ 200 قروي." },
-      { id: 8, titleEn: "Agricultural Well", titleAr: "بئر زراعي", date: "2024-04-20", venue: "Sonitpur, Assam", image: "/tanki2.jpeg", snippetEn: "Supported 50 farmers with irrigation.", snippetAr: "تم دعم 50 مزارعاً بالري." },
-    ],
-  },
-  mosques: {
-    titleEn: "Mosque Projects",
-    titleAr: "مشاريع المساجد",
-    descriptionEn: "We build and renovate mosques to serve as spiritual and educational hubs, fostering community unity.",
-    descriptionAr: "نقوم ببناء وتجديد المساجد لتكون مراكز روحية وتعليمية، تعزز وحدة المجتمع.",
-    projects: [
-      { id: 9, titleEn: "Mosque Renovation 2024", titleAr: "تجديد المسجد 2024", date: "2024-07-25", venue: "Nalbari, Assam", image: "/masjid1.jpeg", snippetEn: "Renovated a mosque for 300 worshippers.", snippetAr: "تم تجديد مسجد لـ 300 مصلٍ." },
-      { id: 10, titleEn: "New Mosque Construction", titleAr: "بناء مسجد جديد", date: "2024-02-15", venue: "Darrang, Assam", image: "/masjid2.jpeg", snippetEn: "Built a new mosque for the community.", snippetAr: "تم بناء مسجد جديد للمجتمع." },
-    ],
-  },
-  general: {
-    titleEn: "General Initiatives",
-    titleAr: "مبادرات عامة",
-    descriptionEn: "Our general initiatives include medical camps, tree planting, and other community-driven projects to uplift society.",
-    descriptionAr: "تشمل مبادراتنا العامة المعسكرات الطبية، زراعة الأشجار، ومشاريع أخرى مدفوعة بالمجتمع لرفع مستوى المجتمع.",
-    projects: [
-      { id: 11, titleEn: "Medical Camp 2024", titleAr: "معسكر طبي 2024", date: "2024-10-10", venue: "Jorhat, Assam", image: "/camp1.jpg", snippetEn: "Provided free check-ups for 500 people.", snippetAr: "تم توفير فحوصات مجانية لـ 500 شخص." },
-      { id: 12, titleEn: "Tree Planting Drive", titleAr: "حملة زراعة الأشجار", date: "2024-09-05", venue: "Sivasagar, Assam", image: "/tree1.jpg", snippetEn: "Planted 1,000 trees.", snippetAr: "تم زراعة 1000 شجرة." },
-    ],
-  },
+// Initial projectData structure (server-safe default)
+const initialProjectData = {
+  food: { titleEn: "Food Distribution", titleAr: "توزيع الطعام", projects: [] },
+  education: { titleEn: "Education Initiatives", titleAr: "مبادرات التعليم", projects: [] },
+  handpumps: { titleEn: "Handpump Installations", titleAr: "تركيب المضخات اليدوية", projects: [] },
+  wells: { titleEn: "Well Construction", titleAr: "بناء الآبار", projects: [] },
+  mosques: { titleEn: "Mosque Projects", titleAr: "مشاريع المساجد", projects: [] },
+  general: { titleEn: "General Initiatives", titleAr: "مبادرات عامة", projects: [] },
 };
-
-// Sample recent posts
-const recentPosts = [
-  { id: 1, titleEn: "New Water Project Launched", titleAr: "إطلاق مشروع مياه جديد", date: "2025-01-10", snippetEn: "We launched a new handpump project in rural Assam.", snippetAr: "أطلقنا مشروع مضخات يدوية جديد في ريف آسام.", image: "/tanki1.jpeg" },
-  { id: 2, titleEn: "Education Drive Success", titleAr: "نجاح حملة التعليم", date: "2024-12-20", snippetEn: "Our scholarship program empowered 50 students.", snippetAr: "مكّن برنامج المنح الدراسية 50 طالبًا.", image: "/meed2.jpg" },
-  { id: 3, titleEn: "Community Iftar Event", titleAr: "حدث إفطار المجتمع", date: "2024-03-25", snippetEn: "Hosted a community Iftar for 200 families.", snippetAr: "استضفنا إفطارًا مجتمعيًا لـ 200 عائلة.", image: "/meed1.jpg" },
-];
 
 // Sample impact highlights
 const impactHighlights = [
@@ -84,12 +23,28 @@ const impactHighlights = [
   { id: 3, titleEn: "10,000+ Trees Planted", titleAr: "أكثر من 10000 شجرة مزروعة", descriptionEn: "Contributing to a greener future through reforestation.", descriptionAr: "نساهم في مستقبل أخضر من خلال إعادة التشجير.", icon: <FaStar /> },
 ];
 
+// Sample recent posts
+const recentPosts = [
+  { id: 1, titleEn: "New Water Project Launched", titleAr: "إطلاق مشروع مياه جديد", date: "2025-01-10", snippetEn: "We launched a new handpump project in rural Assam.", snippetAr: "أطلقنا مشروع مضخات يدوية جديد في ريف آسام.", image: "/tanki1.jpeg" },
+  { id: 2, titleEn: "Education Drive Success", titleAr: "نجاح حملة التعليم", date: "2024-12-20", snippetEn: "Our scholarship program empowered 50 students.", snippetAr: "مكّن برنامج المنح الدراسية 50 طالبًا.", image: "/meed2.jpg" },
+  { id: 3, titleEn: "Community Iftar Event", titleAr: "حدث إفطار المجتمع", date: "2024-03-25", snippetEn: "Hosted a community Iftar for 200 families.", snippetAr: "استضفنا إفطارًا مجتمعيًا لـ 200 عائلة.", image: "/meed1.jpg" },
+];
+
 export default function ProjectsPage() {
   const isAr = usePathname().startsWith("/ar");
   const [activeCategory, setActiveCategory] = useState("food");
   const [carouselIndices, setCarouselIndices] = useState({});
+  const [projectData, setProjectData] = useState(initialProjectData); // State to hold projectData
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
+
+  // Load projectData from localStorage on client side
+  useEffect(() => {
+    const savedData = localStorage.getItem("projectData");
+    if (savedData) {
+      setProjectData(JSON.parse(savedData));
+    }
+  }, []);
 
   // Initialize carousel indices
   useEffect(() => {
@@ -98,7 +53,7 @@ export default function ProjectsPage() {
       initialIndices[category] = 0;
     });
     setCarouselIndices(initialIndices);
-  }, []);
+  }, [projectData]);
 
   // Handle carousel navigation
   const handleNext = (category) => {
@@ -167,7 +122,7 @@ export default function ProjectsPage() {
                     : "bg-white/50 text-gray-700 hover:bg-white/80 hover:border-emerald-300"
                 }`}
                 whileHover={{ scale: 1.05, boxShadow: "0 4px 15px rgba(0, 128, 128, 0.2)" }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.95}}
               >
                 {isAr ? projectData[category].titleAr : projectData[category].titleEn}
               </motion.button>
@@ -205,8 +160,12 @@ export default function ProjectsPage() {
                       >
                         <div className="md:w-1/2">
                           <Image
-                            src={projectData[category].projects[carouselIndices[category]]?.image || "/placeholder.png"}
-                            alt={isAr ? projectData[category].projects[carouselIndices[category]]?.titleAr : projectData[category].projects[carouselIndices[category]]?.titleEn}
+                            src={projectData[category].projects[carouselIndices[category]]?.images[0] || "/placeholder.png"}
+                            alt={
+                              isAr
+                                ? projectData[category].projects[carouselIndices[category]]?.titleAr || "Project image"
+                                : projectData[category].projects[carouselIndices[category]]?.titleEn || "Project image"
+                            } // Fallback alt text
                             width={500}
                             height={300}
                             className="w-full h-72 object-cover rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
@@ -304,7 +263,7 @@ export default function ProjectsPage() {
                 >
                   <Image
                     src={post.image}
-                    alt={isAr ? post.titleAr : post.titleEn}
+                    alt={isAr ? post.titleAr : post.titleEn} // Fallback alt text
                     width={300}
                     height={150}
                     className="w-full h-36 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
