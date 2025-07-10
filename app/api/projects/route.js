@@ -12,8 +12,8 @@ cloudinary.config({
 
 export async function GET(req) {
   console.log("GET request received at:", new Date().toISOString());
-  console.log("DATABASE_URL:", process.env.DATABASE_URL);
-  console.log("CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME);
+  console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
+  console.log("CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Not set");
 
   try {
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
@@ -62,7 +62,7 @@ export async function GET(req) {
     console.log("Returning recent posts:", result);
     return new Response(JSON.stringify(result), { status: 200 });
   } catch (error) {
-    console.error("GET error:", error);
+    console.error("GET error:", error.message, error.stack);
     return new Response(JSON.stringify({ error: "Internal server error: " + error.message }), { status: 500 });
   }
 }
@@ -73,34 +73,53 @@ export async function POST(req) {
   console.log("Received activity:", newActivity);
 
   try {
+    // Validate environment variables
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
+    if (!process.env.CLOUDINARY_CLOUD_NAME) throw new Error("CLOUDINARY_CLOUD_NAME is not set");
+    if (!process.env.CLOUDINARY_API_KEY) throw new Error("CLOUDINARY_API_KEY is not set");
+    if (!process.env.CLOUDINARY_API_SECRET) throw new Error("CLOUDINARY_API_SECRET is not set");
+
+    // Validate input
+    if (!newActivity.category || !newActivity.titleEn || !newActivity.titleAr || !newActivity.date || !newActivity.venue || !newActivity.snippetEn || !newActivity.snippetAr) {
+      throw new Error("Missing required fields in activity data");
+    }
+
     const imageUrls = [];
     for (const [index, image] of newActivity.images.entries()) {
       if (image && image.startsWith("data:image/")) {
         console.log(`Uploading image ${index}:`, image.substring(0, 50) + "...");
-        const result = await cloudinary.uploader.upload(image, {
-          folder: `projects/${newActivity.category}`,
-          public_id: `${Date.now()}_${index}`,
-        });
-        imageUrls.push(result.secure_url);
-        console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
+        try {
+          const result = await cloudinary.uploader.upload(image, {
+            folder: `projects/${newActivity.category}`,
+            public_id: `${Date.now()}_${index}`,
+          });
+          imageUrls.push(result.secure_url);
+          console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
+        } catch (uploadError) {
+          console.error(`Failed to upload image ${index} to Cloudinary:`, uploadError.message);
+          throw new Error(`Image upload failed: ${uploadError.message}`);
+        }
       }
     }
 
     const activityToSave = {
       ...newActivity,
       images: imageUrls.length > 0 ? imageUrls : ["/placeholder.png"],
+      createdAt: new Date(),
     };
 
     const sql = neon(process.env.DATABASE_URL);
     const dbClient = drizzle(sql);
-    await dbClient.insert(projects).values(activityToSave).execute();
-    console.log("Project saved:", activityToSave);
+    const result = await dbClient.insert(projects).values(activityToSave).returning();
 
-    return new Response(JSON.stringify({ message: "Project added successfully" }), { status: 201 });
+    if (!result.length) throw new Error("Failed to insert project into database");
+
+    console.log("Project saved:", result[0]);
+
+    return new Response(JSON.stringify({ message: "Project added successfully", project: result[0] }), { status: 201 });
   } catch (error) {
-    console.error("POST error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error: " + error.message }), { status: 500 });
+    console.error("POST error:", error.message, error.stack);
+    return new Response(JSON.stringify({ error: "Failed to save project: " + error.message }), { status: 500 });
   }
 }
 
@@ -116,7 +135,6 @@ export async function PUT(req) {
     const sql = neon(process.env.DATABASE_URL);
     const dbClient = drizzle(sql);
 
-    // Fetch existing project to get current images and category
     const existingProject = await dbClient
       .select({ images: projects.images, category: projects.category })
       .from(projects)
@@ -129,12 +147,10 @@ export async function PUT(req) {
     const currentCategory = existingProject[0].category;
     const newImages = updatedActivity.images || [];
 
-    // Identify images to delete (in currentImages but not in newImages)
     const imagesToDelete = currentImages.filter(
       (image) => image && !image.includes("placeholder.png") && !newImages.includes(image)
     );
 
-    // Delete old images from Cloudinary
     for (const image of imagesToDelete) {
       try {
         const publicId = `projects/${currentCategory}/${image.split("/").pop().replace(/\.[^/.]+$/, "")}`;
@@ -146,7 +162,6 @@ export async function PUT(req) {
       }
     }
 
-    // Upload new base64 images
     const imageUrls = [];
     for (const [index, image] of newImages.entries()) {
       if (image && image.startsWith("data:image/")) {
@@ -184,11 +199,11 @@ export async function PUT(req) {
 
     if (!result.length) throw new Error("No project found with the provided ID");
 
-    console.log("Project updated:", activityToSave);
+    console.log("Project updated:", result[0]);
 
-    return new Response(JSON.stringify({ message: "Project updated successfully" }), { status: 200 });
+    return new Response(JSON.stringify({ message: "Project updated successfully", project: result[0] }), { status: 200 });
   } catch (error) {
-    console.error("PUT error:", error);
+    console.error("PUT error:", error.message, error.stack);
     return new Response(JSON.stringify({ error: "Internal server error: " + error.message }), { status: 500 });
   }
 }
@@ -237,7 +252,7 @@ export async function DELETE(req) {
 
     return new Response(JSON.stringify({ message: "Project deleted successfully" }), { status: 200 });
   } catch (error) {
-    console.error("DELETE error:", error);
+    console.error("DELETE error:", error.message, error.stack);
     return new Response(JSON.stringify({ error: "Internal server error: " + error.message }), { status: 500 });
   }
 }

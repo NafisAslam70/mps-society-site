@@ -5,13 +5,12 @@ import { usePathname } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-// Fixed counter hook with null checks and IntersectionObserver
-function useCount(ref, end) {
+// Custom hook for counter animation
+function useCount(end, isVisible) {
+  const [count, setCount] = useState(0);
+
   useEffect(() => {
-    if (!ref.current) {
-      console.warn(`Ref is null for counter with end value ${end}`);
-      return;
-    }
+    if (!isVisible) return;
 
     let n = 0;
     const step = Math.ceil(end / 20);
@@ -25,27 +24,26 @@ function useCount(ref, end) {
           clearInterval(id);
           setTimeout(() => {
             n = 0;
+            setCount(0);
             countUp();
           }, 2000);
         }
-        if (ref.current) {
-          ref.current.textContent = n.toLocaleString();
-        }
+        setCount(n);
       }, 100);
     };
     countUp();
 
     return () => clearInterval(id);
-  }, [end, ref]);
+  }, [end, isVisible]);
+
+  return count;
 }
 
 export default function AboutPage() {
   const isAr = usePathname().startsWith("/ar");
   const [isMobile, setIsMobile] = useState(false);
   const counterSectionRef = useRef(null);
-  const refYears = useRef(null);
-  const refProjects = useRef(null);
-  const refPeople = useRef(null);
+  const [isCounterVisible, setIsCounterVisible] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -54,14 +52,12 @@ export default function AboutPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Trigger counters when section is visible
+  // Observe counter section visibility
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          useCount(refYears, 7);
-          useCount(refProjects, 5000);
-          useCount(refPeople, 150000);
+          setIsCounterVisible(true);
           observer.disconnect();
         }
       },
@@ -74,6 +70,11 @@ export default function AboutPage() {
 
     return () => observer.disconnect();
   }, []);
+
+  // Use counters
+  const yearsCount = useCount(7, isCounterVisible);
+  const projectsCount = useCount(5000, isCounterVisible);
+  const peopleCount = useCount(150000, isCounterVisible);
 
   // Bilingual content
   const content = {
@@ -433,31 +434,28 @@ export default function AboutPage() {
           <div className="relative z-10 mt-20 flex justify-center gap-10 flex-wrap text-center">
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
               <span
-                ref={refYears}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
               >
-                0
+                {yearsCount.toLocaleString()}
               </span>
               {isAr ? "عامًا" : "Years"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
               <span
-                ref={refProjects}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
               >
-                0
+                {projectsCount.toLocaleString()}
               </span>
               {isAr ? "مشروعًا" : "Projects"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
               <span
-                ref={refPeople}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
               >
-                0
+                {peopleCount.toLocaleString()}
               </span>
               {isAr ? "مستفيدًا" : "Beneficiaries"}
             </div>
