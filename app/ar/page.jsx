@@ -5,7 +5,7 @@
 import HeroSection       from "@/components/HeroSection";
 import RecentActivities  from "@/components/RecentActivities";
 import GreenButtonsStrip from "@/components/GreenButtonsStrip";
-import ActivitiesSlider  from "@/components/ActivitiesSlider";
+import MeedEducationSlider  from "@/components/MeedEducationSlider";
 import WorksOnGrid       from "@/components/WorksOnGrid";
 import VideoGallery      from "@/components/VideoGallery";
 import ImpactStats       from "@/components/ImpactStats";
@@ -19,7 +19,7 @@ export default function HomePage() {
       <RecentActivities />           {/* Our Recent Activities list */}
       <GreenButtonsStrip />          {/* WHO WE ARE / HELP US / GET INVOLVED / MEDIA & NEWS */}
       <ImpactStats />    
-      <ActivitiesSlider />           {/* Glimpses of Activities carousel */}
+      <MeedEducationSlider />           {/* Glimpses of Activities carousel */}
                 {/* Our Works On icons grid */}
       <VideoGallery />               {/* YouTube embeds */}
                   {/* Big impact numbers */}

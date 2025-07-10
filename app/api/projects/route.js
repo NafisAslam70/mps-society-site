@@ -22,18 +22,17 @@ export async function GET(req) {
 
     const url = new URL(req.url);
     const isRecent = url.searchParams.get("recent") === "true";
+    const limit = parseInt(url.searchParams.get("limit") || "3", 10);
 
     let result;
     if (isRecent) {
-      // Fetch 3 most recent projects for recent posts
       result = await dbClient
         .select()
         .from(projects)
         .orderBy(desc(projects.createdAt))
-        .limit(3)
+        .limit(limit)
         .execute();
     } else {
-      // Fetch all projects for main project data
       result = await dbClient.select().from(projects).execute();
     }
     console.log("Fetched projects:", result);
@@ -84,7 +83,7 @@ export async function POST(req) {
           public_id: `${Date.now()}_${index}`,
         });
         imageUrls.push(result.secure_url);
-        console.log(`Uploaded to ${result.secure_url}`);
+        console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
       }
     }
 
@@ -112,25 +111,64 @@ export async function PUT(req) {
 
   try {
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
+    if (!process.env.CLOUDINARY_CLOUD_NAME) throw new Error("CLOUDINARY_CLOUD_NAME is not set");
 
+    const sql = neon(process.env.DATABASE_URL);
+    const dbClient = drizzle(sql);
+
+    // Fetch existing project to get current images and category
+    const existingProject = await dbClient
+      .select({ images: projects.images, category: projects.category })
+      .from(projects)
+      .where(eq(projects.id, id))
+      .execute();
+
+    if (!existingProject.length) throw new Error("No project found with the provided ID");
+
+    const currentImages = existingProject[0].images || [];
+    const currentCategory = existingProject[0].category;
+    const newImages = updatedActivity.images || [];
+
+    // Identify images to delete (in currentImages but not in newImages)
+    const imagesToDelete = currentImages.filter(
+      (image) => image && !image.includes("placeholder.png") && !newImages.includes(image)
+    );
+
+    // Delete old images from Cloudinary
+    for (const image of imagesToDelete) {
+      try {
+        const publicId = `projects/${currentCategory}/${image.split("/").pop().replace(/\.[^/.]+$/, "")}`;
+        console.log(`Deleting Cloudinary image: ${publicId} (from URL: ${image})`);
+        const result = await cloudinary.uploader.destroy(publicId);
+        console.log(`Cloudinary deletion result for ${publicId}:`, result);
+      } catch (err) {
+        console.error(`Failed to delete Cloudinary image ${image}:`, err.message);
+      }
+    }
+
+    // Upload new base64 images
     const imageUrls = [];
-    for (const [index, image] of updatedActivity.images.entries()) {
+    for (const [index, image] of newImages.entries()) {
       if (image && image.startsWith("data:image/")) {
         console.log(`Uploading image ${index}:`, image.substring(0, 50) + "...");
-        const result = await cloudinary.uploader.upload(image, {
-          folder: `projects/${updatedActivity.category}`,
-          public_id: `${Date.now()}_${index}`,
-        });
-        imageUrls.push(result.secure_url);
-        console.log(`Uploaded to ${result.secure_url}`);
-      } else if (image) {
+        try {
+          const result = await cloudinary.uploader.upload(image, {
+            folder: `projects/${updatedActivity.category || currentCategory}`,
+            public_id: `${Date.now()}_${index}`,
+          });
+          imageUrls.push(result.secure_url);
+          console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
+        } catch (err) {
+          console.error(`Failed to upload image ${index} to Cloudinary:`, err.message);
+        }
+      } else if (image && !image.includes("placeholder.png")) {
         imageUrls.push(image);
       }
     }
 
     const activityToSave = {
       ...updatedActivity,
-      images: imageUrls.length > 0 ? imageUrls : updatedActivity.images,
+      images: imageUrls.length > 0 ? imageUrls : ["/placeholder.png"],
       createdAt: updatedActivity.createdAt ? new Date(updatedActivity.createdAt) : undefined,
     };
 
@@ -138,8 +176,6 @@ export async function PUT(req) {
       delete activityToSave.createdAt;
     }
 
-    const sql = neon(process.env.DATABASE_URL);
-    const dbClient = drizzle(sql);
     const result = await dbClient
       .update(projects)
       .set(activityToSave)
@@ -170,7 +206,7 @@ export async function DELETE(req) {
     const dbClient = drizzle(sql);
 
     const project = await dbClient
-      .select({ images: projects.images })
+      .select({ images: projects.images, category: projects.category })
       .from(projects)
       .where(eq(projects.id, id))
       .execute();
@@ -178,11 +214,18 @@ export async function DELETE(req) {
     if (!project.length) throw new Error("No project found with the provided ID");
 
     const images = project[0].images || [];
+    const category = project[0].category;
+
     for (const image of images) {
       if (image && !image.includes("placeholder.png")) {
-        const publicId = image.split("/").slice(-2).join("/").split(".")[0];
-        console.log(`Deleting Cloudinary image: ${publicId}`);
-        await cloudinary.uploader.destroy(publicId);
+        try {
+          const publicId = `projects/${category}/${image.split("/").pop().replace(/\.[^/.]+$/, "")}`;
+          console.log(`Deleting Cloudinary image: ${publicId} (from URL: ${image})`);
+          const result = await cloudinary.uploader.destroy(publicId);
+          console.log(`Cloudinary deletion result for ${publicId}:`, result);
+        } catch (err) {
+          console.error(`Failed to delete Cloudinary image ${image}:`, err.message);
+        }
       }
     }
 

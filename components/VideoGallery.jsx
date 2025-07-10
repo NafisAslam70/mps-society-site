@@ -2,49 +2,40 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import Image from "next/image";
 import { useSwipeable } from "react-swipeable";
 
-// Default image fallback
-const DEFAULT_IMAGE = "/placeholder.png";
+// Default video fallback
+const DEFAULT_VIDEO = "https://www.youtube.com/embed/dQw4w9WgXcQ";
 
 export default function VideoGallery() {
   const isAr = usePathname().startsWith("/ar");
 
-  // Video data with fallback
+  // Video data
   const videos = [
-     { src: "https://www.youtube.com/embed/sVrWLkGXwu8?si=b-gSSPe_Hbd-B_0s" , title: isAr ? "فيديو 1" : "Video 1" },
+    { src: "https://www.youtube.com/embed/sVrWLkGXwu8?si=b-gSSPe_Hbd-B_0s", title: isAr ? "فيديو 1" : "Video 1" },
     { src: "https://www.youtube.com/embed/J3dRmJOtr2Y?si=7r8iVTeFZmgyEEQ7", title: isAr ? "فيديو 2" : "Video 2" },
-   
     { src: "https://www.youtube.com/embed/uuAg_l3RMqQ?si=hnoI_Vb9HeNi4x54", title: isAr ? "فيديو 3" : "Video 3" },
     { src: "https://www.youtube.com/embed/EhQuxiSmS_A?si=649ZhqnK4vhmeqmR", title: isAr ? "فيديو 4" : "Video 4" },
     { src: "https://www.youtube.com/embed/VIDEO_ID5", title: isAr ? "فيديو 5" : "Video 5" },
     { src: "https://www.youtube.com/embed/VIDEO_ID6", title: isAr ? "فيديو 6" : "Video 6" },
   ];
-  const fallbackSrc = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Example fallback video
 
   // Typing effect state
-  const [displayedTitle, setDisplayedTitle] = useState("");
-  const titleText = isAr ? "معرض الفيديو" : "Video Gallery";
-
+  const HEAD_EN_PREFIX = "VIDEO";
+  const HEAD_EN_WORD = "GALLERY";
+  const HEAD_AR = "معرض الفيديو";
+  const [typed, setTyped] = useState("");
   useEffect(() => {
-    let index = 0;
-    const typingInterval = setInterval(() => {
-      console.log("Typing Index:", index, "Text Length:", titleText.length); // Debug
-      if (index < titleText.length) {
-        setDisplayedTitle((prev) => prev + titleText.charAt(index));
-        index++;
-      } else {
-        setTimeout(() => {
-          setDisplayedTitle("");
-          index = 0;
-          console.log("Reset Typing"); // Debug reset
-        }, 1000); // Pause for 1 second before restarting
-      }
-    }, 100);
-
-    return () => clearInterval(typingInterval); // Cleanup
-  }, [titleText]);
+    const WORD = isAr ? HEAD_AR : HEAD_EN_PREFIX;
+    let i = 0, dir = 1;
+    const id = setInterval(() => {
+      i += dir;
+      if (i === WORD.length + 6) dir = -1;
+      if (i === 0) dir = 1;
+      setTyped(WORD.slice(0, Math.min(Math.max(i, 0), WORD.length)));
+    }, 90);
+    return () => clearInterval(id);
+  }, [isAr]);
 
   // State for video loading errors
   const [videoErrors, setVideoErrors] = useState(new Set());
@@ -56,17 +47,17 @@ export default function VideoGallery() {
 
   // Ref for scroll detection
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-50px" }); // Trigger when 50px from top
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   // Moving particles
   const [particles, setParticles] = useState([]);
   useEffect(() => {
     setParticles(
-      Array.from({ length: 3 }).map((_, i) => ({
+      Array.from({ length: 5 }).map((_, i) => ({
         id: i,
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
-        size: `${Math.random() * 8 + 3}px`,
+        size: `${Math.random() * 6 + 2}px`,
       }))
     );
 
@@ -80,111 +71,101 @@ export default function VideoGallery() {
       );
     };
 
-    const interval = setInterval(animateParticles, 150);
+    const interval = setInterval(animateParticles, 100);
     return () => clearInterval(interval);
   }, []);
 
   // Swipe handlers for video navigation
   const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      // Navigate to next set of videos (e.g., paginate)
-      // Note: This requires a state for current video page; for simplicity, we'll assume all videos are shown
-    },
-    onSwipedRight: () => {
-      // Navigate to previous set of videos
-    },
+    onSwipedLeft: () => {},
+    onSwipedRight: () => {},
     trackMouse: true,
   });
 
   return (
-    <section ref={sectionRef} className="relative py-16 bg-gradient-to-br from-green-50 to-white overflow-hidden">
-      {/* Moving Particle Background */}
+    <section
+      ref={sectionRef}
+      className="relative py-20 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden"
+    >
+      {/* Particle Background */}
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute rounded-full bg-green-200/30"
+          className="absolute rounded-full bg-teal-300/20"
           style={{
             left: particle.left,
             top: particle.top,
             width: particle.size,
             height: particle.size,
           }}
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
       ))}
 
-      {/* Header with Static Title and Typing Effect */}
-      <motion.h2
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`text-center text-4xl font-bold mb-8 ${isAr ? "font-amiri" : "font-pacifico"}`}
+      {/* Header with Typing Effect */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 text-center mb-12"
       >
-        {displayedTitle || ""}
-        <span className="inline-block w-2 h-6 bg-green-700 animate-blink ml-1"></span>
-      </motion.h2>
+        <div className="inline-block bg-white/90 backdrop-blur-md border border-gray-200 px-12 py-4 rounded-lg text-center shadow-2xl shadow-gray-800/80 transition-all duration-300 hover:shadow-gray-600/70">
+          {isAr ? (
+            <h2 className={`text-5xl font-bold text-black tracking-tight inline-block border-b-4 border-green-600 pb-2 ${isAr ? "font-amiri" : "font-inter"}`}>
+              {typed}
+            </h2>
+          ) : (
+            <h2 className={`text-5xl font-bold tracking-tight ${isAr ? "font-amiri" : "font-inter"}`}>
+              <span className="inline-block border-b-4 border-green-600 pb-2 text-black">{HEAD_EN_WORD}</span>{" "}
+              <span className="inline-block text-green-600">{typed}</span>
+            </h2>
+          )}
+        </div>
+      </motion.div>
 
-      {/* Description about Meed Public School */}
+      {/* Description */}
       <motion.p
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-        className="max-w-2xl mx-auto text-center text-lg text-gray-600 mb-12"
+        initial={{ opacity: 0, y: 30 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+        className={`max-w-4xl mx-auto text-justify text-lg text-gray-600 mb-16 ${isAr ? "font-amiri" : "font-inter"}`}
       >
         {isAr
-          ? "في مدرسة ميد العامة، نقدم تعليمًا عالي الجودة غنيًا بالمناهج المتقدمة، مع تركيز على التميز الأكاديمي والنمو الشخصي. تتميز منشآتنا الحديثة وطاقم عملنا المكرس بتوفير بيئة داعمة للطلاب للازدهار، مع أنشطة خارج المنهج المتنوعة لتنمية أفراد متكاملين جاهزين للتحديات المستقبلية."
-          : "At Meed Public School, we provide a high-quality education enriched with advanced curricula, fostering academic excellence and personal growth. Our state-of-the-art facilities and dedicated staff ensure a nurturing environment for students to thrive. We also offer diverse extracurricular activities to develop well-rounded individuals ready for future challenges."}
+          ? "مدرسة ميد العامة تقدم تعليمًا عالي الجودة مع مناهج متقدمة، تركز على التميز الأكاديمي والنمو الشخصي، وتوفر بيئة داعمة للطلاب."
+          : "Meed Public School offers high-quality education with advanced curricula, fostering academic excellence and personal growth in a supportive environment."}
       </motion.p>
 
       {/* Video Grid */}
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-        className="max-w-6xl mx-auto px-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden mb-12 relative"
-        {...handlers} // Apply swipe handlers to the grid container
+        initial={{ opacity: 0, y: 30 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-8 bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl mb-16"
+        {...handlers}
       >
-        <div className="p-4 text-center">
-          {/* <h2 className="text-3xl font-bold text-green-700 mb-2">
-            {isAr ? "أحدث الفيديوهات" : "Videos"}
-          </h2> */}
-        </div>
-        <div className="relative">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
-            {videos.map((video, idx) => (
-              <motion.div
-                key={video.src}
-                initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ duration: 0.5, delay: 0.3 + idx * 0.1, ease: "easeOut" }}
-                className="relative w-full h-0 pb-[56.25%] rounded-lg shadow-md overflow-hidden"
-              >
-                {videoErrors.has(video.src) ? (
-                  <iframe
-                    src={fallbackSrc}
-                    title={isAr ? "فيديو احتياطي" : "Fallback Video"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute top-0 left-0 w-full h-full rounded-lg shadow"
-                  />
-                ) : (
-                  <iframe
-                    src={video.src}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute top-0 left-0 w-full h-full rounded-lg shadow"
-                    onError={() => handleIframeError(video.src)}
-                  />
-                )}
-              </motion.div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-8">
+          {videos.map((video, idx) => (
+            <motion.div
+              key={video.src}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.4, delay: 0.4 + idx * 0.1, ease: "easeOut" }}
+              className="relative w-full h-0 pb-[56.25%] rounded-xl overflow-hidden shadow-md"
+              whileHover={{ scale: 1.03, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+            >
+              <iframe
+                src={videoErrors.has(video.src) ? DEFAULT_VIDEO : video.src}
+                title={videoErrors.has(video.src) ? (isAr ? "فيديو احتياطي" : "Fallback Video") : video.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute top-0 left-0 w-full h-full rounded-xl"
+                onError={() => handleIframeError(video.src)}
+              />
+            </motion.div>
+          ))}
         </div>
       </motion.div>
-
-
     </section>
   );
 }

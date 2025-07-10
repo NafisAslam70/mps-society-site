@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "@/context/AppContext";
 import AddActivity from "@/components/AddActivity";
 import ModifyActivities from "@/components/ModifyActivities";
+import UpdateHome from "@/components/UpdateHome";
 
 function useActivityForm({ setView, projectData, setProjectData, setIsAdminLoggedIn, refreshProjects }) {
   const pathname = usePathname();
@@ -243,7 +244,7 @@ const ManageSociety = memo(({ setView, setMessage }) => (
         {
           title: "Update Website Pictures",
           description: "Manage website image content",
-          onClick: () => setMessage("Update Website Pictures: Feature coming soon!"),
+          onClick: () => setView("updateHome"),
         },
       ].map(({ title, description, onClick }, index) => (
         <motion.div
@@ -264,7 +265,7 @@ const ManageSociety = memo(({ setView, setMessage }) => (
 ));
 
 export default function AdminPortal() {
-  const { projectData, setProjectData, isAdminLoggedIn, setIsAdminLoggedIn, refreshProjects } = useAppContext();
+  const { projectData, setProjectData, isAdminLoggedIn, setIsAdminLoggedIn, refreshProjects, websiteData, setWebsiteData } = useAppContext();
   const [view, setView] = useState("dashboard");
   const router = useRouter();
   const {
@@ -318,6 +319,7 @@ export default function AdminPortal() {
       />
     ),
     modifyActivities: <ModifyActivities projectData={projectData} setProjectData={setProjectData} isAr={isAr} setView={setView} />,
+    updateHome: <UpdateHome websiteData={websiteData} setWebsiteData={setWebsiteData} setView={setView} isAr={isAr} />,
   };
 
   return (

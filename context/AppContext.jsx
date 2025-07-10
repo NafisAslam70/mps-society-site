@@ -55,8 +55,22 @@ export function AppProvider({ children }) {
       projects: [],
     },
   });
+  const [websiteData, setWebsiteData] = useState({
+    hero: { images: [], logo: null },
+    about: { image: null },
+    education: {
+      academics: { images: [] },
+      sports: { images: [] },
+      hostel: { images: [] },
+      mosque: { images: [] },
+      islamicEducation: { images: [] },
+    },
+    video: { videos: [] },
+  });
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [projectFetchError, setProjectFetchError] = useState(null);
+  const [isLoadingWebsiteData, setIsLoadingWebsiteData] = useState(true);
+  const [websiteFetchError, setWebsiteFetchError] = useState(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -109,9 +123,41 @@ export function AppProvider({ children }) {
     }
   }, []);
 
+  const fetchWebsiteData = useCallback(async (retries = 3, delay = 1000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(`Fetching website data (attempt ${attempt})...`);
+        setIsLoadingWebsiteData(true);
+        const response = await fetchWithTimeout("/api/website-images", {}, 10000);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data || Object.keys(data).length === 0) {
+          throw new Error("Empty website data received");
+        }
+        console.log("Fetched website data:", data);
+        setWebsiteData(data);
+        setWebsiteFetchError(null);
+        return true;
+      } catch (error) {
+        console.error(`Fetch attempt ${attempt} failed:`, error);
+        if (attempt < retries) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+        setWebsiteFetchError(error.message);
+        return false;
+      } finally {
+        setIsLoadingWebsiteData(false);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    fetchWebsiteData();
+  }, [fetchProjects, fetchWebsiteData]);
 
   const refreshProjects = useCallback(() => {
     console.log("Refreshing projects...");
@@ -135,8 +181,12 @@ export function AppProvider({ children }) {
         setIsAdminLoggedIn,
         projectData,
         setProjectData,
+        websiteData,
+        setWebsiteData,
         isLoadingProjects,
         projectFetchError,
+        isLoadingWebsiteData,
+        websiteFetchError,
         refreshProjects,
       }}
     >

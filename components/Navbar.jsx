@@ -125,7 +125,9 @@ export default function Navbar() {
   }, []);
 
   const navigate = (path, isExternal = false) => {
-    if (isExternal) {
+    if (path === "/admin/login" || path === "/admin") {
+      router.push(path);
+    } else if (isExternal) {
       window.open(path, "_blank", "noopener,noreferrer");
     } else {
       const fullPath = path === "" ? (isAr ? "/ar" : "/") : isAr ? `/ar${path}` : path;

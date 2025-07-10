@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +27,7 @@ const impactHighlights = [
 export default function ProjectsPage() {
   const { projectData, isLoadingProjects, projectFetchError } = useAppContext();
   const isAr = usePathname().startsWith("/ar");
+  const searchParams = useSearchParams();
   const [activeCategory, setActiveCategory] = useState("food");
   const [carouselIndices, setCarouselIndices] = useState({});
   const [imageIndices, setImageIndices] = useState({});
@@ -57,6 +58,24 @@ export default function ProjectsPage() {
     setImageIndices(initialImageIndices);
     console.log("Initialized carouselIndices:", initialIndices, "imageIndices:", initialImageIndices);
   }, [localProjectData]);
+
+  useEffect(() => {
+    // Handle URL query params for pre-selecting a project
+    const category = searchParams.get("category");
+    const projectId = searchParams.get("id");
+    if (category && projectId && localProjectData[category]) {
+      const projectIndex = localProjectData[category].projects.findIndex((project) => project.id === projectId);
+      if (projectIndex !== -1) {
+        setActiveCategory(category);
+        setCarouselIndices((prev) => ({ ...prev, [category]: projectIndex }));
+        setImageIndices((prev) => ({ ...prev, [category]: 0 }));
+        setIsAutoScrolling(false);
+        console.log(`Pre-selected project: ID ${projectId}, Category ${category}, Index ${projectIndex}`);
+      } else {
+        console.warn(`Project ID ${projectId} not found in category ${category}`);
+      }
+    }
+  }, [searchParams, localProjectData]);
 
   useEffect(() => {
     // Fetch recent posts

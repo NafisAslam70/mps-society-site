@@ -1,7 +1,7 @@
 import HeroSection       from "@/components/HeroSection";
 import RecentActivities  from "@/components/RecentActivities";
 import GreenButtonsStrip from "@/components/GreenButtonsStrip";
-import ActivitiesSlider  from "@/components/ActivitiesSlider";
+import MeedEducationSlider  from "@/components/MeedEducationSlider";
 import WorksOnGrid       from "@/components/WorksOnGrid";
 import VideoGallery      from "@/components/VideoGallery";
 import ImpactStats       from "@/components/ImpactStats";
@@ -16,7 +16,7 @@ export default function ArabicHome() {
       <RecentActivities />
       <GreenButtonsStrip />
       <ImpactStats />
-      <ActivitiesSlider />
+      <MeedEducationSlider />
    
       <VideoGallery />
       

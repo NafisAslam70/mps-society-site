@@ -9,19 +9,61 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [translateLoading, setTranslateLoading] = useState(false);
 
   const handleEdit = (activity) => {
+    console.log("Editing activity:", activity);
     setSelectedActivity(activity);
     setEditedActivity({ ...activity });
   };
 
+  const handleTranslate = async () => {
+    setTranslateLoading(true);
+    try {
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: { title: language === "en" ? editedActivity.titleEn : editedActivity.titleAr, snippet: language === "en" ? editedActivity.snippetEn : editedActivity.snippetAr },
+          sourceLang: language,
+          targetLang: language === "en" ? "ar" : "en",
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setEditedActivity({
+          ...editedActivity,
+          [language === "en" ? "titleAr" : "titleEn"]: data.translated.title,
+          [language === "en" ? "snippetAr" : "snippetEn"]: data.translated.snippet,
+        });
+      } else {
+        setMessage(isAr ? `فشل الترجمة: ${data.error || "حاول مرة أخرى!"}` : `Translation failed: ${data.error || "Try again!"}`);
+      }
+    } catch (error) {
+      setMessage(isAr ? "خطأ في الترجمة: تحقق من الاتصال!" : "Translation error: Check connection!");
+    }
+    setTranslateLoading(false);
+  };
+
   const handleSave = async () => {
-    if (!editedActivity || !editedActivity.images.length || editedActivity.images.every((img) => !img)) {
+    if (!editedActivity || !editedActivity.images?.length || editedActivity.images.every((img) => !img)) {
       setMessage(isAr ? "يجب الاحتفاظ بصورة واحدة على الأقل!" : "At least one image must remain!");
       return;
     }
+
+    // Check if any changes were made
+    const hasChanges = JSON.stringify(editedActivity) !== JSON.stringify(selectedActivity);
+    if (!hasChanges) {
+      setMessage(isAr ? "لم يتم إجراء أي تغييرات!" : "No changes made!");
+      return;
+    }
+
     try {
+      setIsSaving(true);
+      console.log("Saving activity:", editedActivity);
       const activityToSave = {
         ...editedActivity,
         images: editedActivity.images.filter((img) => img),
@@ -41,19 +83,22 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
       setProjectData((prev) => {
         const updatedData = { ...prev };
         Object.keys(updatedData).forEach((category) => {
-          updatedData[category].projects = updatedData[category].projects.map((p) =>
-            p.id === editedActivity.id ? activityToSave : p
-          );
+          if (updatedData[category]?.projects) {
+            updatedData[category].projects = updatedData[category].projects.map((p) =>
+              p.id === editedActivity.id ? activityToSave : p
+            );
+          }
         });
+        console.log("Updated projectData:", updatedData);
         return updatedData;
       });
       setMessage(isAr ? "تم تحديث النشاط بنجاح!" : "Activity updated successfully!");
-      setSelectedActivity(null);
-      setEditedActivity(null);
-      setTimeout(() => setMessage(""), 5000);
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Update error:", error.message);
       setMessage(isAr ? `حدث خطأ أثناء التحديث: ${error.message}` : `Error updating activity: ${error.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -62,10 +107,39 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
       setMessage(isAr ? "يجب الاحتفاظ بصورة واحدة على الأقل!" : "At least one image must remain!");
       return;
     }
+    console.log("Deleting image at index:", index);
     setEditedActivity((prev) => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleAddImages = (e) => {
+    const currentImageCount = editedActivity.images?.filter((img) => img).length || 0;
+    const files = Array.from(e.target.files).slice(0, 5 - currentImageCount);
+    if (files.length === 0) {
+      setMessage(isAr ? "تم الوصول إلى الحد الأقصى (5 صور) أو لم يتم اختيار صور" : "Maximum limit (5 images) reached or no images selected");
+      return;
+    }
+    const readers = files.map((file) => {
+      const reader = new FileReader();
+      return new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    });
+    Promise.all(readers).then((results) => {
+      setEditedActivity((prev) => {
+        const newImages = [...(prev.images?.filter((img) => img) || []), ...results];
+        console.log("Added images:", newImages);
+        return { ...prev, images: newImages.slice(0, 5) };
+      });
+      setMessage(isAr ? "تمت إضافة الصور بنجاح!" : "Images added successfully!");
+      setTimeout(() => setMessage(""), 5000);
+    }).catch((error) => {
+      console.error("Image upload error:", error);
+      setMessage(isAr ? "حدث خطأ أثناء إضافة الصور!" : "Error adding images!");
+    });
   };
 
   const handleConfirmDelete = async () => {
@@ -82,6 +156,7 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
 
   const handleDelete = async (id) => {
     try {
+      console.log("Deleting activity with id:", id);
       const response = await fetch(`/api/projects?id=${id}`, {
         method: "DELETE",
       });
@@ -92,16 +167,33 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
       setProjectData((prev) => {
         const updatedData = { ...prev };
         Object.keys(updatedData).forEach((category) => {
-          updatedData[category].projects = updatedData[category].projects.filter((p) => p.id !== id);
+          if (updatedData[category]?.projects) {
+            updatedData[category].projects = updatedData[category].projects.filter((p) => p.id !== id);
+          }
         });
+        console.log("Updated projectData after deletion:", updatedData);
         return updatedData;
       });
       setMessage(isAr ? "تم حذف النشاط بنجاح!" : "Activity deleted successfully!");
     } catch (error) {
+      console.error("Delete error:", error.message);
       setMessage(isAr ? `حدث خطأ أثناء الحذف: ${error.message}` : `Error deleting activity: ${error.message}`);
-      console.error("Delete error:", error);
     }
   };
+
+  if (!projectData || Object.keys(projectData).length === 0) {
+    return (
+      <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
+        <button
+          onClick={() => setView("manageSociety")}
+          className="mb-6 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 hover:shadow-lg transition-all duration-300 text-sm font-semibold"
+        >
+          {isAr ? "العودة إلى إدارة الجمعية" : "Back to Manage Society"}
+        </button>
+        <p className="text-gray-600 text-center">{isAr ? "لا توجد مشاريع متاحة" : "No projects available"}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
@@ -121,8 +213,10 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
         </motion.p>
       )}
       <div className="grid grid-cols-1 gap-6">
-        {Object.entries(projectData).map(([category, { titleEn, titleAr, projects }]) =>
-          projects.length > 0 && (
+        {Object.entries(projectData).map(([category, data]) => {
+          const { titleEn, titleAr, projects } = data || {};
+          if (!projects || !Array.isArray(projects) || projects.length === 0) return null;
+          return (
             <div key={category} className="bg-white rounded-xl shadow-md p-6 border border-teal-200">
               <h2 className="text-xl font-bold text-teal-900 mb-4">{isAr ? titleAr : titleEn}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -182,8 +276,8 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                 ))}
               </div>
             </div>
-          )
-        )}
+          );
+        })}
       </div>
       {selectedActivity && (
         <AnimatePresence>
@@ -202,25 +296,27 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
               <h3 className="text-xl font-bold text-teal-900 mb-4">{isAr ? "تعديل النشاط" : "Edit Activity"}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Title (English)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (English)</label>
                   <input
                     type="text"
                     value={editedActivity?.titleEn || ""}
                     onChange={(e) => setEditedActivity({ ...editedActivity, titleEn: e.target.value })}
-                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    className={`w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all ${language === "ar" ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                    disabled={language === "ar"}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Title (Arabic)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (Arabic)</label>
                   <input
                     type="text"
                     value={editedActivity?.titleAr || ""}
                     onChange={(e) => setEditedActivity({ ...editedActivity, titleAr: e.target.value })}
-                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    className={`w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all ${language === "en" ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                    disabled={language === "en"}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                   <input
                     type="date"
                     value={editedActivity?.date || ""}
@@ -229,7 +325,7 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Venue</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Venue</label>
                   <input
                     type="text"
                     value={editedActivity?.venue || ""}
@@ -238,23 +334,70 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Snippet (English)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Snippet (English)</label>
                   <textarea
                     value={editedActivity?.snippetEn || ""}
                     onChange={(e) => setEditedActivity({ ...editedActivity, snippetEn: e.target.value })}
-                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all h-20"
+                    className={`w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all h-20 ${language === "ar" ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                    disabled={language === "ar"}
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Snippet (Arabic)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Snippet (Arabic)</label>
                   <textarea
                     value={editedActivity?.snippetAr || ""}
                     onChange={(e) => setEditedActivity({ ...editedActivity, snippetAr: e.target.value })}
-                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all h-20"
+                    className={`w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all h-20 ${language === "en" ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                    disabled={language === "en"}
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Images</label>
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setLanguage("en")}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${language === "en" ? "bg-teal-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                    >
+                      {isAr ? "إنجليزي" : "English"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLanguage("ar")}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${language === "ar" ? "bg-teal-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                    >
+                      {isAr ? "عربي" : "Arabic"}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTranslate}
+                    disabled={translateLoading || !editedActivity[language === "en" ? "titleEn" : "titleAr"] || !editedActivity[language === "en" ? "snippetEn" : "snippetAr"]}
+                    className={`w-full px-4 py-2 rounded-lg text-white font-medium text-sm transition-all duration-300 ${translateLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+                  >
+                    {translateLoading ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        {isAr ? "جارٍ الترجمة..." : "Translating..."}
+                      </span>
+                    ) : isAr ? `ترجمة إلى ${language === "en" ? "العربية" : "الإنجليزية"}` : `Translate to ${language === "en" ? "Arabic" : "English"}`}
+                  </button>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleAddImages}
+                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    disabled={editedActivity?.images?.filter((img) => img).length >= 5}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {isAr ? `اختر ما يصل إلى 5 صور (الحالي: ${editedActivity?.images?.filter((img) => img).length || 0}/5)` : `Select up to 5 images (Current: ${editedActivity?.images?.filter((img) => img).length || 0}/5)`}
+                  </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                     {editedActivity?.images.map(
                       (image, index) =>
@@ -280,14 +423,39 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                     setEditedActivity(null);
                   }}
                   className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 text-sm font-medium"
+                  disabled={isSaving}
                 >
                   {isAr ? "إلغاء" : "Cancel"}
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 text-sm font-medium"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 text-sm font-medium relative"
+                  disabled={isSaving}
                 >
-                  {isAr ? "حفظ" : "Save"}
+                  {isSaving ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white mx-auto"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <span>{isAr ? "حفظ" : "Save"}</span>
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -353,16 +521,36 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
           </motion.div>
         </AnimatePresence>
       )}
-      {showSuccess && (
+      {showSuccessModal && (
         <AnimatePresence>
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-4 right-4 bg-teal-600 text-white rounded-lg p-4 shadow-lg z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
-            {isAr ? "تم الحذف بنجاح!" : "Activity deleted successfully!"}
+            <motion.div
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 20 }}
+              className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md"
+            >
+              <h3 className="text-lg font-semibold text-teal-900 mb-4">{isAr ? "نجاح!" : "Success!"}</h3>
+              <p className="text-sm text-teal-600 bg-teal-50 p-3 rounded-md text-center mb-4">
+                {isAr ? "تم تحديث النشاط بنجاح!" : "Activity updated successfully!"}
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setView("manageSociety");
+                    setShowSuccessModal(false);
+                  }}
+                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 font-medium text-sm shadow-md"
+                >
+                  {isAr ? "العودة إلى إدارة الجمعية" : "Back to Manage Society"}
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       )}

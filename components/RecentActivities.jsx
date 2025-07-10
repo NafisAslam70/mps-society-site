@@ -1,13 +1,14 @@
+
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-// Project data from ProjectsPage (same structure)
-const projectData = {
+// Static fallback project data
+const fallbackProjectData = {
   food: {
     titleEn: "Food Distribution",
     titleAr: "توزيع الطعام",
@@ -60,13 +61,14 @@ const projectData = {
 
 export default function RecentActivities() {
   const isAr = usePathname().startsWith("/ar");
+  const router = useRouter();
 
-  /* headline parts */
+  /* Headline parts */
   const HEAD_EN_PREFIX = "OUR RECENT";
   const HEAD_EN_WORD = "ACTIVITIES";
   const HEAD_AR = "أحدث أنشطتنا";
 
-  /* typing state (prefix in EN, whole phrase in AR) */
+  /* Typing state (prefix in EN, whole phrase in AR) */
   const [typed, setTyped] = useState("");
   useEffect(() => {
     const WORD = isAr ? HEAD_AR : HEAD_EN_PREFIX;
@@ -82,12 +84,33 @@ export default function RecentActivities() {
 
   /* Fetch top 10 recent projects */
   const [recentProjects, setRecentProjects] = useState([]);
+  const [recentProjectsLoading, setRecentProjectsLoading] = useState(true);
+  const [recentProjectsError, setRecentProjectsError] = useState(null);
+
   useEffect(() => {
-    const allProjects = Object.values(projectData)
-      .flatMap(category => category.projects)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 10);
-    setRecentProjects(allProjects);
+    const fetchRecentProjects = async () => {
+      try {
+        setRecentProjectsLoading(true);
+        const response = await fetch("/api/projects?recent=true&limit=10");
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log("Fetched recent projects:", data);
+        setRecentProjects(data);
+        setRecentProjectsError(null);
+      } catch (error) {
+        console.error("Error fetching recent projects:", error);
+        setRecentProjectsError(error.message);
+        // Fallback to static project data
+        const allProjects = Object.values(fallbackProjectData)
+          .flatMap(category => category.projects)
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 10);
+        setRecentProjects(allProjects);
+      } finally {
+        setRecentProjectsLoading(false);
+      }
+    };
+    fetchRecentProjects();
   }, []);
 
   /* Carousel state */
@@ -98,14 +121,14 @@ export default function RecentActivities() {
     if (recentProjects.length > 0) {
       autoScrollRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % recentProjects.length);
-      }, 5000); // Auto-scroll every 5 seconds
+      }, 5000);
     }
     return () => clearInterval(autoScrollRef.current);
   }, [recentProjects.length]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % recentProjects.length);
-    clearInterval(autoScrollRef.current); // Reset auto-scroll on manual navigation
+    clearInterval(autoScrollRef.current);
     autoScrollRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % recentProjects.length);
     }, 5000);
@@ -113,10 +136,16 @@ export default function RecentActivities() {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? recentProjects.length - 1 : prev - 1));
-    clearInterval(autoScrollRef.current); // Reset auto-scroll on manual navigation
+    clearInterval(autoScrollRef.current);
     autoScrollRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % recentProjects.length);
     }, 5000);
+  };
+
+  const handleProjectClick = (projectId, category) => {
+    const path = isAr ? `/ar/projects?category=${category}&id=${projectId}` : `/projects?category=${category}&id=${projectId}`;
+    router.push(path);
+    console.log(`Project clicked: ID ${projectId}, Category ${category}, Navigating to ${path}`);
   };
 
   /* Animation variants */
@@ -127,45 +156,45 @@ export default function RecentActivities() {
   };
 
   return (
-    <section className="relative pt-24 pb-12 bg-gradient-to-b from-gray-50 to-white">
-      {/* headline box */}
+    <section className="relative py-8 bg-gradient-to-br from-gray-50 via-white to-teal-50 font-sans" dir={isAr ? "rtl" : "ltr"}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-80 h-80 bg-teal-200/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse-slow" />
+      </div>
+
+      {/* Headline box */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-2xl"
+        className="relative mb-8 text-center z-10"
       >
-        <div className="bg-white/90 backdrop-blur-md border border-gray-200 px-12 py-4 rounded-lg text-center shadow-2xl shadow-gray-800/80 transition-all duration-300 hover:shadow-gray-600/70">
+        <div className="bg-white/80 backdrop-blur-md border border-gray-100/50 px-8 py-3 rounded-lg text-center shadow-lg transition-all duration-300 hover:shadow-xl inline-block">
           {isAr ? (
-            <h2 className="text-4xl font-bold text-green-900 tracking-tight inline-block border-b-4 border-red-600 pb-2 font-arabic">
+            <h2 className="text-3xl md:text-4xl font-bold text-teal-900 tracking-tight border-b-4 border-emerald-600 pb-2 font-arabic">
               {typed}
             </h2>
           ) : (
-            <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-              <span className="inline-block border-b-4 border-red-600 pb-2">{HEAD_EN_WORD}</span>{" "}
-              <span className="inline-block text-green-700">{typed}</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-teal-900 tracking-tight">
+              <span className="inline-block border-b-4 border-emerald-600 pb-2">{HEAD_EN_WORD}</span>{" "}
+              <span className="inline-block text-emerald-700">{typed}</span>
             </h2>
           )}
         </div>
       </motion.div>
 
-      {/* banner image */}
-      <div className="relative -mt-20 overflow-hidden h-[400px]">
-        <motion.img
-          src="/tanki1.jpeg"
-          alt="Banner"
-          className="absolute inset-0 w-full h-full object-cover opacity-50 brightness-50"
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.5 }}
-          transition={{ duration: 1 }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent" />
-      </div>
-
       {/* Carousel */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 -mt-10">
-        {recentProjects.length > 0 ? (
-          <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-8 border border-gray-100/50" dir={isAr ? "rtl" : "ltr"}>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {recentProjectsLoading ? (
+          <p className="text-center text-gray-600 text-lg">
+            {isAr ? "جاري تحميل الأنشطة..." : "Loading activities..."}
+          </p>
+        ) : recentProjectsError ? (
+          <p className="text-center text-red-600 text-lg">
+            {isAr ? "فشل في تحميل الأنشطة. يتم استخدام البيانات الافتراضية." : "Failed to load activities. Using fallback data."}
+          </p>
+        ) : recentProjects.length > 0 ? (
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-6 border border-gray-100/50" dir={isAr ? "rtl" : "ltr"}>
             <AnimatePresence mode="wait">
               <motion.article
                 key={currentIndex}
@@ -173,22 +202,25 @@ export default function RecentActivities() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="flex flex-col md:flex-row gap-6 justify-center items-center max-w-4xl mx-auto"
+                className="flex flex-col md:flex-row gap-6 justify-center items-center max-w-4xl mx-auto cursor-pointer"
+                onClick={() => handleProjectClick(recentProjects[currentIndex].id, recentProjects[currentIndex].category)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <div className="md:w-1/2 w-full">
                   <Image
-                    src={recentProjects[currentIndex].image || "/placeholder.png"}
+                    src={recentProjects[currentIndex].images?.[0] || "/placeholder.png"}
                     alt={isAr ? recentProjects[currentIndex].titleAr : recentProjects[currentIndex].titleEn}
                     width={500}
                     height={300}
                     className="w-full h-64 object-cover rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="md:w-1/2 w-full flex flex-col justify-center text-center md:text-left">
-                  <h3 className="text-2xl font-semibold text-gray-900">
+                <div className="md:w-1/2 w-full flex flex-col justify-center text-center">
+                  <h3 className="text-xl md:text-2xl font-semibold text-gray-900">
                     {isAr ? recentProjects[currentIndex].titleAr : recentProjects[currentIndex].titleEn}
                   </h3>
-                  <p className="text-gray-600 mt-2">
+                  <p className="text-gray-600 text-sm md:text-base mt-2">
                     {isAr ? recentProjects[currentIndex].snippetAr : recentProjects[currentIndex].snippetEn}
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
@@ -204,7 +236,7 @@ export default function RecentActivities() {
             {/* Navigation Buttons */}
             <motion.button
               onClick={handlePrev}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-full shadow-lg"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-3 rounded-full shadow-md hover:shadow-lg"
               whileHover={{ scale: 1.2, rotate: -10 }}
               whileTap={{ scale: 0.9 }}
               aria-label={isAr ? "السابق" : "Previous"}
@@ -213,7 +245,7 @@ export default function RecentActivities() {
             </motion.button>
             <motion.button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-full shadow-lg"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-3 rounded-full shadow-md hover:shadow-lg"
               whileHover={{ scale: 1.2, rotate: 10 }}
               whileTap={{ scale: 0.9 }}
               aria-label={isAr ? "التالي" : "Next"}
@@ -227,8 +259,8 @@ export default function RecentActivities() {
                 <motion.button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentIndex ? "bg-emerald-600 scale-125" : "bg-gray-300"
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentIndex ? "bg-teal-600 scale-125" : "bg-gray-300"
                   }`}
                   whileHover={{ scale: 1.5 }}
                   whileTap={{ scale: 0.9 }}
@@ -238,15 +270,17 @@ export default function RecentActivities() {
             </div>
           </div>
         ) : (
-          <p className="text-center text-gray-600">{isAr ? "لا توجد مشاريع متاحة" : "No projects available"}</p>
+          <p className="text-center text-gray-600 text-lg">
+            {isAr ? "لا توجد أنشطة متاحة" : "No activities available"}
+          </p>
         )}
       </div>
 
       {/* Explore More Button */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-8 text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 text-center">
         <Link
           href={isAr ? "/ar/projects" : "/projects"}
-          className="inline-block bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
+          className="inline-block bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
         >
           {isAr ? "استكشف المزيد من الأنشطة والمشاريع" : "Explore More Activities and Projects"}
         </Link>

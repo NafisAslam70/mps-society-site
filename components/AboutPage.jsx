@@ -5,10 +5,14 @@ import { usePathname } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-// Fixed counter hook with 2-second pause and restart
+// Fixed counter hook with null checks and IntersectionObserver
 function useCount(ref, end) {
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current) {
+      console.warn(`Ref is null for counter with end value ${end}`);
+      return;
+    }
+
     let n = 0;
     const step = Math.ceil(end / 20);
     let id;
@@ -24,7 +28,9 @@ function useCount(ref, end) {
             countUp();
           }, 2000);
         }
-        ref.current.textContent = n.toLocaleString();
+        if (ref.current) {
+          ref.current.textContent = n.toLocaleString();
+        }
       }, 100);
     };
     countUp();
@@ -36,21 +42,38 @@ function useCount(ref, end) {
 export default function AboutPage() {
   const isAr = usePathname().startsWith("/ar");
   const [isMobile, setIsMobile] = useState(false);
+  const counterSectionRef = useRef(null);
+  const refYears = useRef(null);
+  const refProjects = useRef(null);
+  const refPeople = useRef(null);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768); // Set initial state based on window width
+    setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Counters
-  const refYears = useRef(null);
-  const refProjects = useRef(null);
-  const refPeople = useRef(null);
-  useCount(refYears, 7);
-  useCount(refProjects, 5000);
-  useCount(refPeople, 150000);
+  // Trigger counters when section is visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          useCount(refYears, 7);
+          useCount(refProjects, 5000);
+          useCount(refPeople, 150000);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (counterSectionRef.current) {
+      observer.observe(counterSectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Bilingual content
   const content = {
@@ -119,7 +142,6 @@ export default function AboutPage() {
 
     const animateTimeline = () => {
       if (!path || !marker || !items) return;
-      // Reset animations
       path.style.strokeDashoffset = "1000";
       marker.style.transform = "translate(0, 0)";
       items.forEach((item) => {
@@ -129,7 +151,6 @@ export default function AboutPage() {
         dot.style.transform = "scale(1)";
       });
 
-      // Animate path
       path.animate(
         [{ strokeDashoffset: "1000" }, { strokeDashoffset: "0" }],
         {
@@ -139,7 +160,6 @@ export default function AboutPage() {
         }
       );
 
-      // Animate marker along sine curve with continuous loop
       const points = [
         { x: 50, y: 0 },
         { x: 150, y: -50 },
@@ -163,7 +183,6 @@ export default function AboutPage() {
         }
       );
 
-      // Animate timeline items and dots sequentially for desktop
       items.forEach((item, index) => {
         item.animate(
           [
@@ -212,7 +231,6 @@ export default function AboutPage() {
     <div className="min-h-screen bg-[#fef9ef]">
       {/* 1 ▸ Hero */}
       <header className="relative h-[65vh] md:h-[70vh] flex items-center justify-center overflow-hidden pt-12">
-        {/* Background Image with Parallax Effect */}
         <motion.div
           className="absolute inset-0"
           initial={{ scale: 1.2 }}
@@ -230,11 +248,7 @@ export default function AboutPage() {
             sizes="(max-width: 768px) 100vw, 1200px"
           />
         </motion.div>
-
-        {/* Glassmorphic Overlay with Gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/50 via-emerald-800/60 to-emerald-950/70 backdrop-blur-md" />
-
-        {/* Content Container */}
         <motion.div
           dir={isAr ? "rtl" : "ltr"}
           className="relative z-10 max-w-5xl px-4 sm:px-6 text-center space-y-4"
@@ -242,7 +256,6 @@ export default function AboutPage() {
           initial="hidden"
           animate="visible"
         >
-          {/* Logo with Glow Effect */}
           <motion.div variants={itemVariants} className="flex justify-center mb-6">
             <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white/90 bg-white/30 p-2 flex-shrink-0 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)]">
               <Image
@@ -255,16 +268,12 @@ export default function AboutPage() {
               />
             </div>
           </motion.div>
-
-          {/* Hero Title */}
           <motion.h1
             variants={itemVariants}
             className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg"
           >
             {content.heroTitle}
           </motion.h1>
-
-          {/* Hero Tagline with Glassmorphic Card */}
           <motion.div
             variants={itemVariants}
             className="border-2 border-white/80 bg-white/20 backdrop-blur-lg p-2 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
@@ -273,16 +282,12 @@ export default function AboutPage() {
               {content.heroTagline}
             </p>
           </motion.div>
-
-          {/* Hero Text */}
           <motion.p
             variants={itemVariants}
             className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed max-w-3xl mx-auto"
           >
             {content.heroText}
           </motion.p>
-
-          {/* CTA Button with Micro-Interactions */}
           <motion.div variants={itemVariants} className="relative z-20 mt-8">
             <Link
               href={isAr ? "/ar/about" : "/about"}
@@ -308,8 +313,6 @@ export default function AboutPage() {
             </Link>
           </motion.div>
         </motion.div>
-
-        {/* Animated Wave Transition */}
         <svg
           className="absolute bottom-0 left-0 w-full h-24"
           viewBox="0 0 1000 100"
@@ -371,7 +374,6 @@ export default function AboutPage() {
                   Social Worker
                 </p>
                 <div className="mt-2 h-12 w-32 mx-auto">
-                  {/* Placeholder for signature */}
                   <div className="border-b border-gray-600 w-full h-full flex items-center justify-center text-gray-600 font-['Roboto',sans-serif] text-shadow-sm" style={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)" }}>
                     Signature
                   </div>
@@ -407,7 +409,7 @@ export default function AboutPage() {
           />
         </svg>
         <div className="absolute top-24 left-0 w-full h-10 bg-emerald-700 clip-path-angle-up" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
+        <div ref={counterSectionRef} className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <div className="mb-8">
             <h3 className="text-2xl font-bold text-white mb-4">About Us</h3>
             <p className="text-white/80 text-base leading-relaxed max-w-2xl mx-auto text-justify">
@@ -434,7 +436,9 @@ export default function AboutPage() {
                 ref={refYears}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
-              />
+              >
+                0
+              </span>
               {isAr ? "عامًا" : "Years"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
@@ -442,7 +446,9 @@ export default function AboutPage() {
                 ref={refProjects}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
-              />
+              >
+                0
+              </span>
               {isAr ? "مشروعًا" : "Projects"}
             </div>
             <div className="border-2 border-white p-2 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
@@ -450,7 +456,9 @@ export default function AboutPage() {
                 ref={refPeople}
                 className="text-4xl font-extrabold block animate-count-up"
                 style={{ color: "#2ecc71" }}
-              />
+              >
+                0
+              </span>
               {isAr ? "مستفيدًا" : "Beneficiaries"}
             </div>
           </div>
@@ -462,7 +470,6 @@ export default function AboutPage() {
         <h3 className="text-3xl font-bold text-center mb-12 mt-10 text-emerald-800 animate-glow-soft">
           {content.journeyTitle}
         </h3>
-        {/* Desktop Timeline (Horizontal Snake-like Roadmap) */}
         <div className="hidden sm:block relative overflow-visible h-48">
           <svg className="w-full h-48 absolute top-0 left-0" viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet">
             <path
@@ -515,7 +522,6 @@ export default function AboutPage() {
             })}
           </div>
         </div>
-        {/* Mobile Timeline (Vertical Snake-like Line on Right) */}
         <div className="sm:hidden relative w-full min-h-[400px] flex flex-col items-end">
           <svg className="absolute w-12 h-full right-4" viewBox="0 0 40 400" preserveAspectRatio="none">
             <path

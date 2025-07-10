@@ -15,6 +15,7 @@
     "@neondatabase/serverless": "^1.0.1",
     "child_process": "^1.0.2",
     "cloudinary": "^2.7.0",
+    "deepl-node": "^1.19.0",
     "dotenv": "^17.2.0",
     "drizzle-orm": "^0.44.2",
     "framer-motion": "^12.23.0",
