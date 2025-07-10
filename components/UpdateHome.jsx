@@ -9,11 +9,9 @@ const UpdateHome = ({ setView }) => {
   const { websiteData, setWebsiteData, isLoadingWebsiteData, websiteFetchError } = useAppContext();
   const pathname = usePathname();
   const isAr = pathname.startsWith("/ar");
-  const [showSectionModal, setShowSectionModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedSubSection, setSelectedSubSection] = useState(null);
   const [editedSection, setEditedSection] = useState(null);
-  const [pendingChanges, setPendingChanges] = useState({});
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [newVideoUrl, setNewVideoUrl] = useState("");
@@ -37,10 +35,6 @@ const UpdateHome = ({ setView }) => {
     { id: "video", titleEn: "Video Gallery", titleAr: "معرض الفيديو", maxVideos: 6 },
   ];
 
-  const handleOpenSectionModal = () => {
-    setShowSectionModal(true);
-  };
-
   const handleSelectSection = (section, subSection = null) => {
     setSelectedSection(section);
     setSelectedSubSection(subSection);
@@ -49,18 +43,18 @@ const UpdateHome = ({ setView }) => {
       setEditedSection({
         id: section.id,
         subId: subSection.id,
-        images: pendingChanges.education?.[subSection.id]?.images || websiteData.education?.[subSection.id]?.images || [],
+        images: websiteData.education?.[subSection.id]?.images || [],
       });
     } else if (section.id === "video") {
       setEditedSection({
         id: section.id,
-        videos: pendingChanges.video?.videos || websiteData.video?.videos || [],
+        videos: websiteData.video?.videos || [],
       });
     } else {
       setEditedSection({
         id: section.id,
-        images: section.id === "about" ? [pendingChanges[section.id]?.image || websiteData[section.id]?.image || ""] : pendingChanges[section.id]?.images || websiteData[section.id]?.images || [],
-        logo: section.id === "hero" ? pendingChanges.hero?.logo || websiteData.hero?.logo || null : null,
+        images: section.id === "about" ? [websiteData[section.id]?.image || ""] : websiteData[section.id]?.images || [],
+        logo: section.id === "hero" ? websiteData.hero?.logo || null : null,
       });
     }
   };
@@ -141,82 +135,55 @@ const UpdateHome = ({ setView }) => {
     }));
   };
 
-  const handleSaveSection = () => {
+  const handleSave = async () => {
     if (!editedSection || (!editedSection.images?.length && !editedSection.logo && !editedSection.videos?.length)) {
       setMessage(isAr ? "يجب الاحتفاظ بمحتوى واحد على الأقل!" : "At least one content item must remain!");
       return;
     }
 
-    setPendingChanges((prev) => {
-      if (selectedSection.id === "education" && selectedSubSection) {
-        return {
-          ...prev,
-          education: {
-            ...prev.education,
-            [selectedSubSection.id]: { images: editedSection.images },
-          },
-        };
-      }
-      return {
-        ...prev,
-        [selectedSection.id]: {
-          images: selectedSection.id === "about" ? editedSection.images[0] || null : editedSection.images,
-          videos: selectedSection.id === "video" ? editedSection.videos : undefined,
-          ...(selectedSection.id === "hero" && { logo: editedSection.logo }),
-        },
-      };
-    });
-
-    setMessage(isAr ? "تم حفظ التغييرات مؤقتًا!" : "Changes saved temporarily!");
-    setSelectedSection(null);
-    setSelectedSubSection(null);
-    setEditedSection(null);
-    setNewVideoUrl("");
-    setTimeout(() => setMessage(""), 5000);
-  };
-
-  const handleApplyChanges = async () => {
-    if (Object.keys(pendingChanges).length === 0) {
-      setMessage(isAr ? "لا توجد تغييرات لتطبيقها!" : "No changes to apply!");
-      return;
-    }
-
     setIsSaving(true);
     try {
-      for (const [sectionId, data] of Object.entries(pendingChanges)) {
-        const payload = sectionId === "education" ? 
-          Object.entries(data).map(([subId, subData]) => ({
-            id: sectionId,
-            subId,
-            images: subData.images,
-          })) : 
-          [{ id: sectionId, ...data }];
+      const response = await fetch("/api/website-images", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editedSection),
+      });
 
-        for (const item of payload) {
-          const response = await fetch("/api/website-images", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(item),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to update content");
-          }
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update content");
       }
 
-      setWebsiteData((prev) => ({
-        ...prev,
-        ...pendingChanges,
-      }));
+      setWebsiteData((prev) => {
+        if (selectedSection.id === "education" && selectedSubSection) {
+          return {
+            ...prev,
+            education: {
+              ...prev.education,
+              [selectedSubSection.id]: { images: editedSection.images },
+            },
+          };
+        }
+        return {
+          ...prev,
+          [selectedSection.id]: {
+            ...prev[selectedSection.id],
+            images: selectedSection.id === "about" ? editedSection.images[0] || null : editedSection.images,
+            videos: selectedSection.id === "video" ? editedSection.videos : undefined,
+            ...(selectedSection.id === "hero" && { logo: editedSection.logo }),
+          },
+        };
+      });
 
-      setPendingChanges({});
-      setMessage(isAr ? "تم تطبيق جميع التغييرات بنجاح!" : "All changes applied successfully!");
+      setMessage(isAr ? "تم تحديث المحتوى بنجاح!" : "Content updated successfully!");
+      setSelectedSection(null);
+      setSelectedSubSection(null);
+      setEditedSection(null);
+      setNewVideoUrl("");
       setTimeout(() => setMessage(""), 5000);
     } catch (error) {
-      console.error("Apply changes error:", error.message);
-      setMessage(isAr ? `حدث خطأ أثناء تطبيق التغييرات: ${error.message}` : `Error applying changes: ${error.message}`);
+      console.error("Update error:", error.message);
+      setMessage(isAr ? `حدث خطأ أثناء التحديث: ${error.message}` : `Error updating content: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -245,7 +212,7 @@ const UpdateHome = ({ setView }) => {
         <p className="text-center text-red-600">{isAr ? `خطأ في تحميل بيانات الموقع: ${websiteFetchError}` : `Error loading website data: ${websiteFetchError}`}</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 gap-6">
             {sections.map((section) => (
               <motion.div
                 key={section.id}
@@ -254,7 +221,7 @@ const UpdateHome = ({ setView }) => {
                 whileHover={{ scale: 1.03, boxShadow: "0 8px 16px rgba(0, 128, 128, 0.2)" }}
                 transition={{ duration: 0.3 }}
                 className="bg-white rounded-lg p-4 border border-gray-200 hover:bg-teal-50 transition-all duration-300 cursor-pointer"
-                onClick={() => handleOpenSectionModal()}
+                onClick={() => section.id === "education" ? null : handleSelectSection(section)}
               >
                 <h3 className="text-lg font-semibold text-teal-900">{isAr ? section.titleAr : section.titleEn}</h3>
                 {section.id === "education" ? (
@@ -262,119 +229,34 @@ const UpdateHome = ({ setView }) => {
                     {section.subSections.map((subSection) => (
                       <div
                         key={subSection.id}
-                        className="bg-teal-50 p-2 rounded-lg"
+                        className="bg-teal-50 p-2 rounded-lg cursor-pointer hover:bg-teal-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectSection(section, subSection);
+                        }}
                       >
                         <p className="text-sm text-gray-600">{isAr ? subSection.titleAr : subSection.titleEn}</p>
                         <p className="text-sm text-gray-500">
-                          {isAr ? `عدد الصور: ${(pendingChanges.education?.[subSection.id]?.images || websiteData.education?.[subSection.id]?.images || []).length}` : `Images: ${(pendingChanges.education?.[subSection.id]?.images || websiteData.education?.[subSection.id]?.images || []).length}`}
+                          {isAr ? `عدد الصور: ${(websiteData.education?.[subSection.id]?.images || []).length}` : `Images: ${(websiteData.education?.[subSection.id]?.images || []).length}`}
                         </p>
                       </div>
                     ))}
                   </div>
                 ) : section.id === "video" ? (
                   <p className="text-sm text-gray-600 mt-1">
-                    {isAr ? `عدد الفيديوهات: ${(pendingChanges.video?.videos || websiteData.video?.videos || []).length}` : `Videos: ${(pendingChanges.video?.videos || websiteData.video?.videos || []).length}`}
+                    {isAr ? `عدد الفيديوهات: ${(websiteData.video?.videos || []).length}` : `Videos: ${(websiteData.video?.videos || []).length}`}
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600 mt-1">
                     {isAr
-                      ? `عدد الصور: ${section.id === "about" ? (pendingChanges[section.id]?.image || websiteData[section.id]?.image) ? 1 : 0 : (pendingChanges[section.id]?.images || websiteData[section.id]?.images || []).length}`
-                      : `Images: ${section.id === "about" ? (pendingChanges[section.id]?.image || websiteData[section.id]?.image) ? 1 : 0 : (pendingChanges[section.id]?.images || websiteData[section.id]?.images || []).length}`}
-                    {section.hasLogo && ` | ${isAr ? "الشعار: " : "Logo: "} ${(pendingChanges.hero?.logo || websiteData.hero?.logo) ? "Set" : "Not Set"}`}
+                      ? `عدد الصور: ${section.id === "about" ? websiteData[section.id]?.image ? 1 : 0 : websiteData[section.id]?.images?.length || 0}`
+                      : `Images: ${section.id === "about" ? websiteData[section.id]?.image ? 1 : 0 : websiteData[section.id]?.images?.length || 0}`}
+                    {section.hasLogo && ` | ${isAr ? "الشعار: " : "Logo: "} ${websiteData.hero?.logo ? "Set" : "Not Set"}`}
                   </p>
                 )}
               </motion.div>
             ))}
           </div>
-          <div className="text-center">
-            <button
-              onClick={handleApplyChanges}
-              className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 text-base font-semibold disabled:opacity-50"
-              disabled={isSaving || Object.keys(pendingChanges).length === 0}
-            >
-              {isSaving ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-white mx-auto"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                <span>{isAr ? "تطبيق التغييرات" : "Apply Changes"}</span>
-              )}
-            </button>
-          </div>
-          {showSectionModal && (
-            <AnimatePresence>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50"
-              >
-                <motion.div
-                  initial={{ scale: 0.8, y: 20 }}
-                  animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.8, y: 20 }}
-                  className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg border border-teal-200"
-                >
-                  <h3 className="text-xl font-bold text-teal-900 mb-4">
-                    {isAr ? "اختر قسمًا" : "Choose a Section"}
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {sections.map((section) => (
-                      <div key={section.id}>
-                        <button
-                          onClick={() => section.id === "education" ? null : handleSelectSection(section)}
-                          className="w-full text-left px-4 py-2 bg-teal-50 rounded-lg hover:bg-teal-100 transition-all duration-300"
-                          disabled={isSaving}
-                        >
-                          {isAr ? section.titleAr : section.titleEn}
-                        </button>
-                        {section.id === "education" && (
-                          <div className="ml-4 mt-2 grid grid-cols-1 gap-2">
-                            {section.subSections.map((subSection) => (
-                              <button
-                                key={subSection.id}
-                                onClick={() => handleSelectSection(section, subSection)}
-                                className="w-full text-left px-4 py-2 bg-teal-100 rounded-lg hover:bg-teal-200 transition-all duration-300"
-                                disabled={isSaving}
-                              >
-                                {isAr ? subSection.titleAr : subSection.titleEn}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-end mt-6">
-                    <button
-                      onClick={() => setShowSectionModal(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 text-sm font-medium"
-                      disabled={isSaving}
-                    >
-                      {isAr ? "إغلاق" : "Close"}
-                    </button>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </AnimatePresence>
-          )}
           {selectedSection && (
             <AnimatePresence>
               <motion.div
@@ -550,11 +432,34 @@ const UpdateHome = ({ setView }) => {
                       {isAr ? "إلغاء" : "Cancel"}
                     </button>
                     <button
-                      onClick={handleSaveSection}
-                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 text-sm font-medium"
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 text-sm font-medium relative"
                       disabled={isSaving}
                     >
-                      {isAr ? "حفظ مؤقتًا" : "Save Temporarily"}
+                      {isSaving ? (
+                        <svg
+                          className="animate-spin h-5 w-5 text-white mx-auto"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        <span>{isAr ? "حفظ" : "Save"}</span>
+                      )}
                     </button>
                   </div>
                 </motion.div>
