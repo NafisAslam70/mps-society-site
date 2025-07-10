@@ -1,26 +1,27 @@
+"use client";
 import { motion } from "framer-motion";
 import { memo, useState } from "react";
 
-const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleChange, handleFileInput, handleDrop, handleDragOver, handleDragLeave, handleSubmit, setIsAdminLoggedIn, handlePostSubmitAction, isAr }) => {
+const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleChange, handleFileInput, handleDrop, handleDragOver, handleDragLeave, handleSubmit, setIsAdminLoggedIn, handlePostSubmitAction, isAr, router }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!formData.titleEn || !formData.titleAr || !formData.date || !formData.venue || !formData.snippetEn || !formData.snippetAr || !formData.images[0]) {
-      handleChange({ target: { name: "message", value: isAr ? "يرجى ملء جميع الحقول المطلوبة!" : "Please fill all required fields!" } });
+    if (!formData.titleEn || !formData.titleAr || !formData.date || !formData.venue || !formData.snippetEn || !formData.snippetAr || formData.images.filter(img => img).length === 0) {
+      handleChange({ target: { name: "message", value: isAr ? "يرجى ملء جميع الحقول المطلوبة وإضافة صورة واحدة على الأقل!" : "Please fill all required fields and add at least one image!" } });
       return;
     }
     setShowConfirmation(true);
   };
 
   const handleConfirm = () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     handleSubmit({
       formData,
       callback: (success) => {
-        setLoading(false); // Stop loading
+        setLoading(false);
         if (success) {
           setShowConfirmation(false);
           setShowSuccessModal(true);
@@ -30,16 +31,36 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
   };
 
   const handleClearImage = (index) => {
-    handleChange({ target: { name: `image${index + 1}`, value: "", dataset: { index } } });
+    handleChange({ target: { name: "images", value: formData.images.map((img, i) => i === index ? "" : img) } });
+  };
+
+  const handleMultiFileInput = (e) => {
+    const files = Array.from(e.target.files).slice(0, 5 - formData.images.filter(img => img).length); // Limit to 5 total
+    if (files.length === 0) return;
+    const readers = files.map((file) => {
+      const reader = new FileReader();
+      return new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    });
+    Promise.all(readers).then((results) => {
+      const newImages = [...formData.images];
+      results.forEach((result) => {
+        const emptyIndex = newImages.indexOf("");
+        if (emptyIndex !== -1) newImages[emptyIndex] = result;
+      });
+      handleChange({ target: { name: "images", value: newImages } });
+    });
   };
 
   const categoryLabels = {
-    food: isAr ? "توزيع الطعام" : "Food Distribution",
-    education: isAr ? "مبادرات التعليم" : "Education Initiatives",
-    handpumps: isAr ? "تركيب المضخات اليدوية" : "Handpump Installations",
-    wells: isAr ? "بناء الآبار" : "Well Construction",
-    mosques: isAr ? "مشاريع المساجد" : "Mosque Projects",
-    general: isAr ? "مبادرات عامة" : "General Initiatives",
+    food: { ar: "توزيع الطعام", en: "Food Distribution" },
+    education: { ar: "مبادرات التعليم", en: "Education Initiatives" },
+    handpumps: { ar: "تركيب المضخات اليدوية", en: "Handpump Installations" },
+    wells: { ar: "بناء الآبار", en: "Well Construction" },
+    mosques: { ar: "مشاريع المساجد", en: "Mosque Projects" },
+    general: { ar: "مبادرات عامة", en: "General Initiatives" },
   };
 
   return (
@@ -68,10 +89,13 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
                 type="button"
-                onClick={() => handlePostSubmitAction("logout")}
+                onClick={() => {
+                  handlePostSubmitAction("logout");
+                  router.push(isAr ? "/ar/projects" : "/projects"); // Use passed router prop
+                }}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-semibold text-base shadow-md"
               >
-                {isAr ? "عرض الصفحة الرئيسية وتسجيل الخروج" : "View Homepage & Logout"}
+                {isAr ? "عرض المشاريع وتسجيل الخروج" : "View Projects & Logout"}
               </button>
               <button
                 type="button"
@@ -98,7 +122,7 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
             <h3 className="text-lg font-bold text-emerald-800">{isAr ? "تأكيد النشاط" : "Confirm Activity"}</h3>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الفئة" : "Category"}:</label>
-              <p className="text-sm text-gray-600">{categoryLabels[formData.category]}</p>
+              <p className="text-sm text-gray-600">{categoryLabels[formData.category][isAr ? "ar" : "en"]}</p>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "العنوان (إنجليزي)" : "Title (English)"}:</label>
@@ -122,12 +146,16 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
               <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الصور" : "Images"}:</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {formData.images.map((image, index) => image && (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-md"
-                  />
+                  <div key={index} className="relative">
+                    <img src={image} alt={`Preview ${index + 1}`} className="w-full h-32 object-cover rounded-md" />
+                    <button
+                      type="button"
+                      onClick={() => handleClearImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -144,7 +172,7 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={loading} // Disable while loading
+              disabled={loading}
               className={`px-6 py-3 rounded-lg text-white font-semibold text-base shadow-md transition-all duration-300 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800"}`}
             >
               {loading ? (
@@ -176,146 +204,147 @@ const AddActivity = memo(({ setView, formData, message, dragOverIndex, handleCha
           )}
         </motion.div>
       ) : (
-        <form onSubmit={handleFormSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-4 bg-white p-6 rounded-xl shadow-lg"
-          >
-            <h3 className="text-lg font-bold text-emerald-800">{isAr ? "تفاصيل النشاط" : "Activity Details"}</h3>
+        <form onSubmit={handleFormSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 bg-white rounded-xl shadow-lg">
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-emerald-800 mb-4">{isAr ? "تفاصيل النشاط" : "Activity Details"}</h3>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الفئة" : "Category"}</label>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "الفئة" : "Category"}</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 py-2.5 px-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                 required
               >
-                {[
-                  { value: "food", label: isAr ? "توزيع الطعام" : "Food Distribution" },
-                  { value: "education", label: isAr ? "مبادرات التعليم" : "Education Initiatives" },
-                  { value: "handpumps", label: isAr ? "تركيب المضخات اليدوية" : "Handpump Installations" },
-                  { value: "wells", label: isAr ? "بناء الآبار" : "Well Construction" },
-                  { value: "mosques", label: isAr ? "مشاريع المساجد" : "Mosque Projects" },
-                  { value: "general", label: isAr ? "مبادرات عامة" : "General Initiatives" },
-                ].map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
+                {Object.keys(categoryLabels).map((value) => (
+                  <option key={value} value={value}>
+                    {isAr ? categoryLabels[value].ar : categoryLabels[value].en}
+                  </option>
                 ))}
               </select>
             </div>
-            {[
-              { name: "titleEn", label: isAr ? "العنوان (إنجليزي)" : "Title (English)", type: "text", placeholder: isAr ? "أدخل العنوان بالإنجليزية" : "Enter title in English" },
-              { name: "titleAr", label: isAr ? "العنوان (عربي)" : "Title (Arabic)", type: "text", placeholder: isAr ? "أدخل العنوان بالعربية" : "Enter title in Arabic" },
-              { name: "date", label: isAr ? "التاريخ" : "Date", type: "date", placeholder: isAr ? "اختر التاريخ" : "Select date" },
-              { name: "venue", label: isAr ? "الموقع" : "Venue", type: "text", placeholder: isAr ? "أدخل موقع الحدث" : "Enter venue location" },
-            ].map(({ name, label, type, placeholder }) => (
-              <div key={name}>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">{label}</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "العنوان (إنجليزي)" : "Title (English)"}</label>
+              <input
+                type="text"
+                name="titleEn"
+                value={formData.titleEn}
+                onChange={handleChange}
+                placeholder={isAr ? "أدخل العنوان بالإنجليزية" : "Enter title in English"}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "العنوان (عربي)" : "Title (Arabic)"}</label>
+              <input
+                type="text"
+                name="titleAr"
+                value={formData.titleAr}
+                onChange={handleChange}
+                placeholder={isAr ? "أدخل العنوان بالعربية" : "Enter title in Arabic"}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "التاريخ" : "Date"}</label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "الموقع" : "Venue"}</label>
+              <input
+                type="text"
+                name="venue"
+                value={formData.venue}
+                onChange={handleChange}
+                placeholder={isAr ? "أدخل موقع الحدث" : "Enter venue location"}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                required
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="text-xl font-bold text-emerald-800 mb-4">{isAr ? "الصور والوصف" : "Images & Descriptions"}</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{isAr ? "رفع الصور (حتى 5 صور)" : "Upload Images (up to 5)"}</label>
+              <div className="mt-2">
                 <input
-                  type={type}
-                  name={name}
-                  value={formData[name]}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleMultiFileInput}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                />
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-2">
+                  {[...Array(5)].map((_, index) => (
+                    <div key={index} className="relative">
+                      {formData.images[index] ? (
+                        <>
+                          <img src={formData.images[index]} alt={`Preview ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                          <button
+                            type="button"
+                            onClick={() => handleClearImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{isAr ? "الوصف (إنجليزي)" : "Snippet (English)"}</label>
+                <textarea
+                  name="snippetEn"
+                  value={formData.snippetEn}
                   onChange={handleChange}
-                  placeholder={placeholder}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 px-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
+                  placeholder={isAr ? "وصف موجز بالإنجليزية" : "Brief description in English"}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 h-24 resize-y"
                   required
                 />
               </div>
-            ))}
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="lg:col-span-2 space-y-4 bg-white p-6 rounded-xl shadow-lg"
-          >
-            <h3 className="text-lg font-bold text-emerald-800">{isAr ? "الصور والوصف" : "Images & Descriptions"}</h3>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">{isAr ? "الصور (حتى 5 صور)" : "Images (Up to 5 Images)"}</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                {formData.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`relative p-2 border-2 border-dashed rounded-lg h-32 flex items-center justify-center transition-all ${
-                      dragOverIndex === index ? "border-emerald-500 bg-emerald-50" : "border-gray-300"
-                    }`}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDragLeave={handleDragLeave}
-                  >
-                    {image ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={image}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleClearImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full p-1 hover:bg-red-600 transition-all"
-                          title={isAr ? "مسح الصورة" : "Clear image"}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-500 text-center">{isAr ? "اسحب أو انقر لإضافة صورة" : "Drag or click to add image"}</span>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileInput(e, index)}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                  </div>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{isAr ? "الوصف (عربي)" : "Snippet (Arabic)"}</label>
+                <textarea
+                  name="snippetAr"
+                  value={formData.snippetAr}
+                  onChange={handleChange}
+                  placeholder={isAr ? "وصف موجز بالعربية" : "Brief description in Arabic"}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 h-24 resize-y"
+                  required
+                />
               </div>
-              <p className="text-xs text-gray-500 mt-2">{isAr ? "اسحب الصور أو انقر لتحميلها (حتى 5 صور)" : "Drag and drop images or click to upload (up to 5 images)"}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { name: "snippetEn", label: isAr ? "الوصف (إنجليزي)" : "Snippet (English)", placeholder: isAr ? "وصف موجز بالإنجليزية" : "Brief description in English" },
-                { name: "snippetAr", label: isAr ? "الوصف (عربي)" : "Snippet (Arabic)", placeholder: isAr ? "وصف موجز بالعربية" : "Brief description in Arabic" },
-              ].map(({ name, label, placeholder }) => (
-                <div key={name}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">{label}</label>
-                  <textarea
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    placeholder={placeholder}
-                    className="w-full rounded-lg border border-gray-300 py-2.5 px-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm h-32 resize-y"
-                    required
-                  />
-                </div>
-              ))}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="lg:col-span-3 flex flex-col items-center mt-4"
-          >
+          </div>
+          <div className="lg:col-span-3 flex justify-center">
             <button
               type="submit"
-              className="w-full md:w-1/3 bg-gradient-to-r from-emerald-600 to-teal-700 text-white py-3 rounded-lg hover:from-emerald-700 hover:to-teal-800 transition-all duration-300 font-semibold text-base shadow-md hover:shadow-lg"
+              className="w-full md:w-1/3 bg-gradient-to-r from-emerald-600 to-teal-700 text-white py-3 rounded-lg hover:from-emerald-700 hover:to-teal-800 transition-all duration-300 font-semibold shadow-md hover:shadow-lg"
             >
               {isAr ? "إضافة النشاط" : "Add Activity"}
             </button>
-            {message && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded-md text-center"
-              >
-                {message}
-              </motion.p>
-            )}
-          </motion.div>
+          </div>
+          {message && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded-md text-center col-span-full"
+            >
+              {message}
+            </motion.p>
+          )}
         </form>
       )}
     </div>

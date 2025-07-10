@@ -2,6 +2,7 @@
   "name": "mpss",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -12,11 +13,13 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "child_process": "^1.0.2",
     "cloudinary": "^2.7.0",
-    "dotenv": "^17.1.0",
+    "dotenv": "^17.2.0",
     "drizzle-orm": "^0.44.2",
     "framer-motion": "^12.23.0",
     "fs": "^0.0.1-security",
+    "google-translate-api": "^2.3.0",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
