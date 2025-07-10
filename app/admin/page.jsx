@@ -99,13 +99,23 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
         images: formData.images.filter((img) => img),
       };
 
+      console.log("Saving activity:", newActivity);
+
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newActivity),
       });
 
-      if (!response.ok) throw new Error("Failed to save project");
+      if (!response.ok) {
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          throw new Error(data.error || "Failed to save project");
+        } catch (parseError) {
+          throw new Error(`Failed to save project: ${text}`);
+        }
+      }
 
       const data = await response.json();
       setProjectData({
@@ -136,8 +146,9 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
       }
       if (callback) callback(true);
     } catch (error) {
-      console.error("Error submitting activity:", error);
-      setMessage(isAr ? "حدث خطأ أثناء إضافة النشاط!" : "Error adding activity!");
+      console.error("Error submitting activity:", error.message, error.stack);
+      setMessage(isAr ? "حدث خطأ أثناء إضافة النشاط: " + error.message : "Error adding activity: " + error.message);
+      if (callback) callback(false);
     }
   };
 
@@ -165,35 +176,35 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
   };
 }
 
-const Dashboard = memo(({ setView, setMessage, isAr }) => (
-  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 p-6 overflow-y-auto">
+const Dashboard = memo(({ setView, setMessage }) => (
+  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
     {[
       {
-        title: isAr ? "إدارة الجمعية" : "Manage Society",
-        description: isAr ? "الإشراف على أنشطة الجمعية ومحتوى الموقع" : "Oversee society activities and website content",
+        title: "Manage Society",
+        description: "Oversee society activities and website content",
         onClick: () => setView("manageSociety"),
         icon: (
-          <svg className="w-12 h-12 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v2h5m-2-2a3 3 0 005.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         ),
       },
       {
-        title: isAr ? "إدارة المدرسة" : "Manage School",
-        description: isAr ? "التعامل مع العمليات المتعلقة بالمدرسة" : "Handle school-related operations",
-        onClick: () => setMessage(isAr ? "إدارة المدرسة: ميزة قادمة قريبًا!" : "Manage School: Feature coming soon!"),
+        title: "Manage School",
+        description: "Handle school-related operations",
+        onClick: () => setMessage("Manage School: Feature coming soon!"),
         icon: (
-          <svg className="w-12 h-12 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
           </svg>
         ),
       },
       {
-        title: isAr ? "إدارة الشؤون المالية" : "Manage Finance",
-        description: isAr ? "تتبع وإدارة السجلات المالية" : "Track and manage financial records",
-        onClick: () => setMessage(isAr ? "إدارة الشؤون المالية: ميزة قادمة قريبًا!" : "Manage Finance: Feature coming soon!"),
+        title: "Manage Finance",
+        description: "Track and manage financial records",
+        onClick: () => setMessage("Manage Finance: Feature coming soon!"),
         icon: (
-          <svg className="w-12 h-12 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         ),
@@ -216,34 +227,34 @@ const Dashboard = memo(({ setView, setMessage, isAr }) => (
   </div>
 ));
 
-const ManageSociety = memo(({ setView, setMessage, isAr }) => (
-  <div className="flex-1 p-6 overflow-y-auto">
+const ManageSociety = memo(({ setView, setMessage }) => (
+  <div className="flex-1 p-6">
     <button
       onClick={() => setView("dashboard")}
       className="mb-6 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 hover:shadow-lg transition-all duration-300 text-sm font-semibold"
     >
-      {isAr ? "العودة إلى لوحة التحكم" : "Back to Dashboard"}
+      Back to Dashboard
     </button>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[
         {
-          title: isAr ? "إضافة نشاط جديد" : "Add New Activity",
-          description: isAr ? "إنشاء نشاط جديد للجمعية" : "Create a new society activity",
+          title: "Add New Activity",
+          description: "Create a new society activity",
           onClick: () => setView("addActivity"),
         },
         {
-          title: isAr ? "تعديل الأنشطة الحالية" : "Modify Existing Activities",
-          description: isAr ? "تعديل أو حذف الأنشطة الحالية" : "Edit or delete existing activities",
+          title: "Modify Existing Activities",
+          description: "Edit or delete existing activities",
           onClick: () => setView("modifyActivities"),
         },
         {
-          title: isAr ? "نشر إعلان" : "Post an Announcement",
-          description: isAr ? "مشاركة التحديثات على الصفحة الرئيسية (قريبًا)" : "Share updates on the homepage (coming soon)",
-          onClick: () => setMessage(isAr ? "نشر إعلان: ميزة قادمة قريبًا!" : "Post an Announcement: Feature coming soon!"),
+          title: "Post an Announcement",
+          description: "Share updates on the homepage (coming soon)",
+          onClick: () => setMessage("Post an Announcement: Feature coming soon!"),
         },
         {
-          title: isAr ? "تحديث صور الموقع" : "Update Website Pictures",
-          description: isAr ? "إدارة محتوى صور الموقع" : "Manage website image content",
+          title: "Update Website Pictures",
+          description: "Manage website image content",
           onClick: () => setView("updateHome"),
         },
       ].map(({ title, description, onClick }, index) => (
@@ -298,8 +309,8 @@ export default function AdminPortal() {
   if (!isAdminLoggedIn) return null;
 
   const views = {
-    dashboard: <Dashboard setView={setView} setMessage={setMessage} isAr={isAr} />,
-    manageSociety: <ManageSociety setView={setView} setMessage={setMessage} isAr={isAr} />,
+    dashboard: <Dashboard setView={setView} setMessage={setMessage} />,
+    manageSociety: <ManageSociety setView={setView} setMessage={setMessage} />,
     addActivity: (
       <AddActivity
         setView={setView}
@@ -329,16 +340,16 @@ export default function AdminPortal() {
       transition={{ duration: 0.3 }}
       className="min-h-screen bg-gray-50 flex items-start justify-center p-4 pt-6"
     >
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-7xl h-[calc(90vh-4rem)] flex flex-col relative overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-7xl h-[calc(90vh-4rem)] flex flex-col">
         <h1 className="text-3xl font-bold text-center text-teal-900 mb-4">{isAr ? "لوحة تحكم المشرف" : "Admin Portal"}</h1>
         {message && view !== "addActivity" && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-teal-600 text-sm text-center mb-4 bg-teal-50 rounded-lg py-2 px-4 cursor-pointer"
+            className="text-teal-600 text-sm text-center mb-4 bg-teal-50 rounded-lg py-2 px-4"
             onClick={() => setMessage("")}
           >
-            {message} {isAr ? "(انقر للإغلاق)" : "(Click to dismiss)"}
+            {message} (Click to dismiss)
           </motion.p>
         )}
         {views[view]}

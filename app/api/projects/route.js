@@ -1,19 +1,11 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { projects } from "@/utils/schema";
-import { v2 as cloudinary } from "cloudinary";
 import { eq, desc } from "drizzle-orm";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 export async function GET(req) {
   console.log("GET request received at:", new Date().toISOString());
   console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
-  console.log("CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Not set");
 
   try {
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
@@ -75,36 +67,21 @@ export async function POST(req) {
   try {
     // Validate environment variables
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
-    if (!process.env.CLOUDINARY_CLOUD_NAME) throw new Error("CLOUDINARY_CLOUD_NAME is not set");
-    if (!process.env.CLOUDINARY_API_KEY) throw new Error("CLOUDINARY_API_KEY is not set");
-    if (!process.env.CLOUDINARY_API_SECRET) throw new Error("CLOUDINARY_API_SECRET is not set");
 
     // Validate input
     if (!newActivity.category || !newActivity.titleEn || !newActivity.titleAr || !newActivity.date || !newActivity.venue || !newActivity.snippetEn || !newActivity.snippetAr) {
       throw new Error("Missing required fields in activity data");
     }
 
-    const imageUrls = [];
-    for (const [index, image] of newActivity.images.entries()) {
-      if (image && image.startsWith("data:image/")) {
-        console.log(`Uploading image ${index}:`, image.substring(0, 50) + "...");
-        try {
-          const result = await cloudinary.uploader.upload(image, {
-            folder: `projects/${newActivity.category}`,
-            public_id: `${Date.now()}_${index}`,
-          });
-          imageUrls.push(result.secure_url);
-          console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
-        } catch (uploadError) {
-          console.error(`Failed to upload image ${index} to Cloudinary:`, uploadError.message);
-          throw new Error(`Image upload failed: ${uploadError.message}`);
-        }
-      }
+    // Validate images (expect Cloudinary URLs or placeholder)
+    const imageUrls = newActivity.images.filter(img => img && !img.startsWith("data:image/"));
+    if (imageUrls.length === 0) {
+      imageUrls.push("/placeholder.png");
     }
 
     const activityToSave = {
       ...newActivity,
-      images: imageUrls.length > 0 ? imageUrls : ["/placeholder.png"],
+      images: imageUrls,
       createdAt: new Date(),
     };
 
@@ -151,6 +128,13 @@ export async function PUT(req) {
       (image) => image && !image.includes("placeholder.png") && !newImages.includes(image)
     );
 
+    const { v2: cloudinary } = require("cloudinary");
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
     for (const image of imagesToDelete) {
       try {
         const publicId = `projects/${currentCategory}/${image.split("/").pop().replace(/\.[^/.]+$/, "")}`;
@@ -162,28 +146,14 @@ export async function PUT(req) {
       }
     }
 
-    const imageUrls = [];
-    for (const [index, image] of newImages.entries()) {
-      if (image && image.startsWith("data:image/")) {
-        console.log(`Uploading image ${index}:`, image.substring(0, 50) + "...");
-        try {
-          const result = await cloudinary.uploader.upload(image, {
-            folder: `projects/${updatedActivity.category || currentCategory}`,
-            public_id: `${Date.now()}_${index}`,
-          });
-          imageUrls.push(result.secure_url);
-          console.log(`Uploaded to ${result.secure_url}, public_id: ${result.public_id}`);
-        } catch (err) {
-          console.error(`Failed to upload image ${index} to Cloudinary:`, err.message);
-        }
-      } else if (image && !image.includes("placeholder.png")) {
-        imageUrls.push(image);
-      }
+    const imageUrls = newImages.filter(img => img && !img.startsWith("data:image/"));
+    if (imageUrls.length === 0) {
+      imageUrls.push("/placeholder.png");
     }
 
     const activityToSave = {
       ...updatedActivity,
-      images: imageUrls.length > 0 ? imageUrls : ["/placeholder.png"],
+      images: imageUrls,
       createdAt: updatedActivity.createdAt ? new Date(updatedActivity.createdAt) : undefined,
     };
 
@@ -230,6 +200,13 @@ export async function DELETE(req) {
 
     const images = project[0].images || [];
     const category = project[0].category;
+
+    const { v2: cloudinary } = require("cloudinary");
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
 
     for (const image of images) {
       if (image && !image.includes("placeholder.png")) {

@@ -38,7 +38,7 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
     handleChange({ target: { name: "images", value: formData.images.map((img, i) => i === index ? "" : img) } });
   };
 
-  const handleMultiFileInput = (e) => {
+  const handleMultiFileInput = async (e) => {
     const currentImageCount = formData.images.filter(img => img).length;
     const files = Array.from(e.target.files).slice(0, 5 - currentImageCount);
     if (files.length === 0) {
@@ -47,22 +47,38 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
       }
       return;
     }
+    // Validate image size (e.g., <1MB per image)
+    for (const file of files) {
+      if (file.size > 1 * 1024 * 1024) {
+        setImageError(isAr ? "حجم الصورة كبير جدًا (الحد الأقصى 1 ميغابايت لكل صورة)!" : "Image size too large (max 1MB per image)!");
+        return;
+      }
+    }
     setImageError("");
-    const readers = files.map((file) => {
-      const reader = new FileReader();
-      return new Promise((resolve) => {
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-    });
-    Promise.all(readers).then((results) => {
-      const newImages = [...formData.images];
-      results.forEach((result) => {
-        const emptyIndex = newImages.indexOf("");
-        if (emptyIndex !== -1) newImages[emptyIndex] = result;
-      });
-      handleChange({ target: { name: "images", value: newImages } });
-    });
+    const imageUrls = [...formData.images];
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("category", formData.category);
+        const response = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Image upload failed");
+        }
+        const emptyIndex = imageUrls.indexOf("");
+        if (emptyIndex !== -1) {
+          imageUrls[emptyIndex] = data.secure_url;
+        }
+      } catch (error) {
+        setImageError(isAr ? "فشل رفع الصورة: " + error.message : "Image upload failed: " + error.message);
+        return;
+      }
+    }
+    handleChange({ target: { name: "images", value: imageUrls } });
   };
 
   const handleTranslate = async () => {
@@ -238,9 +254,9 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
                   <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                {isAr ? "جارٍ الحفظ..." : "Saving..."}
-              </span>
+                  </svg>
+                  {isAr ? "جارٍ الحفظ..." : "Saving..."}
+                </span>
               ) : isAr ? "تأكيد" : "Confirm"}
             </button>
             <button
@@ -265,7 +281,6 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
         <form onSubmit={handleFormSubmit} className="bg-white rounded-xl shadow-lg p-6 w-full h-full overflow-auto">
           <h2 className="text-2xl font-semibold text-teal-900 mb-4">{isAr ? "إضافة نشاط جديد" : "Add New Activity"}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Left Column: English Inputs, Category, Language */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -330,7 +345,6 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
                 />
               </div>
             </div>
-            {/* Right Column: Arabic Inputs, Venue, Date, Translate Button */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{isAr ? "العنوان (عربي)" : "Title (Arabic)"}</label>
@@ -402,7 +416,6 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
               </div>
             </div>
           </div>
-          {/* Images */}
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">{isAr ? "رفع الصور (حتى 5 صور)" : "Upload Images (up to 5)"}</label>
             <input
@@ -439,7 +452,6 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
               ))}
             </div>
           </div>
-          {/* Submit Button */}
           <div className="flex justify-center mt-4">
             <button
               type="submit"
