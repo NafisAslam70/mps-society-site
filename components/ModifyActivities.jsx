@@ -149,8 +149,6 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
       setShowConfirmDelete(false);
       setActivityToDelete(null);
       setIsDeleting(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
     }
   };
 
@@ -196,7 +194,7 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
   }
 
   return (
-    <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
+    <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto relative">
       <button
         onClick={() => setView("manageSociety")}
         className="mb-6 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 hover:shadow-lg transition-all duration-300 text-sm font-semibold"
@@ -279,19 +277,19 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
           );
         })}
       </div>
-      {selectedActivity && (
-        <AnimatePresence>
+      <AnimatePresence>
+        {selectedActivity && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50"
+            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl border border-teal-200"
+              className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl border border-teal-200 max-h-[80vh] overflow-y-auto"
             >
               <h3 className="text-xl font-bold text-teal-900 mb-4">{isAr ? "تعديل النشاط" : "Edit Activity"}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -460,15 +458,13 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
               </div>
             </motion.div>
           </motion.div>
-        </AnimatePresence>
-      )}
-      {showConfirmDelete && (
-        <AnimatePresence>
+        )}
+        {showConfirmDelete && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50"
+            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
@@ -519,21 +515,19 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
               </div>
             </motion.div>
           </motion.div>
-        </AnimatePresence>
-      )}
-      {showSuccessModal && (
-        <AnimatePresence>
+        )}
+        {showSuccessModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md"
+              className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-teal-200"
             >
               <h3 className="text-lg font-semibold text-teal-900 mb-4">{isAr ? "نجاح!" : "Success!"}</h3>
               <p className="text-sm text-teal-600 bg-teal-50 p-3 rounded-md text-center mb-4">
@@ -544,6 +538,8 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                   onClick={() => {
                     setView("manageSociety");
                     setShowSuccessModal(false);
+                    setSelectedActivity(null);
+                    setEditedActivity(null);
                   }}
                   className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 font-medium text-sm shadow-md"
                 >
@@ -552,8 +548,8 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
               </div>
             </motion.div>
           </motion.div>
-        </AnimatePresence>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
