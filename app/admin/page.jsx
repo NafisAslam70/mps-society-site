@@ -165,7 +165,7 @@ function useActivityForm({ setView, projectData, setProjectData, setIsAdminLogge
   };
 }
 
-const Dashboard = memo(({ setView, setMessage }) => (
+const Dashboard = memo(({ setView, setMessage, isAr }) => (
   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 p-6 overflow-y-auto">
     {[
       {
@@ -268,8 +268,6 @@ export default function AdminPortal() {
   const { projectData, setProjectData, isAdminLoggedIn, setIsAdminLoggedIn, refreshProjects, websiteData, setWebsiteData } = useAppContext();
   const [view, setView] = useState("dashboard");
   const router = useRouter();
-  const pathname = usePathname();
-  const isAr = pathname.startsWith("/ar");
   const {
     formData,
     message,
@@ -282,6 +280,7 @@ export default function AdminPortal() {
     handleSubmit,
     setMessage,
     handlePostSubmitAction,
+    isAr,
   } = useActivityForm({
     setView,
     projectData,
@@ -299,7 +298,7 @@ export default function AdminPortal() {
   if (!isAdminLoggedIn) return null;
 
   const views = {
-    dashboard: <Dashboard setView={setView} setMessage={setMessage} />,
+    dashboard: <Dashboard setView={setView} setMessage={setMessage} isAr={isAr} />,
     manageSociety: <ManageSociety setView={setView} setMessage={setMessage} isAr={isAr} />,
     addActivity: (
       <AddActivity

@@ -12,19 +12,3 @@ export const projects = pgTable("projects", {
   images: jsonb("images").notNull().default([]),
   createdAt: timestamp("createdAt").defaultNow(),
 });
-
-export const websiteContent = pgTable("website_content", {
-  id: varchar("id", { length: 255 }).primaryKey().default("singleton"),
-  data: jsonb("data").notNull().default({
-    hero: { images: [], logo: null },
-    about: { image: null },
-    education: {
-      academics: { images: [] },
-      sports: { images: [] },
-      hostel: { images: [] },
-      others: { images: [] },
-    },
-    video: { videos: [] },
-  }),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
