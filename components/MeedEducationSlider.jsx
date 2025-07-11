@@ -368,63 +368,60 @@ export default function MeedEducationSlider() {
     const parts = isAr ? ["تعليم @ ", "ميد"] : ["Education @ ", "Meed"];
     return (
       <>
-        <span className={isAr ? "font-amiri" : "font-inter"}>{parts[0]}</span>
-        <span className={isAr ? "font-amiri" : "font-inter"}>{parts[1]}</span>
+        <span className={`font-bold ${isAr ? "font-amiri" : "font-inter"}`}>{parts[0]}</span>
+        <span className={`font-extrabold text-emerald-500 ${isAr ? "font-amiri" : "font-inter"}`}>{parts[1]}</span>
       </>
     );
   };
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState(defaultSlides);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     if (isInitialLoad && !isLoadingWebsiteData) {
-      console.log("Website Data:", websiteData);
       const updatedSlides = defaultSlides.map((slide) => {
-        console.log(`Processing category: ${slide.category}, dbKey: ${slide.dbKey}`);
         const dbImages = websiteData.mainPage?.education?.[slide.dbKey]?.images || [];
-        console.log(`DB Images for ${slide.dbKey}:`, dbImages);
         return {
           ...slide,
           images: dbImages.length > 0 ? dbImages.map((src, idx) => ({ src, alt: `${slide.category} ${idx + 1}` })) : slide.images,
         };
       });
-      console.log("Updated Slides:", updatedSlides);
-      const islamicEducationSlide = updatedSlides.find(s => s.category === (isAr ? "التعليم الإسلامي" : "Islamic Education"));
-      console.log("Islamic Education Slide Images:", islamicEducationSlide?.images);
-      console.log("Raw Islamic Education Images:", websiteData.mainPage?.education?.islamicEducation?.images);
       setSlides(updatedSlides);
       setIsInitialLoad(false);
     }
   }, [isInitialLoad, isLoadingWebsiteData, websiteData.mainPage?.education]);
 
-  // Navigation (adjusted for Arabic RTL)
+  // Navigation (category-based)
   const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (isAr ? (prev - 1 + Math.ceil(slides[currentIndex].images.length / 4)) % Math.ceil(slides[currentIndex].images.length / 4) : (prev + 1) % Math.ceil(slides[currentIndex].images.length / 4)));
-    console.log("Next slide triggered, currentSlideIndex:", currentSlideIndex, "Images:", slides[currentIndex].images);
+    setCurrentIndex((prev) => {
+      const newIndex = isAr ? prev - 1 : prev + 1;
+      return newIndex >= slides.length ? 0 : newIndex < 0 ? slides.length - 1 : newIndex;
+    });
+    console.log(`Next category: currentIndex=${currentIndex}`);
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex((prev) => (isAr ? (prev + 1) % Math.ceil(slides[currentIndex].images.length / 4) : (prev - 1 + Math.ceil(slides[currentIndex].images.length / 4)) % Math.ceil(slides[currentIndex].images.length / 4)));
-    console.log("Previous slide triggered, currentSlideIndex:", currentSlideIndex, "Images:", slides[currentIndex].images);
+    setCurrentIndex((prev) => {
+      const newIndex = isAr ? prev + 1 : prev - 1;
+      return newIndex >= slides.length ? 0 : newIndex < 0 ? slides.length - 1 : newIndex;
+    });
+    console.log(`Prev category: currentIndex=${currentIndex}`);
   };
 
   // Swipe handlers (adjusted for Arabic RTL)
   const handlers = useSwipeable({
-    onSwipedLeft: isAr ? prevSlide : nextSlide, // Swipe left moves right in RTL
-    onSwipedRight: isAr ? nextSlide : prevSlide, // Swipe right moves left in RTL
+    onSwipedLeft: isAr ? prevSlide : nextSlide,
+    onSwipedRight: isAr ? nextSlide : prevSlide,
     trackMouse: true,
+    preventDefaultTouchmoveEvent: true,
   });
 
-  // Automatic category cycling (adjusted for Arabic RTL)
+  // Automatic category cycling
   useEffect(() => {
     const categoryInterval = setInterval(() => {
       setCurrentIndex((prev) => (isAr ? (prev - 1 + slides.length) % slides.length : (prev + 1) % slides.length));
-      setCurrentSlideIndex(0);
-    }, 5000);
-
+    }, 7000); // Slower cycle for better UX
     return () => clearInterval(categoryInterval);
   }, [slides.length]);
 
@@ -432,11 +429,11 @@ export default function MeedEducationSlider() {
   const [particles, setParticles] = useState([]);
   useEffect(() => {
     setParticles(
-      Array.from({ length: 5 }).map((_, i) => ({
+      Array.from({ length: 10 }).map((_, i) => ({
         id: i,
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
-        size: `${Math.random() * 6 + 2}px`,
+        size: `${Math.random() * 5 + 3}px`,
       }))
     );
 
@@ -444,13 +441,13 @@ export default function MeedEducationSlider() {
       setParticles((prevParticles) =>
         prevParticles.map((particle) => ({
           ...particle,
-          left: `${Math.max(0, Math.min(100, parseFloat(particle.left) + (Math.random() - 0.5)))}%`,
-          top: `${Math.max(0, Math.min(100, parseFloat(particle.top) + (Math.random() - 0.5)))}%`,
+          left: `${Math.max(0, Math.min(100, parseFloat(particle.left) + (Math.random() - 0.5) * 0.5))}%`,
+          top: `${Math.max(0, Math.min(100, parseFloat(particle.top) + (Math.random() - 0.5) * 0.5))}%`,
         }))
       );
     };
 
-    const interval = setInterval(animateParticles, 100);
+    const interval = setInterval(animateParticles, 150);
     return () => clearInterval(interval);
   }, []);
 
@@ -458,41 +455,48 @@ export default function MeedEducationSlider() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-  // Card animation variants
+  // Animation variants
   const cardVariants = {
     initial: { scale: 1, opacity: 0.8 },
-    hover: { scale: 1.1, opacity: 1, transition: { duration: 0.3 } },
-    active: { scale: 1.2, opacity: 1, transition: { duration: 0.3 } },
+    hover: { scale: 1.05, opacity: 1, transition: { duration: 0.3 } },
+    active: { scale: 1.1, opacity: 1, transition: { duration: 0.3 } },
+  };
+
+  const imageVariants = {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
+    hover: { scale: 1.05, transition: { duration: 0.3 } },
   };
 
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden"
-      dir={isAr ? "rtl" : "ltr"} // Set text direction based on language
+      className="relative py-24 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden"
+      dir={isAr ? "rtl" : "ltr"}
     >
       {/* Particle Background */}
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute rounded-full bg-teal-300/20"
+          className="absolute rounded-full bg-teal-300/30 shadow-sm"
           style={{
             left: particle.left,
             top: particle.top,
             width: particle.size,
             height: particle.size,
+            boxShadow: "0 0 8px rgba(13, 148, 136, 0.3)",
           }}
-          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
       ))}
 
       {/* Header */}
       <motion.h2
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`text-center text-5xl font-bold mb-12 ${
+        initial={{ opacity: 0, y: 50 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className={`text-center text-5xl md:text-6xl font-extrabold mb-16 ${
           isAr ? "font-amiri" : "font-inter"
         } bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-500`}
       >
@@ -503,33 +507,36 @@ export default function MeedEducationSlider() {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-        className={`max-w-4xl mx-auto px-6 mb-16 flex ${
+        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        className={`max-w-5xl mx-auto px-8 mb-20 flex ${
           isAr ? "flex-row-reverse" : "flex-row"
-        } justify-center gap-4`}
-        style={{ maxWidth: "100%", overflow: "hidden" }}
+        } justify-center gap-3 relative`}
       >
         {slides.map((slide, index) => (
           <motion.div
             key={slide.category}
-            className={`px-6 py-3 rounded-lg cursor-pointer text-center ${
+            className={`relative px-8 py-4 rounded-xl cursor-pointer text-center ${
               currentIndex === index
-                ? "bg-gradient-to-r from-teal-600 to-emerald-500 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
+                ? "bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow-lg"
+                : "bg-gray-200/80 text-gray-800 hover:bg-gray-300/80"
+            } backdrop-blur-sm transition-all duration-300`}
             variants={cardVariants}
             initial="initial"
             whileHover="hover"
             animate={currentIndex === index ? "active" : "initial"}
-            onClick={() => {
-              setCurrentIndex(index);
-              setCurrentSlideIndex(0);
-            }}
-            style={{ minWidth: "120px", flexShrink: 0 }}
+            onClick={() => setCurrentIndex(index)}
+            style={{ minWidth: "140px", flexShrink: 0 }}
           >
             <span className={`text-lg font-semibold ${isAr ? "font-amiri" : "font-inter"}`}>
               {slide.category}
             </span>
+            {currentIndex === index && (
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-1 bg-white/50"
+                layoutId="underline"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            )}
           </motion.div>
         ))}
       </motion.div>
@@ -538,83 +545,88 @@ export default function MeedEducationSlider() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, x: 50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="max-w-7xl mx-auto px-8 bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl mb-16 relative"
+          initial={{ opacity: 0, x: isAr ? -100 : 100 }}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: isAr ? -100 : 100 }}
+          exit={{ opacity: 0, x: isAr ? 100 : -100 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="max-w-7xl mx-auto px-8 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl mb-20 relative border border-teal-200/20"
+          {...handlers}
         >
           {/* Left Arrow */}
           <motion.button
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white text-3xl font-bold bg-teal-600/30 p-2 rounded-full hover:bg-teal-600/50 transition-colors"
-            onClick={prevSlide}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Previous slide"
+            className="absolute left-6 top-1/2 transform -translate-y-1/2 z-30 text-teal-600 text-4xl font-bold bg-white/80 p-4 rounded-full shadow-md hover:bg-teal-600 hover:text-white transition-all duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              prevSlide();
+            }}
+            whileHover={{ scale: 1.15, boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Previous category"
           >
             ‹
           </motion.button>
 
           {/* Right Arrow */}
           <motion.button
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white text-3xl font-bold bg-teal-600/30 p-2 rounded-full hover:bg-teal-600/50 transition-colors"
-            onClick={nextSlide}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Next slide"
+            className="absolute right-6 top-1/2 transform -translate-y-1/2 z-30 text-teal-600 text-4xl font-bold bg-white/80 p-4 rounded-full shadow-md hover:bg-teal-600 hover:text-white transition-all duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              nextSlide();
+            }}
+            whileHover={{ scale: 1.15, boxShadow: "0 4px 15px rgba(0,0,0,0.2)" }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Next category"
           >
             ›
           </motion.button>
 
-          <div className="p-8 text-center">
-            <h2 className={`text-4xl font-bold text-teal-700 mb-3 ${isAr ? "font-amiri" : "font-inter"}`}>
+          <div className="p-10 text-center">
+            <h2 className={`text-4xl md:text-5xl font-bold text-teal-700 mb-4 ${isAr ? "font-amiri" : "font-inter"}`}>
               {slides[currentIndex].category}
             </h2>
-            <p className={`text-lg text-gray-600 ${isAr ? "font-amiri" : "font-inter"}`}>
+            <p className={`text-xl text-gray-600 max-w-2xl mx-auto ${isAr ? "font-amiri" : "font-inter"}`}>
               {slides[currentIndex].description}
             </p>
           </div>
-          <div {...handlers} className="relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
-              {slides[currentIndex].images
-                .slice(currentSlideIndex * 4, (currentSlideIndex + 1) * 4)
-                .map((image, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.4, delay: 0.1 + idx * 0.1, ease: "easeOut" }}
-                    className="relative w-full h-64 rounded-xl overflow-hidden shadow-md"
-                    whileHover={{ scale: 1.03 }}
-                  >
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        e.target.src = DEFAULT_IMAGE;
-                        console.error(`Image load failed for ${image.src}`);
-                      }}
-                    />
-                  </motion.div>
-                ))}
-            </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
+            {slides[currentIndex].images.slice(0, 4).map((image, idx) => (
+              <motion.div
+                key={idx}
+                variants={imageVariants}
+                initial="initial"
+                animate="animate"
+                whileHover="hover"
+                className="relative w-full h-72 rounded-xl overflow-hidden shadow-lg border border-teal-200/20"
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  className="object-cover"
+                  onError={(e) => {
+                    e.target.src = DEFAULT_IMAGE;
+                    console.error(`Image load failed for ${image.src}`);
+                  }}
+                />
+              </motion.div>
+            ))}
           </div>
+
           {/* Visit School Button */}
-          <div className="p-8 text-center">
+          <div className="p-10 text-center">
             <motion.a
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
               href="https://www.mymeedpss.com"
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-block bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold px-8 py-3 rounded-full hover:from-teal-700 hover:to-emerald-600 transition-all duration-300 ${
+              className={`inline-block bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold px-10 py-4 rounded-full shadow-lg hover:from-teal-700 hover:to-emerald-600 transition-all duration-300 ${
                 isAr ? "font-amiri" : "font-inter"
               }`}
-              whileHover={{ scale: 1.05, boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}
-              whileTap={{ scale: 0.95}}
+              whileHover={{ scale: 1.05, boxShadow: "0 6px 25px rgba(0,0,0,0.15)" }}
+              whileTap={{ scale: 0.95 }}
             >
               {isAr ? "زيارة مدرسة ميد العامة" : "Visit Meed Public School"}
             </motion.a>

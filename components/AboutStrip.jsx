@@ -248,7 +248,7 @@ export default function AboutStrip() {
             <div className="mt-4">
               <Link
                 href={href}
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-md transition-colors duration-200"
+                className="inline-block bg-gradient-to-r from-[#1270a3] to-[#0f6b9c] hover:from-[#0f6b9c] hover:to-[#0c5680] text-white font-semibold py-2 px-6 rounded-full shadow-md transition-colors duration-200"
               >
                 {cta}
               </Link>
