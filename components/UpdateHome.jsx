@@ -44,7 +44,7 @@ const UpdateHome = ({ setView }) => {
   }, [debouncedRefresh, isLoadingWebsiteData]);
 
   const sections = [
-    { id: "hero", titleEn: "Hero Section", titleAr: "القسم الرئيسي", maxImages: 5, hasLogo: true },
+    { id: "hero", titleEn: "Hero Section", titleAr: "القسم الرئيسي", maxImages: 10, hasLogo: true },
     { id: "about", titleEn: "About Strip", titleAr: "شريط عنا", maxImages: 1 },
     {
       id: "education",
