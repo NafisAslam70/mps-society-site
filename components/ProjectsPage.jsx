@@ -291,9 +291,27 @@ export default function ProjectsPage() {
                   transition={{ duration: 0.5 }}
                   className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-6 border border-gray-100/50"
                 >
-                  <h2 className={`text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 text-center ${isAr ? "font-arabic" : ""}`}>
-                    {isAr ? localProjectData[category].titleAr : localProjectData[category].titleEn}
-                  </h2>
+                  <div className="relative flex items-center justify-between">
+                    <motion.button
+                      onClick={() => handlePrev(category)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-teal-600/50 text-white p-2 rounded-full shadow-md hover:bg-teal-600/70 transition-all duration-300 z-10"
+                      whileHover={{ scale: 1.2, rotate: -10 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <FaArrowLeft />
+                    </motion.button>
+                    <h2 className={`text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 text-center flex-1 ${isAr ? "font-arabic" : ""}`}>
+                      {isAr ? localProjectData[category].titleAr : localProjectData[category].titleEn}
+                    </h2>
+                    <motion.button
+                      onClick={() => handleNext(category)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-teal-600/50 text-white p-2 rounded-full shadow-md hover:bg-teal-600/70 transition-all duration-300 z-10"
+                      whileHover={{ scale: 1.2, rotate: 10 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <FaArrowRight />
+                    </motion.button>
+                  </div>
                   <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center mt-2 mb-6">
                     {isAr ? localProjectData[category].descriptionAr : localProjectData[category].descriptionEn}
                   </p>
@@ -361,30 +379,16 @@ export default function ProjectsPage() {
                           <p className="text-sm text-gray-500">
                             <strong>{isAr ? "المكان" : "Venue"}:</strong> {localProjectData[category].projects[carouselIndices[category]]?.venue}
                           </p>
-                          <Link
-                            href={isAr ? "/ar/donate" : "/donate"}
-                            className="mt-4 inline-block px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300"
-                          >
-                            {isAr ? "دعم المشروع" : "Support Project"}
-                          </Link>
+                          <div className="flex justify-center mt-4">
+                            <Link
+                              href={isAr ? "/ar/donate" : "/donate"}
+                              className="px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 text-center"
+                            >
+                              {isAr ? "دعم المشروع" : "Support Project"}
+                            </Link>
+                          </div>
                         </div>
                       </motion.div>
-                      <motion.button
-                        onClick={() => handlePrev(category)}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-3 rounded-full shadow-md hover:shadow-lg"
-                        whileHover={{ scale: 1.2, rotate: -10 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <FaArrowLeft />
-                      </motion.button>
-                      <motion.button
-                        onClick={() => handleNext(category)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-3 rounded-full shadow-md hover:shadow-lg"
-                        whileHover={{ scale: 1.2, rotate: 10 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <FaArrowRight />
-                      </motion.button>
                     </div>
                   )}
                 </motion.div>
