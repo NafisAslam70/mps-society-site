@@ -225,6 +225,20 @@ export function AppProvider({ children }) {
       descriptionAr: "تقديم المساعدات الغذائية للمجتمعات المحتاجة.",
       projects: [],
     },
+    ramadan: {
+      titleEn: "Ramadan Distributions",
+      titleAr: "توزيعات رمضان",
+      descriptionEn: "Delivering Ramadan-specific aid and meals.",
+      descriptionAr: "تقديم المساعدات والوجبات الخاصة برمضان.",
+      projects: [],
+    },
+    waterTanks: {
+      titleEn: "Water Tanks",
+      titleAr: "خزانات المياه",
+      descriptionEn: "Supplying clean water through storage solutions.",
+      descriptionAr: "توفير المياه النظيفة عبر الخزانات.",
+      projects: [],
+    },
     education: {
       titleEn: "Education Initiatives",
       titleAr: "مبادرات التعليم",

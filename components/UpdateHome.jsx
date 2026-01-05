@@ -6,7 +6,7 @@ import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 
 // Maximum file size limit: 1MB
-const MAX_SIZE = 1024 * 1024; // 1MB in bytes
+const MAX_SIZE = 5 * 1024 * 1024; // 1MB in bytes
 const VALID_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
 const UpdateHome = ({ setView }) => {

@@ -32,6 +32,8 @@ export async function GET(req) {
     if (!isRecent) {
       const projectData = {
         food: { titleEn: "Food Distribution", titleAr: "توزيع الطعام", descriptionEn: "Providing food to those in need.", descriptionAr: "توفير الطعام للمحتاجين.", projects: [] },
+        ramadan: { titleEn: "Ramadan Distributions", titleAr: "توزيعات رمضان", descriptionEn: "Delivering Ramadan-specific aid and meals.", descriptionAr: "تقديم المساعدات والوجبات الخاصة برمضان.", projects: [] },
+        waterTanks: { titleEn: "Water Tanks", titleAr: "خزانات المياه", descriptionEn: "Supplying clean water through storage solutions.", descriptionAr: "توفير المياه النظيفة عبر الخزانات.", projects: [] },
         education: { titleEn: "Education Initiatives", titleAr: "مبادرات التعليم", descriptionEn: "Empowering communities through education.", descriptionAr: "تمكين المجتمعات من خلال التعليم.", projects: [] },
         handpumps: { titleEn: "Handpump Installations", titleAr: "تركيب المضخات اليدوية", descriptionEn: "Ensuring access to clean water.", descriptionAr: "ضمان الوصول إلى المياه النظيفة.", projects: [] },
         wells: { titleEn: "Well Construction", titleAr: "بناء الآبار", descriptionEn: "Building sustainable water sources.", descriptionAr: "بناء مصادر مياه مستدامة.", projects: [] },
