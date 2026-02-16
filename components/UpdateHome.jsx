@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 
-// Maximum file size limit: 1MB
-const MAX_SIZE = 5 * 1024 * 1024; // 1MB in bytes
+// Maximum file size limit: 20MB
+const MAX_SIZE = 20 * 1024 * 1024; // 20MB in bytes
 const VALID_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
 const UpdateHome = ({ setView }) => {
@@ -151,7 +151,7 @@ const UpdateHome = ({ setView }) => {
       return;
     }
     if (file.size > MAX_SIZE) {
-      setMessage(isAr ? "حجم الصورة كبير جدًا. الحد الأقصى 1MB." : "Image size too large. Maximum 1MB.");
+      setMessage(isAr ? "حجم الصورة كبير جدًا. الحد الأقصى 20MB." : "Image size too large. Maximum 20MB.");
       setTimeout(() => setMessage(""), 5000); // Clear message after 5 seconds
       setEditedSection((prev) => ({ ...prev, invalidImages: [{ name: file.name, src: URL.createObjectURL(file) }] }));
       return;

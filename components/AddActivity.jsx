@@ -47,10 +47,10 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
       }
       return;
     }
-    // Validate image size (e.g., <1MB per image)
+    // Validate image size (e.g., ≤20MB per image)
     for (const file of files) {
-      if (file.size > 1 * 1024 * 1024) {
-        setImageError(isAr ? "حجم الصورة كبير جدًا (الحد الأقصى 1 ميغابايت لكل صورة)!" : "Image size too large (max 1MB per image)!");
+      if (file.size > 20 * 1024 * 1024) {
+        setImageError(isAr ? "حجم الصورة كبير جدًا (الحد الأقصى 20 ميغابايت لكل صورة)!" : "Image size too large (max 20MB per image)!");
         return;
       }
     }
