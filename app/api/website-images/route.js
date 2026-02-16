@@ -131,20 +131,24 @@ export async function PUT(request) {
 
     let updatedData = { ...currentData };
 
-    // Identify and delete old Cloudinary resources only from meed-homepage
-    const deleteOldResources = async (oldImages, oldLogo) => {
-      const oldPublicIds = (oldImages || []).map(extractPublicId).filter(id => id && id.startsWith("meed-homepage/"));
-      if (oldLogo) {
-        const logoPublicId = extractPublicId(oldLogo);
-        if (logoPublicId && logoPublicId.startsWith("meed-homepage/")) oldPublicIds.push(logoPublicId);
-      }
-      if (oldPublicIds.length > 0) {
-        console.log("Deleting old Cloudinary resources from meed-homepage:", oldPublicIds);
-        await Promise.allSettled(oldPublicIds.map(publicId => deleteFromCloudinary(publicId)));
-      } else {
-        console.log("No old Cloudinary resources to delete from meed-homepage.");
-      }
-    };
+// Identify and delete old Cloudinary resources only from meed-homepage and only if not kept
+const deleteOldResources = async (oldImages, oldLogo, newImages = [], newLogo = null) => {
+  const keepSet = new Set([...(newImages || []), newLogo].filter(Boolean));
+  const oldPublicIds = (oldImages || [])
+    .filter(url => !keepSet.has(url))
+    .map(extractPublicId)
+    .filter(id => id && id.startsWith("meed-homepage/"));
+  if (oldLogo && !keepSet.has(oldLogo)) {
+    const logoPublicId = extractPublicId(oldLogo);
+    if (logoPublicId && logoPublicId.startsWith("meed-homepage/")) oldPublicIds.push(logoPublicId);
+  }
+  if (oldPublicIds.length > 0) {
+    console.log("Deleting old Cloudinary resources from meed-homepage:", oldPublicIds);
+    await Promise.allSettled(oldPublicIds.map(publicId => deleteFromCloudinary(publicId)));
+  } else {
+    console.log("No old Cloudinary resources to delete from meed-homepage.");
+  }
+};
 
     if (sectionId === "education" && subId) {
       if (!updatedData.mainPage.education[subId]) {
@@ -152,7 +156,7 @@ export async function PUT(request) {
         return NextResponse.json({ error: `Invalid sub-section ID: ${subId}` }, { status: 400 });
       }
       const oldImages = updatedData.mainPage.education[subId].images || [];
-      await deleteOldResources(oldImages, null);
+      await deleteOldResources(oldImages, null, images, null);
       console.log("Uploading images to Cloudinary for education section:", subId);
       const uploadedImages = Array.isArray(images) ? await Promise.all(images.filter(img => img && img.startsWith("data:")).map(img => uploadToCloudinary(img, `meed-homepage/education/${subId}`))) : [];
       updatedData.mainPage.education[subId] = { images: uploadedImages.length > 0 ? uploadedImages : (images || []) };
@@ -163,7 +167,7 @@ export async function PUT(request) {
     } else {
       const oldImages = updatedData.mainPage[sectionId]?.images || [];
       const oldLogo = updatedData.mainPage[sectionId]?.logo;
-      await deleteOldResources(oldImages, oldLogo);
+      await deleteOldResources(oldImages, oldLogo, images, logo);
       console.log("Uploading images to Cloudinary for section:", sectionId);
       const uploadedImages = Array.isArray(images) ? await Promise.all(images.filter(img => img && img.startsWith("data:")).map(img => uploadToCloudinary(img, `meed-homepage/${sectionId}`))) : [];
       const uploadedLogo = logo && logo.startsWith("data:") ? await uploadToCloudinary(logo, `meed-homepage/${sectionId}`) : logo;

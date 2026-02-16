@@ -9,9 +9,14 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
   const [language, setLanguage] = useState("en");
   const [translateLoading, setTranslateLoading] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    if (uploading) {
+      setImageError(isAr ? "يرجى انتظار انتهاء رفع الصور." : "Please wait for images to finish uploading.");
+      return;
+    }
     if (!formData.titleEn || !formData.titleAr || !formData.date || !formData.venue || !formData.snippetEn || !formData.snippetAr || formData.images.filter(img => img).length === 0) {
       handleChange({ target: { name: "message", value: isAr ? "يرجى ملء جميع الحقول المطلوبة وإضافة صورة واحدة على الأقل!" : "Please fill all required fields and add at least one image!" } });
       return;
@@ -38,6 +43,34 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
     handleChange({ target: { name: "images", value: formData.images.map((img, i) => i === index ? "" : img) } });
   };
 
+  const uploadFileToCloudinary = async (file, folder) => {
+    const sigRes = await fetch("/api/cloudinary-signature", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder }),
+    });
+    if (!sigRes.ok) {
+      const err = await sigRes.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to get upload signature");
+    }
+    const { signature, timestamp, apiKey, cloudName, folder: signedFolder } = await sigRes.json();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    formData.append("folder", signedFolder);
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await uploadRes.json();
+    if (!uploadRes.ok) {
+      throw new Error(data.error?.message || "Cloudinary upload failed");
+    }
+    return data.secure_url;
+  };
+
   const handleMultiFileInput = async (e) => {
     const currentImageCount = formData.images.filter(img => img).length;
     const files = Array.from(e.target.files).slice(0, 5 - currentImageCount);
@@ -56,29 +89,22 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
     }
     setImageError("");
     const imageUrls = [...formData.images];
-    for (const file of files) {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("category", formData.category);
-        const response = await fetch("/api/upload-image", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Image upload failed");
-        }
+    try {
+      setUploading(true);
+      const folder = `projects/${formData.category || "general"}`;
+      for (const file of files) {
+        const secureUrl = await uploadFileToCloudinary(file, folder);
         const emptyIndex = imageUrls.indexOf("");
         if (emptyIndex !== -1) {
-          imageUrls[emptyIndex] = data.secure_url;
+          imageUrls[emptyIndex] = secureUrl;
         }
-      } catch (error) {
-        setImageError(isAr ? "فشل رفع الصورة: " + error.message : "Image upload failed: " + error.message);
-        return;
       }
+      handleChange({ target: { name: "images", value: imageUrls } });
+    } catch (error) {
+      setImageError(isAr ? "فشل رفع الصورة: " + error.message : "Image upload failed: " + error.message);
+    } finally {
+      setUploading(false);
     }
-    handleChange({ target: { name: "images", value: imageUrls } });
   };
 
   const handleTranslate = async () => {
@@ -426,7 +452,7 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
               multiple
               onChange={handleMultiFileInput}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-              disabled={formData.images.filter(img => img).length >= 5}
+              disabled={formData.images.filter(img => img).length >= 5 || uploading}
             />
             {imageError && (
               <p className="mt-2 text-sm text-red-600">{imageError}</p>
@@ -457,7 +483,8 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              className="w-full sm:w-64 px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-lg hover:from-emerald-700 hover:to-teal-800 transition-all duration-300 font-medium text-sm shadow-md hover:shadow-lg"
+              disabled={uploading}
+              className={`w-full sm:w-64 px-6 py-2 text-white rounded-lg transition-all duration-300 font-medium text-sm shadow-md hover:shadow-lg ${uploading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800"}`}
             >
               {isAr ? "إضافة النشاط" : "Add Activity"}
             </button>

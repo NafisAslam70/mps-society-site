@@ -19,6 +19,7 @@ const UpdateHome = ({ setView }) => {
   const [pendingChanges, setPendingChanges] = useState({});
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [saveProgress, setSaveProgress] = useState({ current: "", total: 0, completed: 0, error: null });
   const [showProgressModal, setShowProgressModal] = useState(false);
@@ -99,73 +100,108 @@ const UpdateHome = ({ setView }) => {
     });
   };
 
-  const handleImageChange = (e) => {
+  const uploadFileToCloudinary = async (file, folder) => {
+    const sigRes = await fetch("/api/cloudinary-signature", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder }),
+    });
+    if (!sigRes.ok) {
+      const err = await sigRes.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to get upload signature");
+    }
+    const { signature, timestamp, apiKey, cloudName, folder: signedFolder } = await sigRes.json();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    formData.append("folder", signedFolder);
+
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await uploadRes.json();
+    if (!uploadRes.ok) {
+      throw new Error(data.error?.message || "Cloudinary upload failed");
+    }
+    return data.secure_url;
+  };
+
+  const handleImageChange = async (e) => {
     const maxImages = selectedSection.maxImages || 5;
-    const files = Array.from(e.target.files).slice(0, maxImages - (editedSection.images.filter(img => img && img.startsWith("data:")).length || 0));
+    const files = Array.from(e.target.files).slice(0, maxImages - (editedSection.images.length || 0));
     if (files.length === 0) return;
 
     const invalidFiles = [];
-    const readers = files.map((file) => {
-      if (!VALID_TYPES.includes(file.type)) {
+    const validFiles = [];
+    files.forEach((file) => {
+      if (!VALID_TYPES.includes(file.type) || file.size > MAX_SIZE) {
         invalidFiles.push(file.name);
-        return Promise.resolve(null);
+      } else {
+        validFiles.push(file);
       }
-      if (file.size > MAX_SIZE) {
-        invalidFiles.push(file.name);
-        return Promise.resolve(null);
-      }
-      const reader = new FileReader();
-      return new Promise((resolve) => {
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
     });
 
-    Promise.all(readers).then((results) => {
-      const validResults = results.filter(result => result && result.startsWith("data:"));
-      if (validResults.length === 0 && invalidFiles.length > 0) {
-        setMessage(isAr ? `الملفات غير صالحة: ${invalidFiles.join(", ")}` : `Invalid files: ${invalidFiles.join(", ")}`);
-        setTimeout(() => setMessage(""), 5000); // Clear message after 5 seconds
-        return;
-      }
+    if (invalidFiles.length) {
+      setMessage(isAr ? `تم رفض الملفات غير صالحة أو كبيرة: ${invalidFiles.join(", ")}` : `Rejected invalid/large files: ${invalidFiles.join(", ")}`);
+      setTimeout(() => setMessage(""), 5000);
+    }
+    if (validFiles.length === 0) return;
+
+    try {
+      setIsUploading(true);
+      const folder = selectedSection.id === "education" && selectedSubSection
+        ? `meed-homepage/education/${selectedSubSection.id}`
+        : `meed-homepage/${selectedSection.id}`;
+      const uploads = await Promise.all(validFiles.map((file) => uploadFileToCloudinary(file, folder)));
       setEditedSection((prev) => ({
         ...prev,
-        images: selectedSection.id === "about" ? [validResults[0] || null] : [...prev.images, ...validResults].slice(0, maxImages),
-        invalidImages: [...prev.invalidImages, ...invalidFiles.map(name => ({ name, src: URL.createObjectURL(e.target.files[files.findIndex(f => f.name === name)]) }))],
+        images: selectedSection.id === "about"
+          ? [uploads[0] || null]
+          : [...prev.images, ...uploads].slice(0, maxImages),
       }));
-      if (invalidFiles.length > 0) {
-        setMessage(isAr ? `تم رفض الملفات غير صالحة: ${invalidFiles.join(", ")}` : `Rejected invalid files: ${invalidFiles.join(", ")}`);
-        setTimeout(() => setMessage(""), 5000); // Clear message after 5 seconds
-      }
-    });
+    } catch (error) {
+      console.error("Image upload error:", error);
+      setMessage(isAr ? `فشل رفع الصورة: ${error.message}` : `Image upload failed: ${error.message}`);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleLogoChange = (e) => {
+  const handleLogoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!VALID_TYPES.includes(file.type)) {
       setMessage(isAr ? "تنسيق الصورة غير مدعوم. استخدم .png أو .jpg أو .jpeg أو .webp." : "Unsupported image format. Use .png, .jpg, .jpeg, or .webp.");
-      setTimeout(() => setMessage(""), 5000); // Clear message after 5 seconds
-      setEditedSection((prev) => ({ ...prev, invalidImages: [{ name: file.name, src: URL.createObjectURL(file) }] }));
+      setTimeout(() => setMessage(""), 5000);
       return;
     }
     if (file.size > MAX_SIZE) {
       setMessage(isAr ? "حجم الصورة كبير جدًا. الحد الأقصى 20MB." : "Image size too large. Maximum 20MB.");
-      setTimeout(() => setMessage(""), 5000); // Clear message after 5 seconds
-      setEditedSection((prev) => ({ ...prev, invalidImages: [{ name: file.name, src: URL.createObjectURL(file) }] }));
+      setTimeout(() => setMessage(""), 5000);
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
+    try {
+      setIsUploading(true);
+      const folder = "meed-homepage/hero";
+      const uploadedUrl = await uploadFileToCloudinary(file, folder);
       setEditedSection((prev) => ({
         ...prev,
-        logo: reader.result,
+        logo: uploadedUrl,
         invalidImages: [],
       }));
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Logo upload error:", error);
+      setMessage(isAr ? `فشل رفع الشعار: ${error.message}` : `Logo upload failed: ${error.message}`);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleVideoChange = (index, value) => {
@@ -457,7 +493,7 @@ const UpdateHome = ({ setView }) => {
             <button
               onClick={handleApplyChanges}
               className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 text-base font-semibold disabled:opacity-50"
-              disabled={isSaving || Object.keys(pendingChanges).length === 0}
+              disabled={isSaving || isUploading || Object.keys(pendingChanges).length === 0}
             >
               {isSaving ? (
                 <svg
@@ -517,7 +553,7 @@ const UpdateHome = ({ setView }) => {
                             onChange={(e) => setNewVideoUrl(e.target.value)}
                             placeholder="https://www.youtube.com/embed/VIDEO_ID"
                             className="w-full p-2 border border-teal-200 rounded-lg"
-                            disabled={isSaving}
+                            disabled={isSaving || isUploading}
                           />
                           <button
                             onClick={handleAddVideo}
@@ -566,7 +602,7 @@ const UpdateHome = ({ setView }) => {
                             accept="image/*"
                             onChange={handleImageChange}
                             className="w-full p-2 border border-teal-200 rounded-lg"
-                            disabled={isSaving}
+                            disabled={isSaving || isUploading}
                           />
                         </div>
                       ) : (
@@ -580,7 +616,7 @@ const UpdateHome = ({ setView }) => {
                             multiple
                             onChange={handleImageChange}
                             className="w-full p-2 border border-teal-200 rounded-lg"
-                            disabled={isSaving}
+                            disabled={isSaving || isUploading}
                           />
                         </div>
                       )}
@@ -727,7 +763,7 @@ const UpdateHome = ({ setView }) => {
                         setNewVideoUrl("");
                       }}
                       className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 text-sm font-medium"
-                      disabled={isSaving}
+                      disabled={isSaving || isUploading}
                     >
                       {isAr ? "إلغاء" : "Cancel"}
                     </button>
