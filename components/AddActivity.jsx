@@ -80,13 +80,7 @@ const AddActivity = memo(({ setView, formData, message = "", dragOverIndex, hand
       }
       return;
     }
-    // Validate image size (e.g., ≤20MB per image)
-    for (const file of files) {
-      if (file.size > 20 * 1024 * 1024) {
-        setImageError(isAr ? "حجم الصورة كبير جدًا (الحد الأقصى 20 ميغابايت لكل صورة)!" : "Image size too large (max 20MB per image)!");
-        return;
-      }
-    }
+    // No client-side size cap (Cloudinary/account may still enforce limits)
     setImageError("");
     const imageUrls = [...formData.images];
     try {

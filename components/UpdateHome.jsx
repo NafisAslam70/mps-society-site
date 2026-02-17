@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 
-// Maximum file size limit: 20MB
-const MAX_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+// No client-side size cap (Cloudinary/account may still enforce limits)
+const MAX_SIZE = Infinity;
 const VALID_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
 
 const UpdateHome = ({ setView }) => {
@@ -137,7 +137,7 @@ const UpdateHome = ({ setView }) => {
     const invalidFiles = [];
     const validFiles = [];
     files.forEach((file) => {
-      if (!VALID_TYPES.includes(file.type) || file.size > MAX_SIZE) {
+      if (!VALID_TYPES.includes(file.type)) {
         invalidFiles.push(file.name);
       } else {
         validFiles.push(file);
@@ -180,12 +180,6 @@ const UpdateHome = ({ setView }) => {
       setTimeout(() => setMessage(""), 5000);
       return;
     }
-    if (file.size > MAX_SIZE) {
-      setMessage(isAr ? "حجم الصورة كبير جدًا. الحد الأقصى 20MB." : "Image size too large. Maximum 20MB.");
-      setTimeout(() => setMessage(""), 5000);
-      return;
-    }
-
     try {
       setIsUploading(true);
       const folder = "meed-homepage/hero";
@@ -322,19 +316,16 @@ const UpdateHome = ({ setView }) => {
               pageId: "mainPage",
               sectionId,
               subId,
-              images: subData.images,
+              images: subData.images, // already Cloudinary URLs
             });
           }
         } else {
-          const section = sections.find(s => s.id === sectionId);
-          const newImages = sectionData.images.filter(img => img && img.startsWith("data:"));
-          const newLogo = sectionId === "hero" && sectionData.logo && sectionData.logo.startsWith("data:") ? sectionData.logo : null;
           payload.push({
             pageId: "mainPage",
             sectionId,
-            images: newImages.length > 0 ? newImages : sectionData.images,
+            images: sectionData.images, // already Cloudinary URLs
             videos: sectionId === "video" ? sectionData.videos : undefined,
-            ...(sectionId === "hero" && { logo: newLogo }),
+            ...(sectionId === "hero" && { logo: sectionData.logo }), // preserve logo URL
           });
         }
 
