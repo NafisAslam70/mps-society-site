@@ -227,7 +227,7 @@ export default function HeroSection() {
       : "Our mission since 2007: empower through education, water, and community. Support our goals with a donation today!",
     cta: isAr ? "تبرع الآن" : "Donate Now",
     href: isAr ? "/ar/donate" : "/donate",
-    logo: "/logo.png",
+    logo: websiteData.mainPage?.hero?.logo || "/logo.png",
   };
 
   const [slides, setSlides] = useState([defaultSlide]);
@@ -238,12 +238,16 @@ export default function HeroSection() {
   useEffect(() => {
     if (isInitialLoad && !isLoadingWebsiteData) {
       const dbImages = websiteData.mainPage?.hero?.images || [];
+      const heroLogo = websiteData.mainPage?.hero?.logo || defaultSlide.logo;
       const updatedSlides = dbImages.map((src, index) => ({
         ...defaultSlide,
-        src: src,
+        logo: heroLogo,
+        src,
         alt: `${isAr ? "صورة بطل" : "Hero Image"} ${index + 1}`,
       }));
-      if (updatedSlides.length === 0) updatedSlides.push(defaultSlide); // Fallback to default if no images
+      if (updatedSlides.length === 0) {
+        updatedSlides.push({ ...defaultSlide, logo: heroLogo });
+      }
       setSlides(updatedSlides);
       setIsInitialLoad(false);
     }
