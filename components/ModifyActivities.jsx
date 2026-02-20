@@ -17,6 +17,7 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
     food: { ar: "توزيع الطعام", en: "Food Distribution" },
     ramadan: { ar: "توزيعات رمضان", en: "Ramadan Distributions" },
     waterTanks: { ar: "خزانات المياه", en: "Water Tanks" },
+    handpump: { ar: "مضخة يدوية", en: "Handpump" },
     education: { ar: "مبادرات التعليم", en: "Education Initiatives" },
     handpumps: { ar: "تركيب المضخات اليدوية", en: "Handpump Installations" },
     wells: { ar: "بناء الآبار", en: "Well Construction" },

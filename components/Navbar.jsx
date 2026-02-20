@@ -173,9 +173,9 @@ export default function Navbar() {
           disabled={isAdminLoggedIn}
           suppressHydrationWarning
         >
-          <img src="/logo.png" alt="MEED Public School Society Logo" className="h-8 w-auto" />
+        <img src="/logo.png" alt="MPS Society Logo" className="h-8 w-auto" />
           <span className="text-base sm:text-lg font-semibold text-green-700 md:text-lg">
-            {isAr ? "جمعية ميد للمدرسة العامة" : isMobile ? "MPS Society" : "MEED Public School Society"}
+            {isAr ? "جمعية ميد للمدرسة العامة" : "MPS Society"}
           </span>
         </button>
 

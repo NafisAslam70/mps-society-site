@@ -269,6 +269,19 @@ export default function HeroSection() {
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-t from-gray-400 via-gray-500 to-white select-none">
+        {/* Society logo badge */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-emerald-100">
+          <Image
+            src={slides[cur]?.logo || "/logo.png"}
+            alt="Meed Development Society Logo"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
+          />
+          <span className={`text-sm sm:text-base font-semibold text-emerald-800 ${isAr ? "font-arabic" : ""}`}>
+            {isAr ? "جمعية ميد للتنمية" : "Meed Development Society"}
+          </span>
+        </div>
         <AnimatePresence>
           {slides.map((s, i) => (
             <motion.div

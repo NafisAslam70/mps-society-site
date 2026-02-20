@@ -225,6 +225,13 @@ export function AppProvider({ children }) {
       descriptionAr: "تقديم المساعدات الغذائية للمجتمعات المحتاجة.",
       projects: [],
     },
+    handpump: {
+      titleEn: "Handpump",
+      titleAr: "مضخة يدوية",
+      descriptionEn: "Single handpump initiatives.",
+      descriptionAr: "مبادرات مضخة يدوية مفردة.",
+      projects: [],
+    },
     ramadan: {
       titleEn: "Ramadan Distributions",
       titleAr: "توزيعات رمضان",

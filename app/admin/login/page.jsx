@@ -32,7 +32,7 @@
           <div className="flex justify-center mb-6">
             <motion.img
               src="/logo.png"
-              alt="MEED Public School Society Logo"
+                alt="MPS Society Logo"
               className="h-16 w-auto"
               initial={{ rotate: -10 }}
               animate={{ rotate: 0 }}

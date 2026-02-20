@@ -149,6 +149,7 @@ export default function DonatePage() {
       ? "لتبرعات من الخارج، انتقل للأسفل..."
       : "For abroad payment scroll down...",
     donationDetails: isAr ? "تفاصيل التبرع" : "Donation Details",
+    foreignCta: isAr ? "تبرعات الخارج" : "Foreign Donations",
     presidentMessage: isAr
       ? "أدعوكم باسم جمعية ميد العامة للمدارس لدعم مهمتنا في تمكين المجتمعات من خلال التعليم والمياه النظيفة. تبرعاتكم ستمكننا من بناء المدارس، وحفر الآبار، وتعزيز التنمية المستدامة. كل مساهمة، مهما كانت صغيرة، تحدث فرقًا كبيرًا. انضموا إلينا لخلق مستقبل أفضل للأجيال القادمة. معًا، يمكننا تحقيق تغيير دائم. شكرًا على دعمكم السخي!"
       : "On behalf of Meed Public School Society, I invite you to support our mission to empower communities through education and clean water. Your donations will help us build schools, dig wells, and foster sustainable development. Every contribution, no matter how small, makes a significant impact. Join us in creating a brighter future for generations to come. Together, we can achieve lasting change. Thank you for your generous support!",
@@ -254,6 +255,12 @@ export default function DonatePage() {
               <Link href="#donate" className="bg-amber-600 text-white px-5 py-2 rounded-full font-semibold text-sm sm:text-base md:text-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
                 {t.quickPay}
               </Link>
+              <Link
+                href="#banking"
+                className="bg-white/90 text-emerald-800 px-5 py-2 rounded-full font-semibold text-sm sm:text-base md:text-lg border border-emerald-200 hover:border-emerald-400 transition-colors whitespace-nowrap"
+              >
+                {t.foreignCta}
+              </Link>
             </motion.div>
             <motion.div
               className="absolute w-64 h-64 bg-black-200/30 rounded-full opacity-20 blur-3xl top-12 left-6"
@@ -296,13 +303,13 @@ export default function DonatePage() {
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-800 mb-1 sm:mb-2">
                 {t.donateNow}
               </h2>
-              <div className="relative min-h-[1.5rem]">
+              <Link href="#banking" className="relative min-h-[1.5rem] inline-block group">
                 <TypingCycleText
                   text={t.forAbroadPayment}
-                  className="text-xs sm:text-sm md:text-base text-gray-500 inline-block"
+                  className="text-xs sm:text-sm md:text-base text-white/80 group-hover:text-white inline-block transition-colors"
                 />
-                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-b-2 border-gray-500 w-12 sm:w-16 animate-pulse"></span>
-              </div>
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-b-2 border-amber-400 w-12 sm:w-16 animate-pulse group-hover:border-amber-300"></span>
+              </Link>
             </div>
             <div className="w-full sm:w-1/3 text-center">
               <Link

@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowLeft, FaArrowRight, FaStar } from "react-icons/fa";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { useAppContext } from "@/context/AppContext";
 
 // Default project data structure
@@ -12,6 +13,7 @@ const defaultProjectData = {
   food: { titleEn: "Food Distribution", titleAr: "توزيع الطعام", descriptionEn: "Providing food to those in need.", descriptionAr: "توفير الطعام للمحتاجين.", projects: [] },
   ramadan: { titleEn: "Ramadan Distributions", titleAr: "توزيعات رمضان", descriptionEn: "Delivering Ramadan-specific aid and meals.", descriptionAr: "تقديم المساعدات والوجبات الخاصة برمضان.", projects: [] },
   waterTanks: { titleEn: "Water Tanks", titleAr: "خزانات المياه", descriptionEn: "Supplying clean water through storage solutions.", descriptionAr: "توفير المياه النظيفة عبر الخزانات.", projects: [] },
+  handpump: { titleEn: "Handpump", titleAr: "مضخة يدوية", descriptionEn: "Single handpump initiatives.", descriptionAr: "مبادرات مضخة يدوية مفردة.", projects: [] },
   education: { titleEn: "Education Initiatives", titleAr: "مبادرات التعليم", descriptionEn: "Empowering communities through education.", descriptionAr: "تمكين المجتمعات من خلال التعليم.", projects: [] },
   handpumps: { titleEn: "Handpump Installations", titleAr: "تركيب المضخات اليدوية", descriptionEn: "Ensuring access to clean water.", descriptionAr: "ضمان الوصول إلى المياه النظيفة.", projects: [] },
   wells: { titleEn: "Well Construction", titleAr: "بناء الآبار", descriptionEn: "Building sustainable water sources.", descriptionAr: "بناء مصادر مياه مستدامة.", projects: [] },
@@ -42,6 +44,7 @@ export default function ProjectsPage() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [detailProject, setDetailProject] = useState(null);
   const [detailImageIndex, setDetailImageIndex] = useState(0);
+  const [showAllModal, setShowAllModal] = useState(false);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
 
@@ -147,16 +150,17 @@ export default function ProjectsPage() {
     console.log(`Dot clicked: ${category}, image index ${imageIndex}`);
   };
 
-  const handleNext = (category) => {
+  const handleNext = (category, projectsOverride = null) => {
     setIsAutoScrolling(false);
     setImageIndices((prev) => {
-      const currentProject = localProjectData[category]?.projects[carouselIndices[category]];
+      const sourceProjects = projectsOverride || localProjectData[category]?.projects || [];
+      const currentProject = sourceProjects[carouselIndices[category]] || sourceProjects[0];
       const totalImages = currentProject?.images?.length || 1;
       const currentImageIndex = prev[category] || 0;
       const nextImageIndex = currentImageIndex + 1;
 
       if (nextImageIndex >= totalImages) {
-        const totalProjects = localProjectData[category]?.projects.length || 1;
+        const totalProjects = sourceProjects.length || 1;
         const nextProjectIndex = (carouselIndices[category] + 1) % totalProjects;
         setCarouselIndices((prevCarousel) => ({
           ...prevCarousel,
@@ -171,16 +175,35 @@ export default function ProjectsPage() {
     });
   };
 
-  const handlePrev = (category) => {
+  const handleProjectNextOnly = (category, totalProjects) => {
+    setIsAutoScrolling(false);
+    setCarouselIndices((prev) => {
+      const nextIndex = ((prev[category] || 0) + 1) % totalProjects;
+      return { ...prev, [category]: nextIndex };
+    });
+    setImageIndices((prev) => ({ ...prev, [category]: 0 }));
+  };
+
+  const handleProjectPrevOnly = (category, totalProjects) => {
+    setIsAutoScrolling(false);
+    setCarouselIndices((prev) => {
+      const prevIndex = (prev[category] - 1 + totalProjects) % totalProjects;
+      return { ...prev, [category]: prevIndex };
+    });
+    setImageIndices((prev) => ({ ...prev, [category]: 0 }));
+  };
+
+  const handlePrev = (category, projectsOverride = null) => {
     setIsAutoScrolling(false);
     setImageIndices((prev) => {
+      const sourceProjects = projectsOverride || localProjectData[category]?.projects || [];
       const currentImageIndex = prev[category] || 0;
       const prevImageIndex = currentImageIndex - 1;
 
       if (prevImageIndex < 0) {
-        const totalProjects = localProjectData[category]?.projects.length || 1;
+        const totalProjects = sourceProjects.length || 1;
         const prevProjectIndex = (carouselIndices[category] - 1 + totalProjects) % totalProjects;
-        const newProject = localProjectData[category]?.projects[prevProjectIndex];
+        const newProject = sourceProjects[prevProjectIndex];
         const newImageIndex = (newProject?.images?.length || 1) - 1;
         setCarouselIndices((prevCarousel) => ({
           ...prevCarousel,
@@ -242,7 +265,7 @@ export default function ProjectsPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="text-center mb-8 relative z-10"
       >
-        <h1 className={`text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 ${isAr ? "font-arabic" : "font-sans"} tracking-tight`}>
+        <h1 className={`text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-500 ${isAr ? "font-arabic" : "font-sans"} tracking-tight drop-shadow-sm`}>
           {isAr ? "مشاريعنا" : "Our Projects"}
         </h1>
         <p className="max-w-2xl mx-auto mt-3 text-base md:text-lg text-gray-600 leading-relaxed">
@@ -250,6 +273,17 @@ export default function ProjectsPage() {
             ? "استكشف مجموعتنا المتنوعة من المشاريع التي تهدف إلى رفع مستوى المجتمعات من خلال التعليم، والمياه، والتنمية الاجتماعية."
             : "Explore our diverse range of projects aimed at uplifting communities through education, water access, and social development."}
         </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {[
+            isAr ? "صدقة جارية مضمونة الأثر" : "Sadaqah Jariyah Impact",
+            isAr ? "صديقة للزكاة*" : "Zakat-friendly*",
+            isAr ? "شفافية 100% في التتبع" : "100% Transparency",
+          ].map((label) => (
+            <span key={label} className="px-3 py-1 rounded-full text-xs md:text-sm bg-white/80 border border-emerald-200 text-emerald-800 shadow-sm">
+              {label}
+            </span>
+          ))}
+        </div>
       </motion.div>
 
       {isLoadingProjects ? (
@@ -276,8 +310,8 @@ export default function ProjectsPage() {
                 }}
                 className={`px-5 py-2 rounded-full font-medium text-sm transition-all duration-300 backdrop-blur-md border border-transparent ${
                   activeCategory === category
-                    ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md"
-                    : "bg-white/70 text-gray-700 hover:bg-white/90 hover:border-teal-300"
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-100"
+                    : "bg-white/80 text-gray-700 hover:bg-white/90 hover:border-emerald-200"
                 }`}
                 whileHover={{ scale: 1.05, boxShadow: "0 4px 15px rgba(0, 128, 128, 0.2)" }}
                 whileTap={{ scale: 0.95 }}
@@ -333,7 +367,7 @@ export default function ProjectsPage() {
                 >
                   <div className="relative flex items-center justify-between">
                     <motion.button
-                      onClick={() => handlePrev(category)}
+                      onClick={() => handlePrev(category, projects)}
                       className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-teal-600/50 text-white p-2 rounded-full shadow-md hover:bg-teal-600/70 transition-all duration-300 z-10"
                       whileHover={{ scale: 1.2, rotate: -10 }}
                       whileTap={{ scale: 0.9 }}
@@ -344,13 +378,29 @@ export default function ProjectsPage() {
                       {isAr ? localProjectData[category].titleAr : localProjectData[category].titleEn}
                     </h2>
                     <motion.button
-                      onClick={() => handleNext(category)}
+                      onClick={() => handleNext(category, projects)}
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-teal-600/50 text-white p-2 rounded-full shadow-md hover:bg-teal-600/70 transition-all duration-300 z-10"
                       whileHover={{ scale: 1.2, rotate: 10 }}
                       whileTap={{ scale: 0.9 }}
                     >
                       <FaArrowRight />
                     </motion.button>
+                  </div>
+                  <div className="flex justify-center gap-3 mt-2">
+                    <button
+                      onClick={() => handleProjectPrevOnly(category, projects.length)}
+                      className="px-3 py-1 text-sm border border-emerald-500 text-emerald-700 rounded-full hover:bg-emerald-50 transition-all"
+                      disabled={projects.length === 0}
+                    >
+                      {isAr ? "المشروع السابق" : "Prev Project"}
+                    </button>
+                    <button
+                      onClick={() => handleProjectNextOnly(category, projects.length)}
+                      className="px-3 py-1 text-sm border border-emerald-500 text-emerald-700 rounded-full hover:bg-emerald-50 transition-all"
+                      disabled={projects.length === 0}
+                    >
+                      {isAr ? "المشروع التالي" : "Next Project"}
+                    </button>
                   </div>
                   <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center mt-2 mb-6">
                     {isAr ? localProjectData[category].descriptionAr : localProjectData[category].descriptionEn}
@@ -367,10 +417,25 @@ export default function ProjectsPage() {
                     </p>
                   ) : (
                     <div
-                      className="relative"
+                      className="relative bg-white/90 rounded-2xl border border-emerald-50 shadow-[0_8px_30px_rgba(16,185,129,0.12)] p-4"
                       onMouseEnter={() => setIsAutoScrolling(false)}
                       onMouseLeave={() => setIsAutoScrolling(true)}
                     >
+                      {/* Project-level nav arrows (different styling) */}
+                      <button
+                        onClick={() => handleProjectPrevOnly(category, projects.length)}
+                        className="hidden md:flex absolute left-[-18px] top-1/2 -translate-y-1/2 text-emerald-700 border border-emerald-300/70 w-10 h-10 rounded-full bg-transparent hover:border-emerald-500 hover:text-emerald-800 transition-all backdrop-blur-sm"
+                        aria-label={isAr ? "المشروع السابق" : "Previous project"}
+                      >
+                        <FiArrowLeft className="mx-auto text-lg" />
+                      </button>
+                      <button
+                        onClick={() => handleProjectNextOnly(category, projects.length)}
+                        className="hidden md:flex absolute right-[-18px] top-1/2 -translate-y-1/2 text-emerald-700 border border-emerald-300/70 w-10 h-10 rounded-full bg-transparent hover:border-emerald-500 hover:text-emerald-800 transition-all backdrop-blur-sm"
+                        aria-label={isAr ? "المشروع التالي" : "Next project"}
+                      >
+                        <FiArrowRight className="mx-auto text-lg" />
+                      </button>
                       <motion.div
                         key={`${category}-${carouselIndices[category]}`}
                         initial={{ opacity: 0, y: 20 }}
@@ -411,6 +476,23 @@ export default function ProjectsPage() {
                               />
                             ))}
                           </div>
+                          {/* mobile project nav buttons */}
+                          <div className="mt-3 flex justify-between gap-2 md:hidden">
+                            <button
+                              onClick={() => handleProjectPrevOnly(category, projects.length)}
+                              className="flex-1 px-3 py-2 text-xs md:text-sm bg-white/90 border border-emerald-100 text-emerald-700 rounded-lg shadow-sm hover:border-emerald-300 transition-all disabled:opacity-50"
+                              disabled={projects.length === 0}
+                            >
+                              {isAr ? "المشروع السابق" : "Prev Project"}
+                            </button>
+                            <button
+                              onClick={() => handleProjectNextOnly(category, projects.length)}
+                              className="flex-1 px-3 py-2 text-xs md:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50"
+                              disabled={projects.length === 0}
+                            >
+                              {isAr ? "المشروع التالي" : "Next Project"}
+                            </button>
+                          </div>
                         </div>
                         <div className="md:w-1/2 flex flex-col justify-center">
                           <h3 className="text-xl md:text-2xl font-semibold text-gray-900">
@@ -426,6 +508,14 @@ export default function ProjectsPage() {
                             <strong>{isAr ? "المكان" : "Venue"}:</strong> {projects[currentProjectIndex]?.venue}
                           </p>
                           <div className="flex justify-center mt-4 gap-3 flex-wrap">
+                            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full">
+                              {isAr ? "صدقة جارية" : "Sadaqah Jariyah"}
+                            </span>
+                            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-100 rounded-full">
+                              {isAr ? "مؤهل للزكاة*" : "Zakat-friendly*"}
+                            </span>
+                          </div>
+                          <div className="flex justify-center mt-2 gap-3 flex-wrap">
                             <Link
                               href={isAr ? "/ar/donate" : "/donate"}
                               className="px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 text-center"
@@ -477,6 +567,28 @@ export default function ProjectsPage() {
               ))}
             </div>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl shadow-xl p-8 text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              {isAr ? "كن جزءًا من رسالتنا" : "Be a Part of the Mission"}
+            </h2>
+            <p className="text-lg md:text-xl text-emerald-50 max-w-3xl mx-auto mb-6">
+              {isAr
+                ? "سهم في الصدقة الجارية؛ كل تبرع يساعد في توفير الماء، الطعام، التعليم، وبناء المساجد للمجتمعات المحتاجة."
+                : "Give Sadaqah Jariyah—your support funds water, food, education, and mosques for communities in need."}
+            </p>
+            <Link
+              href={isAr ? "/ar/donate" : "/donate"}
+              className="inline-block px-8 py-3 bg-white text-emerald-700 font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-transform duration-200"
+            >
+              {isAr ? "تبرع الآن" : "Donate Now"}
+            </Link>
+          </motion.div>
         </div>
 
         <div className="lg:w-1/4">
@@ -521,12 +633,12 @@ export default function ProjectsPage() {
                 ))}
               </div>
             )}
-            <Link
-              href={isAr ? "/ar/projects" : "/projects"}
-              className="mt-6 block text-center px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300"
+            <button
+              onClick={() => setShowAllModal(true)}
+              className="mt-6 w-full text-center px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300"
             >
               {isAr ? "عرض المزيد" : "View More"}
-            </Link>
+            </button>
           </motion.div>
         </div>
       </div>
@@ -615,6 +727,73 @@ export default function ProjectsPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAllModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 relative max-h-[80vh] overflow-y-auto">
+            <button
+              onClick={() => setShowAllModal(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+            >
+              ✕
+            </button>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+              {isAr ? "جميع المشاريع حسب الفئة" : "All Projects by Category"}
+            </h3>
+            <div className="space-y-6">
+              {Object.entries(localProjectData).map(([cat, data]) => (
+                <div key={cat} className="border border-gray-100 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xl font-semibold text-emerald-700">
+                      {isAr ? data.titleAr : data.titleEn}
+                    </h4>
+                    <span className="text-sm text-gray-500">{data.projects?.length || 0} {isAr ? "مشروع" : "projects"}</span>
+                  </div>
+                  {(!data.projects || data.projects.length === 0) ? (
+                    <p className="text-gray-500 text-sm">{isAr ? "لا توجد مشاريع في هذه الفئة." : "No projects in this category."}</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {data.projects.map((proj) => (
+                        <div
+                          key={proj.id}
+                          className="p-3 border border-gray-200 rounded-lg hover:border-emerald-300 transition cursor-pointer flex gap-3"
+                          onClick={() => {
+                            setActiveCategory(cat);
+                            setCarouselIndices((prev) => ({ ...prev, [cat]: data.projects.findIndex((p) => p.id === proj.id) }));
+                            setImageIndices((prev) => ({ ...prev, [cat]: 0 }));
+                            setDetailProject(proj);
+                            setDetailImageIndex(0);
+                            setShowAllModal(false);
+                          }}
+                        >
+                          <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 border border-gray-200">
+                            <Image
+                              src={proj.images?.[0] || "/placeholder.png"}
+                              alt={isAr ? proj.titleAr : proj.titleEn}
+                              width={80}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-500 mb-1">{proj.date}</p>
+                            <h5 className="text-base font-semibold text-gray-900">
+                              {isAr ? proj.titleAr : proj.titleEn}
+                            </h5>
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {isAr ? proj.snippetAr : proj.snippetEn}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
