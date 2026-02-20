@@ -13,6 +13,16 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [language, setLanguage] = useState("en");
   const [translateLoading, setTranslateLoading] = useState(false);
+  const categoryLabels = {
+    food: { ar: "توزيع الطعام", en: "Food Distribution" },
+    ramadan: { ar: "توزيعات رمضان", en: "Ramadan Distributions" },
+    waterTanks: { ar: "خزانات المياه", en: "Water Tanks" },
+    education: { ar: "مبادرات التعليم", en: "Education Initiatives" },
+    handpumps: { ar: "تركيب المضخات اليدوية", en: "Handpump Installations" },
+    wells: { ar: "بناء الآبار", en: "Well Construction" },
+    mosques: { ar: "مشاريع المساجد", en: "Mosque Projects" },
+    general: { ar: "مبادرات عامة", en: "General Initiatives" },
+  };
 
   const handleEdit = (activity) => {
     console.log("Editing activity:", activity);
@@ -82,13 +92,23 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
 
       setProjectData((prev) => {
         const updatedData = { ...prev };
+        // Remove from all categories first
         Object.keys(updatedData).forEach((category) => {
           if (updatedData[category]?.projects) {
-            updatedData[category].projects = updatedData[category].projects.map((p) =>
-              p.id === editedActivity.id ? activityToSave : p
-            );
+            updatedData[category].projects = updatedData[category].projects.filter((p) => p.id !== editedActivity.id);
           }
         });
+        // Ensure target category exists
+        if (!updatedData[activityToSave.category]) {
+          updatedData[activityToSave.category] = {
+            titleEn: categoryLabels[activityToSave.category]?.en || activityToSave.category,
+            titleAr: categoryLabels[activityToSave.category]?.ar || activityToSave.category,
+            descriptionEn: "",
+            descriptionAr: "",
+            projects: [],
+          };
+        }
+        updatedData[activityToSave.category].projects = [...(updatedData[activityToSave.category].projects || []), activityToSave];
         console.log("Updated projectData:", updatedData);
         return updatedData;
       });
@@ -229,11 +249,14 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                     transition={{ duration: 0.3 }}
                     className="bg-white rounded-lg p-4 border border-gray-200 hover:bg-teal-50 transition-all duration-300"
                   >
-                    <h3 className="text-lg font-semibold text-teal-900">{isAr ? activity.titleAr : activity.titleEn}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{isAr ? activity.snippetAr : activity.snippetEn}</p>
-                    <div className="mt-2 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(activity)}
+                  <h3 className="text-lg font-semibold text-teal-900">{isAr ? activity.titleAr : activity.titleEn}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{isAr ? activity.snippetAr : activity.snippetEn}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {isAr ? "الفئة:" : "Category:"} {isAr ? categoryLabels[activity.category]?.ar || activity.category : categoryLabels[activity.category]?.en || activity.category}
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => handleEdit(activity)}
                         className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 text-sm font-medium"
                       >
                         {isAr ? "تعديل" : "Edit"}
@@ -332,6 +355,20 @@ const ModifyActivities = ({ projectData, setProjectData, isAr, setView }) => {
                     onChange={(e) => setEditedActivity({ ...editedActivity, venue: e.target.value })}
                     className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{isAr ? "الفئة" : "Category"}</label>
+                  <select
+                    value={editedActivity?.category || "food"}
+                    onChange={(e) => setEditedActivity({ ...editedActivity, category: e.target.value })}
+                    className="w-full p-2 border border-teal-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  >
+                    {Object.keys(categoryLabels).map((key) => (
+                      <option key={key} value={key}>
+                        {isAr ? categoryLabels[key].ar : categoryLabels[key].en}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Snippet (English)</label>

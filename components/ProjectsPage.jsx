@@ -38,6 +38,10 @@ export default function ProjectsPage() {
   const [recentPosts, setRecentPosts] = useState([]);
   const [recentPostsLoading, setRecentPostsLoading] = useState(true);
   const [recentPostsError, setRecentPostsError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [detailProject, setDetailProject] = useState(null);
+  const [detailImageIndex, setDetailImageIndex] = useState(0);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
 
@@ -282,10 +286,44 @@ export default function ProjectsPage() {
               </motion.button>
             ))}
           </div>
+          <div className="flex flex-wrap gap-3 mb-4 items-center">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={isAr ? "ابحث عن مشروع..." : "Search projects..."}
+              className="flex-1 min-w-[220px] px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="px-3 py-2 border border-gray-200 rounded-lg shadow-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            >
+              <option value="newest">{isAr ? "الأحدث أولاً" : "Newest first"}</option>
+              <option value="oldest">{isAr ? "الأقدم أولاً" : "Oldest first"}</option>
+            </select>
+          </div>
 
           {Object.keys(localProjectData).map(
-            (category) =>
-              activeCategory === category && (
+            (category) => {
+              if (activeCategory !== category) return null;
+
+              const projects = (localProjectData[category]?.projects || [])
+                .filter((p) => {
+                  const text = `${p.titleEn} ${p.titleAr} ${p.snippetEn} ${p.snippetAr} ${p.venue}`.toLowerCase();
+                  return text.includes(searchTerm.toLowerCase());
+                })
+                .sort((a, b) => {
+                  const da = new Date(a.date);
+                  const db = new Date(b.date);
+                  return sortOrder === "newest" ? db - da : da - db;
+                });
+
+              const hasProjects = projects.length > 0;
+              const currentProjectIndex = Math.min(carouselIndices[category] || 0, Math.max(projects.length - 1, 0));
+              const currentImageIndex = Math.min(imageIndices[category] || 0, Math.max((projects[currentProjectIndex]?.images?.length || 1) - 1, 0));
+
+              return (
                 <motion.div
                   key={category}
                   initial={{ opacity: 0, y: 20 }}
@@ -317,9 +355,15 @@ export default function ProjectsPage() {
                   <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center mt-2 mb-6">
                     {isAr ? localProjectData[category].descriptionAr : localProjectData[category].descriptionEn}
                   </p>
-                  {localProjectData[category].projects.length === 0 ? (
+                  {!hasProjects ? (
                     <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center">
-                      {isAr ? "لا توجد مشاريع متاحة في هذه الفئة بعد." : "No projects available in this category yet."}
+                      {searchTerm
+                        ? isAr
+                          ? "لا توجد نتائج مطابقة لبحثك في هذه الفئة."
+                          : "No results match your search in this category."
+                        : isAr
+                          ? "لا توجد مشاريع متاحة في هذه الفئة بعد."
+                          : "No projects available in this category yet."}
                     </p>
                   ) : (
                     <div
@@ -337,18 +381,18 @@ export default function ProjectsPage() {
                         <div className="md:w-1/2">
                           <AnimatePresence mode="wait">
                             <motion.div
-                              key={`${category}-${carouselIndices[category]}-${imageIndices[category]}`}
+                              key={`${category}-${currentProjectIndex}-${currentImageIndex}`}
                               variants={imageVariants}
                               initial="hidden"
                               animate="visible"
                               exit="exit"
                             >
                               <Image
-                                src={localProjectData[category].projects[carouselIndices[category]]?.images[imageIndices[category]] || "/placeholder.png"}
+                                src={projects[currentProjectIndex]?.images[currentImageIndex] || "/placeholder.png"}
                                 alt={
                                   isAr
-                                    ? localProjectData[category].projects[carouselIndices[category]]?.titleAr || "Project image"
-                                    : localProjectData[category].projects[carouselIndices[category]]?.titleEn || "Project image"
+                                    ? projects[currentProjectIndex]?.titleAr || "Project image"
+                                    : projects[currentProjectIndex]?.titleEn || "Project image"
                                 }
                                 width={500}
                                 height={300}
@@ -357,12 +401,12 @@ export default function ProjectsPage() {
                             </motion.div>
                           </AnimatePresence>
                           <div className="flex justify-center gap-2 mt-4">
-                            {localProjectData[category].projects[carouselIndices[category]]?.images?.map((_, index) => (
+                            {projects[currentProjectIndex]?.images?.map((_, index) => (
                               <button
                                 key={index}
                                 onClick={() => handleDotClick(category, index)}
                                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                  imageIndices[category] === index ? "bg-teal-600" : "bg-gray-300"
+                                  currentImageIndex === index ? "bg-teal-600" : "bg-gray-300"
                                 }`}
                               />
                             ))}
@@ -370,31 +414,41 @@ export default function ProjectsPage() {
                         </div>
                         <div className="md:w-1/2 flex flex-col justify-center">
                           <h3 className="text-xl md:text-2xl font-semibold text-gray-900">
-                            {isAr ? localProjectData[category].projects[carouselIndices[category]]?.titleAr : localProjectData[category].projects[carouselIndices[category]]?.titleEn}
+                            {isAr ? projects[currentProjectIndex]?.titleAr : projects[currentProjectIndex]?.titleEn}
                           </h3>
                           <p className="text-gray-600 text-sm md:text-base mt-2">
-                            {isAr ? localProjectData[category].projects[carouselIndices[category]]?.snippetAr : localProjectData[category].projects[carouselIndices[category]]?.snippetEn}
+                            {isAr ? projects[currentProjectIndex]?.snippetAr : projects[currentProjectIndex]?.snippetEn}
                           </p>
                           <p className="text-sm text-gray-500 mt-2">
-                            <strong>{isAr ? "التاريخ" : "Date"}:</strong> {localProjectData[category].projects[carouselIndices[category]]?.date}
+                            <strong>{isAr ? "التاريخ" : "Date"}:</strong> {projects[currentProjectIndex]?.date}
                           </p>
                           <p className="text-sm text-gray-500">
-                            <strong>{isAr ? "المكان" : "Venue"}:</strong> {localProjectData[category].projects[carouselIndices[category]]?.venue}
+                            <strong>{isAr ? "المكان" : "Venue"}:</strong> {projects[currentProjectIndex]?.venue}
                           </p>
-                          <div className="flex justify-center mt-4">
+                          <div className="flex justify-center mt-4 gap-3 flex-wrap">
                             <Link
                               href={isAr ? "/ar/donate" : "/donate"}
                               className="px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 text-center"
                             >
                               {isAr ? "دعم المشروع" : "Support Project"}
                             </Link>
+                            <button
+                              onClick={() => {
+                                setDetailProject(projects[currentProjectIndex]);
+                                setDetailImageIndex(0);
+                              }}
+                              className="px-6 py-2 border border-emerald-600 text-emerald-700 rounded-full hover:bg-emerald-50 transition-all duration-300 text-center"
+                            >
+                              {isAr ? "عرض التفاصيل" : "View details"}
+                            </button>
                           </div>
                         </div>
                       </motion.div>
                     </div>
                   )}
                 </motion.div>
-              )
+              );
+            }
           )}
 
           <motion.div
@@ -476,6 +530,95 @@ export default function ProjectsPage() {
           </motion.div>
         </div>
       </div>
+
+      {detailProject && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 relative">
+            <button
+              onClick={() => setDetailProject(null)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+            >
+              ✕
+            </button>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <div className="relative">
+                  <Image
+                    src={detailProject.images?.[detailImageIndex] || "/placeholder.png"}
+                    alt={isAr ? detailProject.titleAr : detailProject.titleEn}
+                    width={600}
+                    height={360}
+                    className="w-full h-64 md:h-80 object-cover rounded-xl shadow-md"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center">
+                    <button
+                      onClick={() =>
+                        setDetailImageIndex((prev) =>
+                          prev === 0 ? (detailProject.images?.length || 1) - 1 : prev - 1
+                        )
+                      }
+                      className="m-2 bg-white/80 rounded-full p-2 shadow hover:bg-white"
+                    >
+                      <FaArrowLeft />
+                    </button>
+                  </div>
+                  <div className="absolute inset-y-0 right-0 flex items-center">
+                    <button
+                      onClick={() =>
+                        setDetailImageIndex((prev) =>
+                          prev >= (detailProject.images?.length || 1) - 1 ? 0 : prev + 1
+                        )
+                      }
+                      className="m-2 bg-white/80 rounded-full p-2 shadow hover:bg-white"
+                    >
+                      <FaArrowRight />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {detailProject.images?.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setDetailImageIndex(idx)}
+                      className={`w-16 h-12 rounded-md overflow-hidden border ${detailImageIndex === idx ? "border-emerald-600" : "border-transparent"}`}
+                    >
+                      <Image src={img || "/placeholder.png"} alt={`thumb-${idx}`} width={80} height={60} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-2xl font-semibold text-gray-900">
+                  {isAr ? detailProject.titleAr : detailProject.titleEn}
+                </h3>
+                <p className="text-gray-700 text-sm md:text-base">
+                  {isAr ? detailProject.snippetAr : detailProject.snippetEn}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>{isAr ? "التاريخ" : "Date"}:</strong> {detailProject.date}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>{isAr ? "المكان" : "Venue"}:</strong> {detailProject.venue}
+                </p>
+                <div className="flex gap-3 mt-4">
+                  <Link
+                    href={isAr ? "/ar/donate" : "/donate"}
+                    className="px-6 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 text-center"
+                  >
+                    {isAr ? "دعم المشروع" : "Support Project"}
+                  </Link>
+                  <button
+                    onClick={() => setDetailProject(null)}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition-all duration-300"
+                  >
+                    {isAr ? "إغلاق" : "Close"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
