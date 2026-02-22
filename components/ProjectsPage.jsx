@@ -97,23 +97,71 @@ export default function ProjectsPage() {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         console.log("Fetched recent posts:", data);
-        setRecentPosts(data);
+        const filled = ensureMinimumPosts(data, localProjectData, 4);
+        setRecentPosts(filled);
         setRecentPostsError(null);
       } catch (error) {
         console.error("Error fetching recent posts:", error);
         setRecentPostsError(error.message);
         // Fallback to static recent posts
-        setRecentPosts([
+        setRecentPosts(ensureMinimumPosts([
           { id: 1, titleEn: "New Water Project Launched", titleAr: "إطلاق مشروع مياه جديد", date: "2025-01-10", snippetEn: "We launched a new handpump project in rural Assam.", snippetAr: "أطلقنا مشروع مضخات يدوية جديد في ريف آسام.", image: "/tanki1.jpeg" },
           { id: 2, titleEn: "Education Drive Success", titleAr: "نجاح حملة التعليم", date: "2024-12-20", snippetEn: "Our scholarship program empowered 50 students.", snippetAr: "مكّن برنامج المنح الدراسية 50 طالبًا.", image: "/meed2.jpg" },
           { id: 3, titleEn: "Community Iftar Event", titleAr: "حدث إفطار المجتمع", date: "2024-03-25", snippetEn: "Hosted a community Iftar for 200 families.", snippetAr: "استضفنا إفطارًا مجتمعيًا لـ 200 عائلة.", image: "/meed1.jpg" },
-        ]);
+          { id: 4, titleEn: "Mosque Rehabilitation", titleAr: "تأهيل المسجد", date: "2024-06-05", snippetEn: "Repaired and repainted a village mosque for daily prayers.", snippetAr: "تم ترميم وإعادة طلاء مسجد القرية للصلاة اليومية.", image: "/masjid2.jpeg" },
+        ], localProjectData, 4));
       } finally {
         setRecentPostsLoading(false);
       }
     };
     fetchRecentPosts();
   }, []);
+
+  // Helper to pad recent posts so the sidebar height matches main content
+  const ensureMinimumPosts = (posts, projectDataSource, min = 4) => {
+    const list = Array.isArray(posts) ? [...posts] : [];
+    if (list.length >= min) return list;
+    const extra = [];
+    Object.entries(projectDataSource || {}).forEach(([category, data]) => {
+      (data?.projects || []).forEach((p) => {
+        if (extra.length + list.length >= min) return;
+        extra.push({
+          id: `${category}-${p.id || p.titleEn}`,
+          category,
+          titleEn: p.titleEn,
+          titleAr: p.titleAr,
+          date: p.date,
+          snippetEn: p.snippetEn,
+          snippetAr: p.snippetAr,
+          images: p.images,
+        });
+      });
+    });
+    const filler = [
+      {
+        id: "filler-1",
+        category: "general",
+        titleEn: "Community Uplift",
+        titleAr: "رفع المجتمع",
+        date: "2024-01-15",
+        snippetEn: "Ongoing support for families in need.",
+        snippetAr: "دعم مستمر للأسر المحتاجة.",
+        images: ["/meed1.jpg"],
+      },
+      {
+        id: "filler-2",
+        category: "general",
+        titleEn: "Sadaqah Outreach",
+        titleAr: "حملة صدقة",
+        date: "2024-02-10",
+        snippetEn: "Direct aid delivered to remote villages.",
+        snippetAr: "تم إيصال المساعدات المباشرة إلى القرى النائية.",
+        images: ["/meed2.jpg"],
+      },
+    ];
+    const filled = list.concat(extra).concat(filler);
+    return filled.slice(0, min);
+  };
 
   useEffect(() => {
     if (!isAutoScrolling) return;

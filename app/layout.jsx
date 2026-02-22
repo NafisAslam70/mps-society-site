@@ -10,6 +10,10 @@ import ClientWrapper from "@/components/ClientWrapper"; // New client component
 export const metadata = {
   title: "Meed Public School Society",
   description: "Serving humanity through over 2000 completed social projects across India.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({ children }) {
