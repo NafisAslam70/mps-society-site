@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AccessPage() {
+function AccessVerifier() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
@@ -47,15 +47,32 @@ export default function AccessPage() {
   }, [invite, nextPath, router]);
 
   return (
+    <div className="max-w-md w-full rounded-xl bg-gray-900 border border-gray-700 p-6 text-center">
+      <h1 className="text-xl font-semibold mb-2">Verifying private link</h1>
+      {!error ? (
+        <p className="text-gray-300 text-sm">Please wait while your access is being verified.</p>
+      ) : (
+        <p className="text-red-300 text-sm">{error}</p>
+      )}
+    </div>
+  );
+}
+
+function AccessFallback() {
+  return (
+    <div className="max-w-md w-full rounded-xl bg-gray-900 border border-gray-700 p-6 text-center">
+      <h1 className="text-xl font-semibold mb-2">Verifying private link</h1>
+      <p className="text-gray-300 text-sm">Loading...</p>
+    </div>
+  );
+}
+
+export default function AccessPage() {
+  return (
     <main className="min-h-screen flex items-center justify-center bg-gray-950 text-white px-6">
-      <div className="max-w-md w-full rounded-xl bg-gray-900 border border-gray-700 p-6 text-center">
-        <h1 className="text-xl font-semibold mb-2">Verifying private link</h1>
-        {!error ? (
-          <p className="text-gray-300 text-sm">Please wait while your access is being verified.</p>
-        ) : (
-          <p className="text-red-300 text-sm">{error}</p>
-        )}
-      </div>
+      <Suspense fallback={<AccessFallback />}>
+        <AccessVerifier />
+      </Suspense>
     </main>
   );
 }
