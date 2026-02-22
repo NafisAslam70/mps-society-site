@@ -405,10 +405,13 @@ export function AppProvider({ children }) {
   }, [fetchProjects, fetchWebsiteData]);
 
   useEffect(() => {
-    if (isAdminLoggedIn && pathname !== "/admin") {
+    const onAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
+    const onAdminLogin = pathname === "/admin/login";
+
+    if (isAdminLoggedIn && onAdminLogin) {
       console.log("Redirecting logged-in admin to /admin from:", pathname);
       router.replace("/admin");
-    } else if (!isAdminLoggedIn && pathname === "/admin") {
+    } else if (!isAdminLoggedIn && onAdminRoute && !onAdminLogin) {
       console.log("Redirecting non-logged-in user to /admin/login from:", pathname);
       router.replace("/admin/login");
     }

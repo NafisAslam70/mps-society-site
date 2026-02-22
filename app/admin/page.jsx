@@ -338,6 +338,16 @@ export default function AdminPortal() {
     updateHome: <UpdateHome websiteData={websiteData} setWebsiteData={setWebsiteData} setView={setView} isAr={isAr} />,
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {
+      // Ignore logout API failure and clear client state anyway.
+    }
+    setIsAdminLoggedIn(false);
+    router.replace("/admin/login");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -346,7 +356,16 @@ export default function AdminPortal() {
       className="min-h-screen bg-gray-50 flex items-start justify-center p-4 pt-1"
     >
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-7xl h-[calc(90vh-4rem)] flex flex-col">
-        <h1 className="text-3xl font-bold text-center text-teal-900 mb-4">{isAr ? "لوحة تحكم المشرف" : "Admin Portal"}</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-teal-900">{isAr ? "لوحة تحكم المشرف" : "Admin Portal"}</h1>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
         {message && view !== "addActivity" && (
           <motion.p
             initial={{ opacity: 0 }}

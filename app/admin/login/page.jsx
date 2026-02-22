@@ -1,5 +1,5 @@
 "use client";
-  import { useState } from "react";
+  import { useEffect, useState } from "react";
   import { useRouter } from "next/navigation";
   import { motion } from "framer-motion";
   import { useAppContext } from "@/context/AppContext";
@@ -11,13 +11,39 @@
     const router = useRouter();
     const { setIsAdminLoggedIn } = useAppContext();
 
-    const handleSubmit = (e) => {
+    useEffect(() => {
+      const checkSession = async () => {
+        try {
+          const response = await fetch("/api/admin/session");
+          if (response.ok) {
+            setIsAdminLoggedIn(true);
+            router.replace("/admin");
+          }
+        } catch {
+          // Keep user on login page when session check fails.
+        }
+      };
+      checkSession();
+    }, [router, setIsAdminLoggedIn]);
+
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      if (username === "admin" && password === "admin123") {
+      setError("");
+      try {
+        const response = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          setError(data?.error || "Invalid credentials");
+          return;
+        }
         setIsAdminLoggedIn(true);
         router.push("/admin");
-      } else {
-        setError("Invalid credentials");
+      } catch {
+        setError("Unable to login right now.");
       }
     };
 

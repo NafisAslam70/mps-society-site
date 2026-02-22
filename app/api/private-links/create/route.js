@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { db } from "@/utils/db";
+import { verifyAccessToken } from "@/utils/accessToken";
 import { ensurePrivateInvitesTable, randomToken, sha256Hex } from "@/utils/privateInvites";
-
-function unauthorized(message = "Unauthorized") {
-  return NextResponse.json({ error: message }, { status: 401 });
-}
 
 export async function POST(request) {
   try {
-    const adminKey = request.headers.get("x-admin-key");
-    if (!process.env.ADMIN_LINK_KEY) {
-      return NextResponse.json({ error: "ADMIN_LINK_KEY is not configured" }, { status: 500 });
-    }
-    if (!adminKey || adminKey !== process.env.ADMIN_LINK_KEY) {
-      return unauthorized();
+    const secret = process.env.ACCESS_COOKIE_SECRET;
+    const adminToken = request.cookies.get("mpss_admin_session")?.value;
+    const adminPayload = secret && adminToken
+      ? await verifyAccessToken(adminToken, secret)
+      : null;
+    if (adminPayload?.role !== "admin") {
+      return NextResponse.json({ error: "Admin login required" }, { status: 401 });
     }
 
     const body = await request.json().catch(() => ({}));

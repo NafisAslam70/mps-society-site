@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function InviteLinksAdminPage() {
-  const [adminKey, setAdminKey] = useState("");
   const [expiresInHours, setExpiresInHours] = useState(24);
   const [note, setNote] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
@@ -20,10 +19,7 @@ export default function InviteLinksAdminPage() {
     try {
       const response = await fetch("/api/private-links/create", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": adminKey,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           expiresInMinutes: Math.max(1, Number(expiresInHours || 1)) * 60,
           note,
@@ -32,7 +28,7 @@ export default function InviteLinksAdminPage() {
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setStatus(data?.error || "Failed to create link.");
+        setStatus(data?.error || "Failed to create link. Please login again.");
         return;
       }
 
@@ -59,17 +55,6 @@ export default function InviteLinksAdminPage() {
         </div>
 
         <form onSubmit={createLink} className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium">Admin key</span>
-            <input
-              type="password"
-              value={adminKey}
-              onChange={(e) => setAdminKey(e.target.value)}
-              required
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </label>
-
           <label className="block">
             <span className="text-sm font-medium">Expires in hours</span>
             <input
