@@ -34,7 +34,34 @@ export async function middleware(request) {
 
   if (!secret) {
     return withNoIndex(
-      new NextResponse("Site is locked. Missing ACCESS_COOKIE_SECRET.", { status: 503 })
+      new NextResponse(
+        `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Access Unavailable</title>
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b1220;color:#e5e7eb;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+      .card{max-width:560px;width:100%;background:#111827;border:1px solid #374151;border-radius:14px;padding:24px}
+      h1{margin:0 0 8px;font-size:24px}
+      p{margin:0 0 14px;color:#cbd5e1;line-height:1.5}
+      .muted{font-size:12px;color:#94a3b8}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Access unavailable</h1>
+      <p>This private site is currently not configured for access verification. Please contact the administrator.</p>
+      <p class="muted">Error: ACCESS_COOKIE_SECRET is missing.</p>
+    </div>
+  </body>
+</html>`,
+        {
+          status: 503,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        }
+      )
     );
   }
 
@@ -101,10 +128,37 @@ export async function middleware(request) {
   }
 
   return withNoIndex(
-    new NextResponse("Private link required.", {
-      status: 401,
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    })
+    new NextResponse(
+      `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page Not Available</title>
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b1220;color:#e5e7eb;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+      .card{max-width:560px;width:100%;background:#111827;border:1px solid #374151;border-radius:14px;padding:24px}
+      h1{margin:0 0 8px;font-size:24px}
+      p{margin:0 0 16px;color:#cbd5e1;line-height:1.5}
+      a{display:inline-block;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600}
+      .primary{background:#0f766e;color:#ecfeff}
+      .muted{font-size:12px;color:#94a3b8;margin-top:14px}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Page Not Available</h1>
+      <p>The page you requested is not available.</p>
+      <a class="primary" href="/admin/login">Go to Login</a>
+      <p class="muted">If you believe this is an error, contact the administrator.</p>
+    </div>
+  </body>
+</html>`,
+      {
+        status: 401,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      }
+    )
   );
 }
 
