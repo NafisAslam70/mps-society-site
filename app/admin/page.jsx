@@ -257,6 +257,11 @@ const ManageSociety = memo(({ setView, setMessage }) => (
           description: "Manage website image content",
           onClick: () => setView("updateHome"),
         },
+        {
+          title: "Generate Private Link",
+          description: "Create one-user access links",
+          onClick: () => window.location.assign("/admin/invite-links"),
+        },
       ].map(({ title, description, onClick }, index) => (
         <motion.div
           key={title}
