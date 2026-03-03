@@ -140,8 +140,6 @@ export async function middleware(request) {
       .card{max-width:560px;width:100%;background:#111827;border:1px solid #374151;border-radius:14px;padding:24px}
       h1{margin:0 0 8px;font-size:24px}
       p{margin:0 0 16px;color:#cbd5e1;line-height:1.5}
-      a{display:inline-block;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600}
-      .primary{background:#0f766e;color:#ecfeff}
       .muted{font-size:12px;color:#94a3b8;margin-top:14px}
     </style>
   </head>
@@ -149,7 +147,6 @@ export async function middleware(request) {
     <div class="card">
       <h1>Page Not Available</h1>
       <p>The page you requested is not available.</p>
-      <a class="primary" href="/admin/login">Go to Login</a>
       <p class="muted">If you believe this is an error, contact the administrator.</p>
     </div>
   </body>
